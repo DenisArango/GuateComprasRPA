@@ -17,23 +17,25 @@
 
 ## 13.2 Casos de prueba principales
 
-| ID | Caso | Resultado esperado | Req. |
-|---|---|---|---|
-| CP-01 | Captura con 3 concursos nuevos en fixtures | 3 concursos, documentos guardados, 3 trabajos en cola | RF-CAP-02 a 05 |
-| CP-02 | Captura con NOG ya existente | No se duplica | RN-01 |
-| CP-03 | Documento con el mismo hash | No se vuelve a descargar | RN-02 |
-| CP-04 | Selector del buscador inexistente | Error `CAMBIO_ESTRUCTURA`, captura guardada, alerta al administrador | RF-CAP-08, RNF-08 |
-| CP-05 | Fallo de red en un concurso | Reintenta 3 veces, registra error, continúa con el siguiente | RF-CAP-09, RNF-06 |
-| CP-06 | Adenda nueva en concurso seguido | Cambio registrado, resumen de IA, alerta inmediata | RF-CAP-06, RF-NOT-03 |
-| CP-07 | Respuesta de IA con campo inválido | Reintento con errores; tras 2 fallos, `REVISION_MANUAL` | RF-IA-02, RN-06 |
-| CP-08 | PDF escaneado | Se aplica OCR y se genera ficha | RF-DOC-02 |
-| CP-09 | Perfil con todos los documentos | Faltantes vacío | RF-COM-03 |
-| CP-10 | Concurso con cierre vencido | No aparece en resumen | RN-04 |
-| CP-11 | Compatibilidad bajo el umbral | No se notifica | RN-03 |
-| CP-12 | Presupuesto de IA agotado | Trabajos pospuestos, alerta al administrador | RNF-11 |
-| CP-13 | IR-01 sobre datos de prueba | Solo se marcan procesos competitivos con 1 oferta | RF-RIE-01 |
-| CP-14 | Usuario A consulta perfil de usuario B | Acceso denegado (403) | RNF-09 |
-| CP-15 | 5 intentos de inicio de sesión fallidos | Bloqueo temporal | CU-15 |
+| ID | Caso | Resultado esperado | Req. | Criterio |
+|---|---|---|---|---|
+| CP-01 | Captura con 3 concursos nuevos en fixtures | 3 concursos, documentos guardados, 3 trabajos en cola | RF-CAP-02 a 05 | CA-01.1 |
+| CP-02 | Captura con NOG ya existente | No se duplica | RN-01 | CA-01.2 |
+| CP-03 | Documento con el mismo hash | No se vuelve a descargar | RN-02 | CA-01.3 |
+| CP-04 | Selector del buscador inexistente | Error `CAMBIO_ESTRUCTURA`, captura guardada, alerta al administrador | RF-CAP-08, RNF-08 | CA-01.6 |
+| CP-05 | Fallo de red en un concurso | Reintenta 3 veces, registra error, continúa con el siguiente | RF-CAP-09, RNF-06 | CA-01.4 |
+| CP-06 | Adenda nueva en concurso seguido | Cambio registrado, resumen de IA, alerta inmediata | RF-CAP-06, RF-NOT-03 | CA-02.1 |
+| CP-07 | Respuesta de IA con campo inválido | Reintento con errores; tras 2 fallos, `REVISION_MANUAL` | RF-IA-02, RN-06 | CA-03.5 |
+| CP-08 | PDF escaneado | Se aplica OCR y se genera ficha | RF-DOC-02 | CA-03.4 |
+| CP-09 | Perfil con todos los documentos | Faltantes vacío | RF-COM-03 | CA-04.4 |
+| CP-10 | Concurso con cierre vencido | No aparece en resumen | RN-04 | CA-05.2 |
+| CP-11 | Compatibilidad bajo el umbral | No se notifica | RN-03 | CA-05.2 |
+| CP-12 | Presupuesto de IA agotado | Trabajos pospuestos, alerta al administrador | RNF-11 | CA-03.6 |
+| CP-13 | IR-01 sobre datos de prueba | Solo se marcan procesos competitivos con 1 oferta | RF-RIE-01 | CA-10.3 |
+| CP-14 | Usuario A consulta perfil de usuario B | Acceso denegado (403) | RNF-09 | CA-06.4 |
+| CP-15 | 5 intentos de inicio de sesión fallidos | Bloqueo temporal | CU-15 | CA-15.3 |
+
+> Los criterios de aceptación (CA) completos de cada caso de uso están en [04 · Casos de uso](04-casos-de-uso.md). Los que no tienen un CP propio se verifican en la prueba end-to-end de la fase o en la aceptación con el usuario piloto.
 
 ## 13.3 Métricas de éxito del proyecto
 
@@ -74,6 +76,7 @@
 ## 13.6 Criterios de aceptación final
 
 - Todos los requerimientos con prioridad **M** implementados y probados.
+- Criterios de aceptación de los casos de uso que cubren requerimientos **M** verificados, y criterios de las historias HU-01 a HU-07 aceptados por el usuario piloto.
 - Métricas de 13.3 medidas y reportadas (cumplan o no la meta, con análisis).
 - Piloto completado con evidencia (registros, calificaciones, carta).
 - Demostración en vivo del flujo completo: captura → ficha → alerta → dashboard.

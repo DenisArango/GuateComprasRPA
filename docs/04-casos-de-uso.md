@@ -120,6 +120,17 @@ flowchart LR
 | FA-4 | Un selector no encuentra el elemento esperado | Registrar error de tipo `CAMBIO_ESTRUCTURA`, notificar al administrador con la captura. |
 | FA-5 | Un documento ya existe (mismo hash) | No volver a descargarlo; enlazar el existente. |
 
+**Criterios de aceptación**
+
+- **CA-01.1** Dado un perfil activo y 3 concursos nuevos que cumplen sus filtros, cuando se ejecuta la captura programada, entonces quedan 3 concursos en estado `CAPTURADO` con todos los campos de RF-CAP-03, sus documentos guardados y 3 trabajos `extraer-texto` en cola.
+- **CA-01.2** Dado un NOG ya registrado, cuando vuelve a aparecer en los resultados, entonces no se crea otro concurso ni otro Queue Item (RN-01).
+- **CA-01.3** Dado un documento cuyo SHA-256 ya existe para el concurso, cuando el robot lo encuentra, entonces no se vuelve a subir y se enlaza el existente (RN-02).
+- **CA-01.4** Dado que falla un concurso individual, cuando el robot lo procesa, entonces se registra el error con captura de pantalla y HTML, se continúa con el siguiente NOG y la ejecución termina en `PARCIAL` (RNF-06).
+- **CA-01.5** Dado que Guatecompras no responde, cuando se agotan los 3 reintentos (5, 10 y 20 s), entonces la ejecución queda `FALLIDA` y el administrador recibe una notificación (RF-NOT-05).
+- **CA-01.6** Dado que un elemento obligatorio del buscador no existe, cuando el robot lo busca, entonces se registra un error `CAMBIO_ESTRUCTURA` con captura y se alerta al administrador.
+- **CA-01.7** Dado que no hay concursos nuevos, cuando termina la captura, entonces la ejecución queda `EXITOSA` con 0 concursos.
+- **CA-01.8** Durante toda la ejecución hay un solo navegador abierto y entre dos solicitudes al portal pasan al menos 2 segundos (RNF-05).
+
 ---
 
 ### CU-02 · Detectar cambios en concursos
@@ -148,6 +159,14 @@ flowchart LR
 |---|---|---|
 | FA-1 | No hay cambios | Actualizar la fecha de última revisión y continuar. |
 | FA-2 | El concurso pasó a adjudicado, desierto o anulado | Registrar el nuevo estado, notificar y quitarlo de la revisión diaria. |
+
+**Criterios de aceptación**
+
+- **CA-02.1** Dado un concurso en seguimiento con una adenda nueva, cuando corre la revisión, entonces el documento se descarga, el cambio queda en el historial con tipo y fecha, y los usuarios que lo siguen reciben una alerta sin esperar al resumen diario (RN-05).
+- **CA-02.2** Dado un cambio en la fecha de cierre o en el estado, cuando se detecta, entonces el historial guarda el valor anterior y el nuevo, y la alerta muestra ambos.
+- **CA-02.3** Dado un concurso sin cambios, cuando se revisa, entonces no se envía alerta y solo se actualiza la fecha de última revisión.
+- **CA-02.4** Dado un concurso que pasó a adjudicado, desierto o anulado, cuando se detecta, entonces se notifica y deja de revisarse en las ejecuciones siguientes.
+- **CA-02.5** Dado un concurso en seguimiento con cierre vencido, cuando corre la revisión, entonces no se incluye.
 
 ---
 
@@ -180,6 +199,15 @@ flowchart LR
 | FA-2 | Siguen los errores tras los reintentos | Marcar `REVISION_MANUAL`, conservar los datos básicos (RN-06). |
 | FA-3 | Se superó el presupuesto diario de IA | Dejar el concurso en cola para el día siguiente y notificar al administrador. |
 
+**Criterios de aceptación**
+
+- **CA-03.1** Dado un concurso con bases en PDF digital, cuando se procesa, entonces se genera una ficha con los campos de RF-IA-01 que es válida contra el esquema Zod, el concurso pasa a `ANALIZADO` y se encola el cálculo de compatibilidad.
+- **CA-03.2** Cada requisito, garantía y criterio de la ficha indica el documento y la página de origen (RF-IA-03, RNF-14).
+- **CA-03.3** La ficha incluye un resumen de 3 a 5 líneas (RF-IA-04).
+- **CA-03.4** Dado un PDF escaneado sin texto digital, cuando se procesa, entonces se aplica OCR y se genera la ficha (RF-DOC-02).
+- **CA-03.5** Dada una respuesta de la IA que no cumple el esquema, cuando se valida, entonces se reintenta con los errores de validación hasta 2 veces; si sigue fallando, el concurso queda `REVISION_MANUAL` con sus datos básicos (RN-06).
+- **CA-03.6** Dado que se agotó el presupuesto diario de IA, cuando llega un nuevo trabajo, entonces no se llama a la IA, el trabajo se pospone al día siguiente y se notifica al administrador (RNF-11).
+
 ---
 
 ### CU-04 · Calcular compatibilidad
@@ -197,6 +225,13 @@ flowchart LR
 1. Para cada perfil activo, el sistema evalúa los componentes del puntaje (ver [02 · Propuesta](02-propuesta-de-solucion.md) y [09 · IA](09-ia-extraccion.md#96-cálculo-de-compatibilidad)): categoría, palabras clave, departamento, rango de monto y requisitos.
 2. Compara los requisitos documentales de la ficha contra los documentos del perfil.
 3. Guarda el puntaje, el detalle por componente y la lista de faltantes.
+
+**Criterios de aceptación**
+
+- **CA-04.1** Dado un concurso `ANALIZADO`, cuando se calcula la compatibilidad, entonces existe un puntaje entero de 0 a 100 por cada perfil activo, con el detalle por componente que suma el total.
+- **CA-04.2** Dado que se cambia un peso de puntaje en la configuración, cuando se recalcula, entonces el puntaje refleja el nuevo peso sin modificar código.
+- **CA-04.3** Dado un requisito documental sin documento equivalente vigente en el perfil, entonces aparece en faltantes; un documento vencido cuenta como faltante (RN-09).
+- **CA-04.4** Dado un perfil con todos los documentos requeridos vigentes, entonces la lista de faltantes queda vacía.
 
 ---
 
@@ -227,6 +262,16 @@ flowchart LR
 | FA-2 | La captura no ha terminado a la hora de envío | Enviar con lo disponible e indicar que la captura sigue en proceso. |
 | FA-3 | Fallo del canal | Reintentar 3 veces; registrar como fallido. |
 
+**Criterios de aceptación**
+
+- **CA-05.1** Dada la hora configurada (por defecto 07:00), cuando se dispara el envío, entonces cada usuario recibe su resumen en los canales que activó.
+- **CA-05.2** El resumen solo incluye concursos con compatibilidad ≥ umbral del perfil y cierre no vencido, ordenados de mayor a menor compatibilidad (RN-03, RN-04).
+- **CA-05.3** Cada oportunidad muestra título, entidad, fecha de cierre, puntaje, documentos faltantes y enlace a la ficha.
+- **CA-05.4** El resumen incluye los cambios del día y los recordatorios de cierre de los concursos en seguimiento (RF-NOT-04).
+- **CA-05.5** Dado que no hay oportunidades ni cambios, cuando se envía, entonces llega "Sin novedades hoy" si el usuario lo tiene activado.
+- **CA-05.6** Dado que un canal falla, cuando se envía, entonces se reintenta 3 veces y el envío queda registrado como fallido.
+- **CA-05.7** El usuario de la empresa piloto lee el resumen en el teléfono en menos de 2 minutos (RNF-13).
+
 ---
 
 ### CU-06 · Gestionar perfil de empresa
@@ -246,6 +291,13 @@ flowchart LR
 4. Guarda.
 5. El sistema valida los datos y recalcula la compatibilidad de los concursos abiertos.
 
+**Criterios de aceptación**
+
+- **CA-06.1** Dado un perfil con datos válidos, cuando el usuario guarda, entonces el perfil queda persistido y los puntajes de los concursos abiertos se recalculan.
+- **CA-06.2** Dado un NIT con formato inválido, un monto mínimo mayor que el máximo o un umbral fuera de 0–100, cuando el usuario guarda, entonces se muestra el error en el campo y no se guarda nada.
+- **CA-06.3** Dado un documento con fecha de vencimiento pasada, entonces se muestra como vencido y cuenta como faltante.
+- **CA-06.4** Dado un usuario que intenta ver o editar el perfil de otro usuario, entonces recibe acceso denegado (403) (RNF-09).
+
 ---
 
 ### CU-07 · Consultar ficha de concurso
@@ -261,6 +313,14 @@ flowchart LR
 1. El usuario abre la lista de oportunidades o el enlace desde la alerta.
 2. Selecciona un concurso.
 3. El sistema muestra: resumen, datos generales, requisitos (con los faltantes resaltados), criterios de calificación, documentos descargables, historial de cambios, adjudicaciones similares y enlace al concurso en Guatecompras.
+
+**Criterios de aceptación**
+
+- **CA-07.1** Dado un concurso `ANALIZADO`, cuando el usuario abre la ficha, entonces ve todas las secciones del paso 3 y los requisitos faltantes resaltados.
+- **CA-07.2** Cada requisito permite abrir el documento de origen en la página indicada (RNF-14).
+- **CA-07.3** Dado un concurso en `REVISION_MANUAL`, cuando se abre, entonces se muestran los datos básicos y un aviso de que la ficha no fue generada.
+- **CA-07.4** Las adjudicaciones similares muestran proveedor, monto y fecha, y responden en menos de 2 segundos (RF-OCDS-03, RNF-03).
+- **CA-07.5** El enlace a Guatecompras abre el concurso con el mismo NOG.
 
 ---
 
@@ -278,6 +338,12 @@ flowchart LR
 2. El sistema guarda la decisión con la fecha.
 3. Si es Seguir o Participaré, el concurso se incluye en CU-02 y en los recordatorios de cierre.
 
+**Criterios de aceptación**
+
+- **CA-08.1** Dado que el usuario marca Seguir o Participaré, cuando corre la siguiente revisión, entonces el concurso se incluye en CU-02 y recibe recordatorios de cierre.
+- **CA-08.2** Dado que el usuario marca Descartar, entonces el concurso deja de aparecer en su lista y en sus resúmenes; puede revertirlo desde la ficha.
+- **CA-08.3** La decisión queda guardada con fecha y se muestra en la ficha y en la lista.
+
 ---
 
 ### CU-09 · Consultar historial y precios
@@ -292,6 +358,12 @@ flowchart LR
 1. El usuario busca por palabra clave, entidad, proveedor (NIT o nombre) o rango de fechas.
 2. El sistema muestra los procesos que coinciden, con adjudicatario, monto y fecha.
 3. El usuario puede abrir el perfil de un proveedor: total adjudicado, entidades, número de procesos y evolución en el tiempo.
+
+**Criterios de aceptación**
+
+- **CA-09.1** Dada una búsqueda por palabra clave, entidad, proveedor o rango de fechas (solos o combinados), cuando se ejecuta, entonces se listan los procesos que coinciden con adjudicatario, monto y fecha en menos de 2 segundos (RNF-03).
+- **CA-09.2** Dada una búsqueda sin coincidencias, entonces se muestra un mensaje claro y no un error.
+- **CA-09.3** El total adjudicado del perfil del proveedor coincide con la suma de sus adjudicaciones en la base OCDS para el periodo mostrado.
 
 ---
 
@@ -308,6 +380,13 @@ flowchart LR
 2. Filtra por entidad, periodo, modalidad o indicador.
 3. El sistema muestra los procesos con indicadores activados, su puntaje compuesto y la explicación de cada indicador.
 4. El analista abre un proceso y ve la evidencia que activó cada indicador.
+
+**Criterios de aceptación**
+
+- **CA-10.1** Todo indicador mostrado (lista, detalle o exportación) incluye su explicación y la leyenda de que es una señal y no una acusación (RF-RIE-04).
+- **CA-10.2** Solo aparecen procesos adjudicados o terminados (RN-07).
+- **CA-10.3** Dado un proceso con indicadores activados, cuando el analista lo abre, entonces ve los datos concretos que activaron cada indicador.
+- **CA-10.4** Los filtros por entidad, periodo, modalidad e indicador se pueden combinar.
 
 ---
 
@@ -327,6 +406,12 @@ flowchart LR
 4. Inserta o actualiza por identificador OCDS (`ocid`).
 5. Recalcula los indicadores de riesgo afectados.
 
+**Criterios de aceptación**
+
+- **CA-11.1** Dado que se carga dos veces el mismo periodo, cuando termina la segunda carga, entonces no hay registros duplicados (inserción o actualización por `ocid`).
+- **CA-11.2** Dado un registro con errores de formato, cuando se carga, entonces se registra como rechazado y la carga continúa.
+- **CA-11.3** Al terminar, la bitácora muestra cuántos registros se insertaron, actualizaron y rechazaron, y los indicadores afectados quedan recalculados.
+
 ---
 
 ### CU-12 · Supervisar ejecuciones del robot
@@ -343,6 +428,12 @@ flowchart LR
 3. El administrador abre una ejecución con errores y ve el detalle, la captura de pantalla y el HTML guardado.
 4. Puede relanzar la ejecución o un NOG específico (CU-13).
 
+**Criterios de aceptación**
+
+- **CA-12.1** La lista muestra las ejecuciones de la más reciente a la más antigua, con estado, duración, concursos procesados, errores y costo de IA.
+- **CA-12.2** Dada una ejecución con errores, cuando el administrador la abre, entonces cada error muestra tipo, NOG, mensaje, captura de pantalla y HTML, y un enlace al job en Orchestrator.
+- **CA-12.3** Dado un usuario sin rol `ADMIN`, cuando intenta abrir "Ejecuciones", entonces recibe acceso denegado (403).
+
 ---
 
 ### CU-13 · Capturar NOG manualmente
@@ -358,6 +449,13 @@ flowchart LR
 2. El sistema agrega el NOG a la Queue `vigia-nog` de UiPath Orchestrator; el robot lo procesa (**include CU-01**, pasos 7.1 a 7.6).
 3. Al terminar, muestra la ficha del concurso.
 
+**Criterios de aceptación**
+
+- **CA-13.1** Dado un NOG con formato inválido, cuando el actor lo envía, entonces se rechaza sin encolar nada.
+- **CA-13.2** Dado un NOG válido, cuando el actor lo envía, entonces se crea un Queue Item en `vigia-nog` con referencia igual al NOG; si ya hay uno pendiente, no se duplica.
+- **CA-13.3** Mientras se procesa, el actor ve el estado de la solicitud: en cola, procesando, capturado o fallido.
+- **CA-13.4** Dado un NOG que no existe en Guatecompras, cuando el robot lo procesa, entonces la solicitud queda fallida con un mensaje claro para el actor.
+
 ---
 
 ### CU-14 · Calificar alerta
@@ -371,6 +469,12 @@ flowchart LR
 
 1. Desde la alerta o la ficha, el usuario marca 👍 relevante o 👎 no relevante.
 2. El sistema guarda la calificación, que alimenta la métrica de precisión del piloto (OE3).
+
+**Criterios de aceptación**
+
+- **CA-14.1** Dado que el usuario califica una alerta desde el dashboard, el correo o Telegram, entonces la calificación queda guardada con usuario, concurso y fecha.
+- **CA-14.2** Hay una sola calificación por usuario y alerta; si la cambia, se conserva la última.
+- **CA-14.3** La precisión de alertas de [13.3](13-plan-de-pruebas.md#133-métricas-de-éxito-del-proyecto) se puede calcular directamente con las calificaciones guardadas.
 
 ---
 
@@ -389,14 +493,54 @@ flowchart LR
 
 **Flujo alterno:** credenciales inválidas → mensaje genérico; bloqueo temporal tras 5 intentos fallidos.
 
+**Criterios de aceptación**
+
+- **CA-15.1** Dadas credenciales válidas, cuando el usuario inicia sesión, entonces recibe un token y llega a la pantalla de su rol.
+- **CA-15.2** Dadas credenciales inválidas, entonces el mensaje es el mismo exista o no el correo.
+- **CA-15.3** Dados 5 intentos fallidos seguidos, entonces la cuenta queda bloqueada durante el tiempo configurado, aunque luego se ingrese la contraseña correcta.
+- **CA-15.4** Las contraseñas se guardan con hash argon2, nunca en texto plano (RNF-09).
+- **CA-15.5** Dado un token vencido, cuando se llama a la API, entonces responde 401 y el dashboard vuelve al inicio de sesión.
+
 ## 4.4 Historias de usuario (resumen ágil)
 
-| ID | Como… | Quiero… | Para… |
-|---|---|---|---|
-| HU-01 | dueño de una MiPyme | recibir cada mañana los concursos que me aplican | no perder tiempo buscando en Guatecompras |
-| HU-02 | encargado de licitaciones | ver qué piden las bases sin leerlas completas | decidir rápido si participamos |
-| HU-03 | encargado de licitaciones | saber qué documentos me faltan | prepararlos antes del cierre |
-| HU-04 | encargado de licitaciones | enterarme de inmediato si sale una adenda | no ser descalificado por un cambio |
-| HU-05 | gerente | ver a qué precio se adjudicó antes algo similar | ofertar un precio competitivo |
-| HU-06 | analista de transparencia | ver procesos con señales de riesgo | priorizar qué investigar |
-| HU-07 | administrador | ver por qué falló el robot | corregirlo rápido |
+| ID | Como… | Quiero… | Para… | CU |
+|---|---|---|---|---|
+| HU-01 | dueño de una MiPyme | recibir cada mañana los concursos que me aplican | no perder tiempo buscando en Guatecompras | CU-01, CU-05 |
+| HU-02 | encargado de licitaciones | ver qué piden las bases sin leerlas completas | decidir rápido si participamos | CU-03, CU-07 |
+| HU-03 | encargado de licitaciones | saber qué documentos me faltan | prepararlos antes del cierre | CU-04, CU-06 |
+| HU-04 | encargado de licitaciones | enterarme de inmediato si sale una adenda | no ser descalificado por un cambio | CU-02, CU-08 |
+| HU-05 | gerente | ver a qué precio se adjudicó antes algo similar | ofertar un precio competitivo | CU-09 |
+| HU-06 | analista de transparencia | ver procesos con señales de riesgo | priorizar qué investigar | CU-10 |
+| HU-07 | administrador | ver por qué falló el robot | corregirlo rápido | CU-12, CU-13 |
+
+### Criterios de aceptación de las historias
+
+Son las condiciones que el usuario verifica en la demostración. El detalle técnico está en los criterios de cada caso de uso.
+
+**HU-01**
+- Dado mi perfil configurado, cuando abro mi correo o Telegram antes de las 07:00, entonces tengo el resumen del día solo con concursos que superan mi umbral y aún no han cerrado.
+- Cada concurso del resumen tiene un enlace que abre su ficha.
+
+**HU-02**
+- Dado un concurso del resumen, cuando abro su ficha, entonces veo en una sola pantalla el resumen, el objeto, el monto, la fecha de cierre, los requisitos, las garantías y los criterios de calificación.
+- Si dudo de un dato, puedo abrir la página exacta del documento de donde salió.
+
+**HU-03**
+- Dado que registré mis documentos en el perfil, cuando abro una ficha, entonces veo resaltados los documentos que me faltan o que están vencidos.
+- Si registro el documento faltante, deja de aparecer como faltante.
+
+**HU-04**
+- Dado un concurso que sigo, cuando se publica una adenda o cambia la fecha de cierre, entonces recibo una alerta ese mismo día, sin esperar al resumen, con lo que cambió.
+- Recibo recordatorios 3 días y 1 día antes del cierre.
+
+**HU-05**
+- Dado un concurso, cuando abro su ficha, entonces veo adjudicaciones anteriores similares con proveedor, monto y fecha.
+- Puedo buscar por palabra clave o entidad y ver a qué precio se adjudicó.
+
+**HU-06**
+- Cuando abro el tablero de riesgos, entonces veo los procesos con indicadores activados, filtrables por entidad y periodo.
+- Cada indicador explica por qué se activó y muestra la leyenda de que es una señal, no una acusación.
+
+**HU-07**
+- Dada una ejecución fallida, cuando abro su detalle, entonces veo el tipo de error, el NOG afectado, la captura de pantalla y el HTML.
+- Recibo una notificación cuando una ejecución falla y puedo relanzar un NOG desde el dashboard.
