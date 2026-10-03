@@ -1,0 +1,31 @@
+# Dependencias
+node_modules/
+
+# Builds
+dist/
+build/
+.angular/
+
+# Variables de entorno (nunca subir secretos)
+.env
+.env.*
+!.env.example
+
+# Datos y documentos descargados
+storage/
+database/ocds/raw/
+*.pdf
+!docs/**/*.pdf
+
+# Evidencia del robot
+bot/evidence/
+test-results/
+playwright-report/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.log
