@@ -48,7 +48,7 @@ El diagrama comparativo AS-IS / TO-BE está en [06 · Diagramas](06-diagramas.md
 
 | Módulo | Responsabilidad | Tecnología principal |
 |---|---|---|
-| **M1 · Robot de captura** | Navegar Guatecompras, capturar concursos y documentos, detectar cambios | Playwright (RPA web) |
+| **M1 · Robot de captura** | Navegar Guatecompras, capturar concursos y documentos, detectar cambios | UiPath (Studio + Orchestrator) |
 | **M2 · Procesamiento de documentos** | Extraer texto de PDF, aplicar OCR a documentos escaneados | pdf.js / Tesseract |
 | **M3 · Extracción con IA** | Convertir el texto de las bases en una ficha estructurada validada | API de LLM + validación de esquema |
 | **M4 · Compatibilidad** | Comparar requisitos contra el perfil de la empresa y calcular puntaje | Reglas + similitud semántica |
@@ -97,6 +97,6 @@ La decisión completa está en [ADR-0001](adr/0001-rpa-y-datos-abiertos.md).
 ## 2.7 Uso ético y responsable
 
 - El robot consulta **solo información pública**, sin credenciales de usuario en Guatecompras.
-- Se limita la frecuencia de consultas y se ejecuta en horario de baja demanda (ver [08 · Diseño del bot](08-diseno-del-bot.md#86-uso-responsable-del-portal)).
+- Se limita la frecuencia de consultas y se ejecuta en horario de baja demanda (ver [08 · Diseño del bot](08-diseno-del-bot.md#87-uso-responsable-del-portal)).
 - Los indicadores de riesgo se presentan como **señales que ameritan revisión**, nunca como acusaciones de irregularidad.
 - La información de la empresa piloto se trata como confidencial y se anonimiza en el informe.

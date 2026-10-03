@@ -2,8 +2,8 @@
 
 > Plataforma de **automatización robótica de procesos (RPA) con inteligencia artificial** que monitorea Guatecompras, descarga y analiza los documentos de cada concurso, y entrega cada mañana a las MiPymes proveedoras del Estado un resumen de las oportunidades que sí les sirven, con lo que necesitan para ganarlas. Como módulo complementario, detecta procesos con señales de riesgo a partir de los datos abiertos OCDS.
 
-**Curso:** _(nombre del curso)_ · **Universidad Mariano Gálvez de Guatemala** · Ingeniería en Sistemas
-**Autor:** _(nombre completo y carné)_ · **Catedrático:** _(nombre)_ · **Fecha de inicio:** octubre 2026
+**Curso:** _Analisis de sistemas_ · **Universidad Mariano Gálvez de Guatemala** · Ingeniería en Sistemas
+**Fecha de inicio:** octubre 2026
 
 ---
 
@@ -44,7 +44,7 @@ vigia-contrataciones/
 ├── docs/            Documentación del proyecto
 │   ├── adr/         Registro de decisiones de arquitectura
 │   └── diagramas/   Diagramas exportados (PNG/SVG) para el informe
-├── bot/             Robot RPA de captura (Guatecompras)
+├── bot/             Robot RPA de captura en UiPath (Guatecompras)
 ├── api/             Backend: API, IA, banderas rojas, notificaciones
 ├── web/             Dashboard web
 ├── database/        Esquema, migraciones y scripts de carga OCDS

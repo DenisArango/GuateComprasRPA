@@ -4,13 +4,13 @@
 
 | Capa | Tecnología | Por qué |
 |---|---|---|
-| **Robot RPA** | **Playwright** + TypeScript | Automatización de navegador madura, espera automática de elementos, capturas y trazas para depuración, ejecución sin interfaz (headless). Ver [ADR-0002](adr/0002-plataforma-rpa.md). |
-| Alternativa RPA | UiPath Community / Power Automate Desktop | Si el curso exige una plataforma RPA comercial. La arquitectura permite cambiar solo esta capa. |
-| **Backend / API** | Node.js + **Fastify** + TypeScript | Rendimiento, validación de esquemas integrada, mismo lenguaje que el robot. |
+| **Robot RPA** | **UiPath Studio** (REFramework, expresiones C#) + robot desatendido en Windows | Plataforma exigida por el curso. Ver [ADR-0002](adr/0002-plataforma-rpa.md). |
+| **Orquestación del robot** | **UiPath Orchestrator** (Automation Cloud, plan Community/Free) | Triggers de horario, Queues por NOG, Assets para configuración y credenciales, logs de ejecución. |
+| **Backend / API** | Node.js + **Fastify** + TypeScript | Rendimiento, validación de esquemas integrada. Expone además la API del robot (`/robot/*`). |
 | **ORM** | **Prisma** | Migraciones versionadas, tipado de extremo a extremo. |
 | **Base de datos** | **PostgreSQL 16** | Gratuita, soporte JSONB para documentos OCDS, búsqueda de texto completo y extensión `pgvector` para similitud semántica. Ver [ADR-0003](adr/0003-base-de-datos.md). |
 | **Cola de trabajos** | **pg-boss** | Cola sobre PostgreSQL: reintentos, programación y concurrencia sin agregar Redis. |
-| **Planificador** | pg-boss (cron) | Ejecuciones programadas persistentes. |
+| **Planificador** | Triggers de Orchestrator (robot) · pg-boss cron (workers, resumen diario) | Ejecuciones programadas persistentes. |
 | **Extracción de texto** | pdf.js (`pdfjs-dist`) | Texto de PDF digitales. |
 | **OCR** | Tesseract (`tesseract.js` o binario) con idioma español | PDF escaneados. |
 | **IA** | API de un LLM con salida estructurada (JSON) | Extracción de fichas y resúmenes. Ver [09 · IA](09-ia-extraccion.md). |
@@ -22,7 +22,7 @@
 | **Contenedores** | Docker + Docker Compose | Despliegue reproducible (RNF-12). |
 | **Control de versiones** | Git + GitHub | Repositorio único (monorepo). |
 | **CI** | GitHub Actions | Lint, pruebas y build en cada push. |
-| **Pruebas** | Vitest (unitarias), Playwright Test (end-to-end) | |
+| **Pruebas** | Vitest (unitarias e integración), casos de prueba de UiPath Studio (robot), Playwright Test (end-to-end del dashboard) | |
 
 ## 5.2 Diagrama de contexto (C4 nivel 1)
 
@@ -44,7 +44,10 @@ flowchart TB
     A -->|Consulta riesgos<br/>e historial| V
     AD -->|Supervisa ejecuciones| V
 
+    UIP["⬜ UiPath Orchestrator<br/>Programa y supervisa<br/>al robot"]
+
     V -->|Navega y descarga<br/>documentos - RPA| GC
+    UIP -->|Inicia el robot,<br/>cola de NOG| V
     V -->|Descarga datos<br/>históricos| OC
     V -->|Envía texto de bases,<br/>recibe ficha JSON| LLM
     V -->|Resumen diario| MAIL
@@ -63,13 +66,17 @@ flowchart TB
 
     subgraph V["Vigía de Contrataciones (Docker Compose)"]
         WEB["Dashboard web<br/><i>Angular</i>"]
-        API["API REST<br/><i>Fastify + Prisma</i>"]
-        BOT["Robot RPA<br/><i>Playwright</i>"]
+        API["API REST<br/><i>Fastify + Prisma</i><br/>incluye API del robot /robot/*"]
         WRK["Workers<br/><i>Node.js</i><br/>Documentos · IA · Compatibilidad<br/>OCDS · Riesgos · Notificaciones"]
         DB[("PostgreSQL<br/>Datos + cola pg-boss")]
         FS[("Almacén de<br/>documentos")]
     end
 
+    subgraph W["Equipo Windows"]
+        BOT["Robot RPA<br/><i>UiPath (desatendido)</i>"]
+    end
+
+    ORC["UiPath Orchestrator<br/><i>Automation Cloud</i>"]
     GC["Guatecompras"]
     OC["Portal OCDS"]
     LLM["Servicio de IA"]
@@ -79,11 +86,12 @@ flowchart TB
     WEB -->|JSON/HTTPS| API
     API --> DB
     API -->|Encola trabajos| DB
+    API -->|Guarda PDF| FS
+    API -->|Captura manual de NOG<br/>Orchestrator API| ORC
 
-    BOT -->|Toma trabajos<br/>de captura| DB
+    ORC -->|Trigger, Queue,<br/>Assets| BOT
     BOT -->|Navega| GC
-    BOT -->|Guarda PDF| FS
-    BOT -->|Registra concursos<br/>y encola extracción| DB
+    BOT -->|Registra concursos, sube PDF<br/>y evidencias - HTTPS + clave| API
 
     WRK -->|Toma trabajos| DB
     WRK -->|Lee PDF| FS
@@ -92,7 +100,7 @@ flowchart TB
     WRK --> NOT
 ```
 
-**Decisión clave:** el robot **no llama a la IA ni envía notificaciones**. Solo captura y encola. Esto lo mantiene simple y reemplazable (por ejemplo, por UiPath) sin tocar el resto del sistema.
+**Decisión clave:** el robot **no llama a la IA, no envía notificaciones ni accede directamente a la base de datos**. Solo captura y entrega los datos a la API del robot, que los registra y encola los trabajos. Así el robot UiPath queda simple y la lógica de negocio (deduplicación, detección de cambios, colas) vive en el sistema.
 
 ## 5.4 Componentes del backend (C4 nivel 3)
 
@@ -121,36 +129,45 @@ flowchart LR
         W_NOT[Notificador]
     end
 
-    subgraph BOT["Robot RPA"]
-        B_SRCH[Buscador]
-        B_DET[Lector de detalle]
-        B_DL[Descargador]
-        B_CHG[Detector de cambios]
-        B_SEL[Selectores centralizados]
+    subgraph BOT["Robot RPA (UiPath)"]
+        B_DSP[Dispatcher<br/>busca NOG y llena la Queue]
+        B_PRF[Performer REFramework<br/>detalle y documentos]
+        B_CHG[Revisión de seguimiento]
+        B_SEL[Object Repository]
+        B_CLI[Cliente API del robot]
     end
 
+    R_ROB[Rutas robot<br/>/robot/*]
+
     R_CON --> SCH
+    R_ROB --> SCH
+    B_CLI --> R_ROB
+    B_DSP --> B_SEL
+    B_PRF --> B_SEL
     W_IA --> SCH
     W_COM --> SCH
     W_RIE --> CFG
-    B_SRCH --> B_SEL
-    B_DET --> B_SEL
 ```
 
 ## 5.5 Estructura del monorepo
 
 ```
 vigia-contrataciones/
-├── bot/
-│   └── src/
-│       ├── selectors.ts        # Todos los selectores del portal (RNF-07)
-│       ├── flows/              # buscar, leerDetalle, descargar, detectarCambios
-│       ├── runner.ts           # Toma trabajos de la cola
-│       └── evidence.ts         # Capturas y HTML ante fallos
+├── bot/                        # Proyectos UiPath Studio
+│   ├── VigiaCaptura/           # REFramework: Dispatcher + Performer
+│   │   ├── project.json
+│   │   ├── Main.xaml
+│   │   ├── Framework/          # Init, GetTransactionData, Process, SetTransactionStatus, End
+│   │   ├── Flujos/             # Buscar, LeerDetalle, Descargar, RevisarSeguimiento
+│   │   ├── Api/                # Llamadas HTTP a /robot/*
+│   │   ├── .objects/           # Object Repository: selectores del portal (RNF-07)
+│   │   ├── Data/Config.xlsx    # Parámetros no secretos
+│   │   └── Tests/              # Casos de prueba de Studio + fixtures HTML
+│   └── README.md               # Cómo abrir, publicar y configurar en Orchestrator
 ├── api/
 │   ├── prisma/schema.prisma
 │   └── src/
-│       ├── routes/
+│       ├── routes/             # incluye robot/ (API del robot)
 │       ├── workers/            # documentos, ia, compatibilidad, ocds, riesgos, notificaciones
 │       ├── domain/             # esquemas Zod y reglas
 │       └── server.ts
@@ -171,6 +188,7 @@ flowchart TB
     subgraph Internet
         USR["Navegador / teléfono"]
         EXT["Guatecompras · OCDS · IA · SMTP · Telegram"]
+        ORC["UiPath Orchestrator<br/>(Automation Cloud)"]
     end
 
     subgraph VPS["Servidor VPS (Linux, 2 vCPU / 4 GB RAM)"]
@@ -179,30 +197,37 @@ flowchart TB
             C_WEB["web (Nginx + Angular)"]
             C_API["api"]
             C_WRK["workers"]
-            C_BOT["bot (Playwright + Chromium)"]
             C_DB[("postgres")]
             V_DOC[("volumen: documentos")]
         end
+    end
+
+    subgraph WIN["Equipo Windows (PC o VM)"]
+        ROB["UiPath Robot desatendido<br/>+ navegador (Chrome/Edge)"]
     end
 
     USR -->|443| RP
     RP --> C_WEB
     RP --> C_API
     C_API --> C_DB
+    C_API --> V_DOC
     C_WRK --> C_DB
-    C_BOT --> C_DB
-    C_BOT --> V_DOC
     C_WRK --> V_DOC
-    C_BOT --> EXT
     C_WRK --> EXT
+    C_API -->|Orchestrator API| ORC
+    ORC <-->|Conexión saliente del robot| ROB
+    ROB -->|Guatecompras| EXT
+    ROB -->|443 /robot/*| RP
 ```
 
 **Entornos:**
 
 | Entorno | Uso | Infraestructura |
 |---|---|---|
-| Desarrollo | Programación local | Docker Compose en la computadora del desarrollador |
-| Piloto | Uso real con la empresa | VPS económico o servidor propio |
+| Desarrollo | Programación local | Docker Compose + UiPath Studio en la computadora del desarrollador (Windows) |
+| Piloto | Uso real con la empresa | VPS económico o servidor propio para el sistema; equipo Windows encendido de madrugada para el robot |
+
+> El robot UiPath no forma parte de Docker Compose: necesita Windows. RNF-12 aplica al resto del sistema.
 
 ## 5.7 Seguridad
 
@@ -213,5 +238,5 @@ flowchart TB
 | Secretos | Variables de entorno; `.env` excluido del repositorio; `.env.example` versionado |
 | Transporte | HTTPS obligatorio (Caddy con certificados automáticos) |
 | Datos de la empresa | Acceso restringido por perfil; anonimización para el informe |
-| Robot | Sin credenciales de Guatecompras; solo información pública |
+| Robot | Sin credenciales de Guatecompras; solo información pública. Se autentica ante la API con una clave guardada como Credential Asset en Orchestrator; las rutas `/robot/*` solo aceptan esa clave |
 | Dependencias | `npm audit` y Dependabot en GitHub |

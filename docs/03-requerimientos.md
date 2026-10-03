@@ -102,12 +102,12 @@ Prioridad según **MoSCoW**: **M** = debe tener · **S** = debería tener · **C
 | RNF-04 | Exactitud | La extracción con IA debe alcanzar ≥ 85 % de exactitud por campo frente a revisión humana. |
 | RNF-05 | Uso responsable | El robot no debe superar 1 solicitud cada 2–3 segundos al portal y debe ejecutarse en horario de baja demanda. |
 | RNF-06 | Resiliencia | Un fallo en un concurso no debe detener la captura de los demás. |
-| RNF-07 | Mantenibilidad | Los selectores del portal deben estar centralizados en un solo archivo de configuración para adaptarse a cambios del sitio. |
+| RNF-07 | Mantenibilidad | Los selectores del portal deben estar centralizados en un solo lugar (Object Repository del proyecto UiPath) para adaptarse a cambios del sitio. |
 | RNF-08 | Observabilidad | Toda ejecución debe dejar bitácora estructurada; los fallos deben guardar captura de pantalla y HTML de la página. |
 | RNF-09 | Seguridad | Contraseñas con hash (bcrypt o argon2); comunicación por HTTPS; claves de API en variables de entorno, nunca en el repositorio. |
 | RNF-10 | Privacidad | Los datos de la empresa piloto se almacenan cifrados en reposo cuando el proveedor de base de datos lo permita, y se anonimizan en el informe. |
 | RNF-11 | Costo | El costo de IA debe mantenerse por debajo de un presupuesto mensual definido (ver [09 · Extracción con IA](09-ia-extraccion.md#95-control-de-costos)). |
-| RNF-12 | Portabilidad | Todo el sistema debe poder levantarse con Docker Compose en una sola máquina. |
+| RNF-12 | Portabilidad | Todo el sistema, excepto el robot UiPath (que requiere Windows), debe poder levantarse con Docker Compose en una sola máquina. |
 | RNF-13 | Usabilidad | El resumen diario debe poder leerse en un teléfono en menos de 2 minutos. |
 | RNF-14 | Trazabilidad | Cada dato extraído por IA debe poder rastrearse al documento y página de origen. |
 

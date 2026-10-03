@@ -17,7 +17,10 @@ database/ocds/raw/
 *.pdf
 !docs/**/*.pdf
 
-# Evidencia del robot
+# Robot UiPath (archivos locales de Studio y evidencia)
+bot/**/.local/
+bot/**/.screenshots/
+bot/**/.tmh/
 bot/evidence/
 test-results/
 playwright-report/

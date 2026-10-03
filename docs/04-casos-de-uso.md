@@ -95,7 +95,7 @@ flowchart LR
 
 **Flujo principal**
 
-1. El planificador inicia la ejecución a la hora configurada.
+1. El planificador (Time Trigger de UiPath Orchestrator) inicia la ejecución a la hora configurada.
 2. El robot registra el inicio de la ejecución en la bitácora.
 3. El robot obtiene la unión de filtros de todos los perfiles activos (modalidades, categorías, entidades).
 4. El robot abre el buscador de concursos de Guatecompras.
@@ -355,7 +355,7 @@ flowchart LR
 **Flujo principal**
 
 1. El actor ingresa un NOG.
-2. El sistema encola la captura de ese concurso (**include CU-01**, pasos 7.1 a 7.6).
+2. El sistema agrega el NOG a la Queue `vigia-nog` de UiPath Orchestrator; el robot lo procesa (**include CU-01**, pasos 7.1 a 7.6).
 3. Al terminar, muestra la ficha del concurso.
 
 ---

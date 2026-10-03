@@ -39,12 +39,21 @@
 | **ETL** | Extract, Transform, Load; proceso de carga de datos. |
 | **Fixture** | Copia de datos o páginas usada para pruebas reproducibles. |
 | **Hash (SHA-256)** | Huella digital de un archivo; dos archivos idénticos tienen el mismo hash. |
-| **Headless** | Navegador que se ejecuta sin interfaz gráfica. |
+| **Asset (UiPath)** | Valor de configuración o credencial guardado en Orchestrator y leído por el robot en tiempo de ejecución. |
+| **Business Rule Exception** | Excepción de UiPath por un dato que no cumple una regla de negocio; no se reintenta. |
+| **Dispatcher / Performer** | Patrón de UiPath: un proceso llena una Queue (Dispatcher) y otro procesa cada elemento (Performer). |
 | **LLM** | Large Language Model; modelo de lenguaje de inteligencia artificial. |
 | **MoSCoW** | Técnica de priorización: Must, Should, Could, Won't. |
+| **Object Repository** | Repositorio de UiPath donde se definen una sola vez los elementos de interfaz y sus selectores. |
 | **OCR** | Reconocimiento óptico de caracteres; convierte imágenes de texto en texto. |
-| **Playwright** | Biblioteca de automatización de navegadores. |
-| **REFramework** | Plantilla de UiPath para procesos RPA transaccionales robustos. |
+| **Orchestrator** | Consola de UiPath para programar, ejecutar y supervisar robots; administra Queues, Assets, Triggers y logs. |
+| **Playwright** | Biblioteca de automatización de navegadores; en este proyecto solo para pruebas end-to-end del dashboard. |
+| **Queue / Transaction Item** | Cola de trabajo de Orchestrator y cada elemento que contiene (aquí, un NOG). |
+| **REFramework** | Plantilla de UiPath para procesos RPA transaccionales robustos (Init, Get Transaction Data, Process, End). |
+| **Robot desatendido** | Robot de UiPath que se ejecuta sin intervención humana, iniciado por Orchestrator. |
 | **RPA** | Robotic Process Automation; software que replica acciones humanas en interfaces de usuario. |
 | **Selector** | Expresión que identifica un elemento en una página web. |
+| **System Exception** | Excepción técnica de UiPath (red, elemento no encontrado); la transacción se reintenta. |
+| **Trigger** | Disparador de Orchestrator que inicia un proceso por horario (Time Trigger) o por elementos en cola (Queue Trigger). |
+| **UiPath** | Plataforma de RPA usada para construir el robot (Studio, Robot y Orchestrator). |
 | **Zod** | Biblioteca de TypeScript para definir y validar esquemas de datos. |

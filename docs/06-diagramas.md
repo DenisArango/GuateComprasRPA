@@ -75,9 +75,10 @@ flowchart TD
 ```mermaid
 sequenceDiagram
     autonumber
-    participant PL as Planificador
-    participant BOT as Robot RPA
+    participant OR as UiPath Orchestrator
+    participant BOT as Robot UiPath
     participant GC as Guatecompras
+    participant API as API del robot
     participant FS as Almacén docs
     participant DB as PostgreSQL / Cola
     participant WD as Worker documentos
@@ -85,21 +86,28 @@ sequenceDiagram
     participant WC as Worker compatibilidad
     participant NT as Notificador
 
-    PL->>DB: Encolar "captura-diaria" (02:00)
-    BOT->>DB: Tomar trabajo
-    BOT->>DB: Registrar inicio de ejecución
+    OR->>BOT: Time Trigger 02:00 (Dispatcher)
+    BOT->>API: Registrar inicio de ejecución
+    BOT->>API: Obtener filtros
     BOT->>GC: Abrir buscador y aplicar filtros
     GC-->>BOT: Resultados (páginas)
-    loop Por cada NOG nuevo
+    BOT->>API: Enviar NOG encontrados
+    API-->>BOT: NOG nuevos
+    BOT->>OR: Agregar Queue Items (vigia-nog)
+    OR->>BOT: Queue Trigger (Performer)
+    loop Por cada Transaction Item (NOG)
         BOT->>GC: Abrir detalle
         GC-->>BOT: Datos generales + lista de documentos
         BOT->>GC: Descargar documentos
         GC-->>BOT: Archivos PDF
-        BOT->>FS: Guardar archivo (por hash)
-        BOT->>DB: Insertar concurso y documentos
-        BOT->>DB: Encolar "extraer-texto"
+        BOT->>API: Subir documentos (si el hash no existe)
+        API->>FS: Guardar archivo (por hash)
+        BOT->>API: Registrar concurso + instantánea
+        API->>DB: Insertar concurso y documentos
+        API->>DB: Encolar "extraer-texto"
     end
-    BOT->>DB: Registrar fin de ejecución
+    BOT->>API: Registrar fin de ejecución
+    API->>DB: Actualizar bitácora
 
     WD->>DB: Tomar "extraer-texto"
     WD->>FS: Leer PDF
@@ -113,7 +121,7 @@ sequenceDiagram
     WC->>DB: Tomar trabajo, leer perfiles
     WC->>DB: Guardar puntaje y faltantes
 
-    PL->>NT: Disparar "resumen-diario" (07:00)
+    DB->>NT: pg-boss cron "resumen-diario" (07:00)
     NT->>DB: Consultar oportunidades y cambios
     NT-->>NT: Generar mensajes
     NT->>NT: Enviar correo y Telegram
@@ -124,31 +132,35 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant BOT as Robot RPA
+    participant BOT as Robot UiPath
     participant GC as Guatecompras
+    participant API as API del robot
     participant DB as PostgreSQL
     participant IA as Servicio IA
     participant NT as Notificador
     participant U as Usuario
 
-    BOT->>DB: Concursos en seguimiento con cierre vigente
+    BOT->>API: Concursos en seguimiento con cierre vigente
     loop Por cada concurso
         BOT->>GC: Abrir detalle del NOG
         GC-->>BOT: Estado, fechas, documentos, aclaraciones
-        BOT->>DB: Comparar con última instantánea
+        BOT->>API: Enviar instantánea
+        API->>DB: Comparar con última instantánea
         alt Hay documento nuevo (adenda)
+            API-->>BOT: Pedir documentos nuevos
             BOT->>GC: Descargar
-            BOT->>DB: Guardar y registrar cambio
+            BOT->>API: Subir documento
+            API->>DB: Guardar y registrar cambio
             DB->>IA: Resumir qué cambió
             IA-->>DB: Resumen del cambio
             DB->>NT: Evento "concurso-cambió"
             NT->>U: 🔔 Alerta inmediata
         else Cambió fecha o estado
-            BOT->>DB: Registrar cambio
+            API->>DB: Registrar cambio
             DB->>NT: Evento "concurso-cambió"
             NT->>U: 🔔 Alerta inmediata
         else Sin cambios
-            BOT->>DB: Actualizar fecha de revisión
+            API->>DB: Actualizar fecha de revisión
         end
     end
 ```
@@ -201,12 +213,12 @@ flowchart TD
     S([Paso del robot]) --> T{¿Éxito?}
     T -- Sí --> N([Siguiente paso])
     T -- No --> C{Tipo de error}
-    C -- "Tiempo de espera /<br/>red" --> R{¿Intentos < 3?}
+    C -- "Tiempo de espera /<br/>red<br/>(System Exception)" --> R{¿Intentos < 3?}
     R -- Sí --> W[Esperar 2^n × 5 s] --> S
     R -- No --> F
     C -- "Selector no<br/>encontrado" --> E[Guardar captura + HTML<br/>Error CAMBIO_ESTRUCTURA]
     E --> AL[Alerta al administrador]
-    C -- "Archivo<br/>corrupto" --> M[Marcar documento<br/>para revisión]
+    C -- "Archivo<br/>corrupto<br/>(Business Exception)" --> M[Marcar documento<br/>para revisión]
     M --> N
     F[Registrar error en bitácora<br/>con captura] --> X{¿Error de un<br/>solo concurso?}
     X -- Sí --> N2([Continuar con siguiente NOG])

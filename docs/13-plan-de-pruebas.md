@@ -5,13 +5,15 @@
 | Nivel | Qué se prueba | Herramienta | Momento |
 |---|---|---|---|
 | Unitarias | Cálculo de compatibilidad, normalización de requisitos, validación de esquemas, indicadores de riesgo | Vitest | Cada push (CI) |
-| Integración | API + base de datos; workers + cola; ETL OCDS | Vitest + PostgreSQL en contenedor | Cada push (CI) |
-| Robot (fixtures) | Flujos del robot contra páginas HTML guardadas del portal | Playwright Test | Cada push (CI) |
-| Robot (humo real) | Una búsqueda real con un NOG conocido | Playwright | Diario, antes de la captura |
-| End-to-end | Del concurso capturado a la alerta recibida | Playwright Test | Por fase |
+| Integración | API + base de datos (incluida la API del robot `/robot/*`); workers + cola; ETL OCDS | Vitest + PostgreSQL en contenedor | Cada push (CI) |
+| Robot (fixtures) | Flujos del robot contra páginas HTML guardadas del portal | Casos de prueba de UiPath Studio (Test Explorer) + Workflow Analyzer | Antes de cada publicación a Orchestrator |
+| Robot (humo real) | Una búsqueda real con un NOG conocido | Proceso de humo en Orchestrator | Diario, antes de la captura |
+| End-to-end | Del concurso capturado a la alerta recibida | Robot UiPath contra fixtures + API real; Playwright Test para el dashboard | Por fase |
 | Aceptación | Casos de uso con el usuario de la empresa piloto | Guion manual | Fase 6 |
 
-> **Fixtures:** se guardan copias HTML de páginas reales del buscador y del detalle de concursos en `bot/test/fixtures/`. Así las pruebas del robot no dependen del portal ni lo cargan con solicitudes.
+> **Fixtures:** se guardan copias HTML de páginas reales del buscador y del detalle de concursos en `bot/VigiaCaptura/Tests/Fixtures/`. Los casos de prueba abren esas copias en el navegador (`file://`), así las pruebas del robot no dependen del portal ni lo cargan con solicitudes.
+>
+> Las pruebas del robot no corren en GitHub Actions (requieren Windows y UiPath); se ejecutan desde Studio y su resultado se registra en el reporte de la fase.
 
 ## 13.2 Casos de prueba principales
 

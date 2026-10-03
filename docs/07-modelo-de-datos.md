@@ -166,6 +166,7 @@ erDiagram
         int id PK
         string tipo "captura, cambios, manual"
         string estado "EN_CURSO, EXITOSA, PARCIAL, FALLIDA"
+        string uipath_job_id "Job de Orchestrator"
         datetime inicio
         datetime fin
         int concursos_nuevos
@@ -176,7 +177,7 @@ erDiagram
         int id PK
         int ejecucion_id FK
         string nog
-        string tipo "RED, CAMBIO_ESTRUCTURA, ARCHIVO, OTRO"
+        string tipo "RED, CAMBIO_ESTRUCTURA, ARCHIVO, NEGOCIO, PORTAL_CAIDO, OTRO"
         text mensaje
         string ruta_captura
         string ruta_html
