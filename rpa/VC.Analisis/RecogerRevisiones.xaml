@@ -54,7 +54,8 @@
       <Variable x:TypeArguments="x:String" Name="resultado" />
       <Variable x:TypeArguments="x:Boolean" Name="procesada" />
       <Variable x:TypeArguments="x:Int32" Name="procesadas" Default="0" />
-      <Variable x:TypeArguments="scg:List(upaf:FormTaskData)" Name="tareas" />
+      <Variable x:TypeArguments="s:Int64[]" Name="tareas" />
+      <Variable x:TypeArguments="x:Int32" Name="pendientes" />
       <Variable x:TypeArguments="upam:TaskData" Name="datosTarea" />
     </Sequence.Variables>
     <sap:WorkflowViewStateService.ViewState>
@@ -66,18 +67,27 @@
     <ui:GetRobotAsset AssetName="VC_ApiUrl" DisplayName="Get Asset · VC_ApiUrl" sap2010:WorkflowViewState.IdRef="GetRobotAsset_1">
         <ui:GetRobotAsset.Value><OutArgument x:TypeArguments="x:String">[apiUrl]</OutArgument></ui:GetRobotAsset.Value>
       </ui:GetRobotAsset>
-    <upaf:GetFormTasks DisplayName="Get Form Tasks · completadas" Filter="[&quot;Status eq 'Completed'&quot;]" OrderBy="[&quot;LastModificationTime desc&quot;]" sap2010:WorkflowViewState.IdRef="GetFormTasks_1" TaskCatalogName="[in_CatalogoTareas]" TaskObjects="[tareas]" Top="[CType(in_Maximo, Nullable(Of Int32))]" />
-    <ui:ForEach x:TypeArguments="upaf:FormTaskData" CurrentIndex="{x:Null}" DisplayName="Por cada tarea completada" sap2010:WorkflowViewState.IdRef="ForEach_1" Values="[tareas]">
+    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" sap2010:Annotation.AnnotationText="La API conoce el número de cada tarea (lo registra VC.Analisis al crearla). Consultar tarea por tarea con Get Task Data evita listar tareas como administrador de Action Center, que falla con error 2409 en Community." DisplayName="Tareas en revisión (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_T1" UnSafe="False" WorkflowFileName="TareasEnRevision.cs">
+      <ui:InvokeWorkflowFile.Arguments>
+        <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+        <OutArgument x:TypeArguments="s:Int64[]" x:Key="tareas">[tareas]</OutArgument>
+        <OutArgument x:TypeArguments="x:Int32" x:Key="total">[pendientes]</OutArgument>
+      </ui:InvokeWorkflowFile.Arguments>
+    </ui:InvokeWorkflowFile>
+    <ui:ForEach x:TypeArguments="x:Int64" CurrentIndex="{x:Null}" DisplayName="Por cada tarea en revisión" sap2010:WorkflowViewState.IdRef="ForEach_1" Values="[tareas]">
       <ui:ForEach.Body>
-        <ActivityAction x:TypeArguments="upaf:FormTaskData">
+        <ActivityAction x:TypeArguments="x:Int64">
           <ActivityAction.Argument>
-            <DelegateInArgument x:TypeArguments="upaf:FormTaskData" Name="tarea" />
+            <DelegateInArgument x:TypeArguments="x:Int64" Name="tareaId" />
           </ActivityAction.Argument>
           <Sequence DisplayName="Cuerpo" sap2010:WorkflowViewState.IdRef="Sequence_2">
-          <upat:GetTaskData DisplayName="Get Task Data (datos del formulario)" sap2010:WorkflowViewState.IdRef="GetTaskData_1" TaskId="[tarea.Id.Value]" TaskOutput="[datosTarea]" />
-          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Guardar la ficha corregida (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="ProcesarRevision.cs">
+          <upat:GetTaskData DisplayName="Get Task Data (datos del formulario)" sap2010:WorkflowViewState.IdRef="GetTaskData_1" TaskId="[tareaId]" TaskOutput="[datosTarea]" />
+          <If Condition="[datosTarea.Status.HasValue AndAlso datosTarea.Status.Value = UiPath.Persistence.Activities.Model.Task.TaskStatus.Completed]" DisplayName="¿La persona ya la completó?" sap2010:WorkflowViewState.IdRef="If_2">
+            <If.Then>
+              <Sequence DisplayName="Guardar y notificar" sap2010:WorkflowViewState.IdRef="Sequence_3">
+<ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Guardar la ficha corregida (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="ProcesarRevision.cs">
         <ui:InvokeWorkflowFile.Arguments>
-          <InArgument x:TypeArguments="x:Int64" x:Key="tareaId">[tarea.Id.Value]</InArgument>
+          <InArgument x:TypeArguments="x:Int64" x:Key="tareaId">[tareaId]</InArgument>
           <InArgument x:TypeArguments="x:String" x:Key="accion">[If(datosTarea.Action Is Nothing, &quot;&quot;, datosTarea.Action)]</InArgument>
           <InArgument x:TypeArguments="x:String" x:Key="datosJson">[If(datosTarea.Data Is Nothing, &quot;{}&quot;, Newtonsoft.Json.JsonConvert.SerializeObject(datosTarea.Data))]</InArgument>
           <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
@@ -103,11 +113,20 @@
         </Sequence>
       </If.Then>
     </If>
-          <ui:LogMessage DisplayName="Log · resultado de la tarea" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;Tarea &quot; &amp; tarea.Id.Value.ToString &amp; &quot;: &quot; &amp; resultado]" />
+              </Sequence>
+            </If.Then>
+            <If.Else>
+              <Assign DisplayName="Aún pendiente" sap2010:WorkflowViewState.IdRef="Assign_2">
+                <Assign.To><OutArgument x:TypeArguments="x:String">[resultado]</OutArgument></Assign.To>
+                <Assign.Value><InArgument x:TypeArguments="x:String">pendiente en Action Center</InArgument></Assign.Value>
+              </Assign>
+            </If.Else>
+          </If>
+          <ui:LogMessage DisplayName="Log · resultado de la tarea" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;Tarea &quot; &amp; tareaId.ToString &amp; &quot;: &quot; &amp; resultado]" />
           </Sequence>
         </ActivityAction>
       </ui:ForEach.Body>
     </ui:ForEach>
-    <ui:LogMessage DisplayName="Log · Fin" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Info" Message="[&quot;Revisiones de Action Center procesadas: &quot; &amp; procesadas.ToString &amp; &quot; de &quot; &amp; tareas.Count.ToString &amp; &quot; tareas completadas recientes&quot;]" />
+    <ui:LogMessage DisplayName="Log · Fin" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Info" Message="[&quot;Revisiones de Action Center procesadas: &quot; &amp; procesadas.ToString &amp; &quot; de &quot; &amp; pendientes.ToString &amp; &quot; tareas en revisión&quot;]" />
   </Sequence>
 </Activity>

@@ -81,7 +81,7 @@ El 31/10/2026 se corrigió el cálculo de confianza: las citas a páginas escane
 
 ### Ejecuciones de los robots
 
-Con corte al 31/10/2026 15:30, la bitácora (dashboard → Ejecuciones) registra **8 trabajos terminados con 6 exitosos (75 %)**. Las 2 fallas fueron de `RecogerRevisiones` por permisos de Action Center del usuario del robot. La causa está identificada y la solución documentada en [16.9](16-manual-tecnico.md#169-solución-de-problemas). La meta de 95 % durante 7 días seguidos **todavía no se puede afirmar**: el robot desatendido opera desde el 31/10/2026.
+Con corte al 31/10/2026 15:30, la bitácora (dashboard → Ejecuciones) registra **8 trabajos terminados con 6 exitosos (75 %)**. Las fallas fueron de `RecogerRevisiones` (error 2409 de Action Center al listar tareas con `Get Form Tasks`). Se corrigió en `VC.Analisis` 0.1.7, que consulta cada tarea por su número ([08 · 8.5](08-diseno-del-bot.md)). La meta de 95 % durante 7 días seguidos **todavía no se puede afirmar**: el robot desatendido opera desde el 31/10/2026.
 
 ## 17.3 Casos de prueba
 

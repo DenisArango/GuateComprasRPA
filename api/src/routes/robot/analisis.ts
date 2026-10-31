@@ -111,6 +111,28 @@ export async function rutasAnalisis(app: FastifyInstance) {
     return { ...ficha, confianza: Number(ficha.confianza) };
   });
 
+  /**
+   * VC.Analisis registra el número de la tarea de Action Center que creó para la ficha. RecogerRevisiones
+   * consulta después cada tarea por su número (Get Task Data), sin listar tareas como administrador.
+   */
+  app.put('/robot/concursos/:nog/ficha/tarea', async (request, reply) => {
+    const { nog } = Nog.parse(request.params);
+    const { tareaId } = z.object({ tareaId: z.coerce.number().int().positive() }).parse(request.body);
+    const { count } = await prisma.ficha.updateMany({ where: { concurso: { nog }, validadaPor: ValidadaPor.IA }, data: { tareaActionCenter: String(tareaId) } });
+    if (!count) return reply.code(404).send({ error: `El concurso ${nog} no tiene una ficha de la IA en revisión` });
+    return { nog, tareaId };
+  });
+
+  /** Fichas que esperan validación humana, con su tarea de Action Center (CU-17). */
+  app.get('/robot/fichas/en-revision', async () => {
+    const fichas = await prisma.ficha.findMany({
+      where: { validadaPor: ValidadaPor.IA, tareaActionCenter: { not: null }, concurso: { estadoSistema: EstadoSistema.REVISION_MANUAL } },
+      select: { tareaActionCenter: true, concurso: { select: { nog: true } } },
+      orderBy: { generadoEn: 'asc' },
+    });
+    return fichas.map((f) => ({ nog: f.concurso.nog, tareaId: Number(f.tareaActionCenter) }));
+  });
+
   /** Presupuesto diario de IA (RNF-11, CU-03 FA-3). */
   app.get('/robot/ia/presupuesto', async () => {
     const gastado = await prisma.usoIa.aggregate({ _sum: { costoUsd: true }, where: { creadoEn: { gte: inicioDeHoy() } } });

@@ -108,6 +108,13 @@ describe('rutas de VC.Analisis', () => {
     expect((await prisma.concurso.findUniqueOrThrow({ where: { nog: NOG } })).estadoSistema).toBe('REVISION_MANUAL');
   });
 
+  it('registra la tarea de Action Center y la lista como pendiente de revisión', async () => {
+    const r = await app.inject({ method: 'PUT', url: `/robot/concursos/${NOG}/ficha/tarea`, headers, payload: { tareaId: 777 } });
+    expect(r.statusCode, r.body).toBe(200);
+    const pendientes = (await app.inject({ method: 'GET', url: '/robot/fichas/en-revision', headers })).json();
+    expect(pendientes).toContainEqual({ nog: NOG, tareaId: 777 });
+  });
+
   it('devuelve el texto de los documentos por página', async () => {
     const texto = (await app.inject({ method: 'GET', url: `/robot/concursos/${NOG}/texto`, headers })).json();
     expect(texto.documentos[0]).toMatchObject({ id: documentoId, requiereOcr: false });

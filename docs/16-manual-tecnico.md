@@ -123,7 +123,7 @@ cd ..
 | La API responde `ECONNREFUSED` o el dashboard no carga datos | Docker Desktop apagado | Encender Docker Desktop y reiniciar la API |
 | La sesión del dashboard se pierde al reiniciar la API | Falta `JWT_SECRET` | Agregarlo a `infra/.env` |
 | Los disparadores no crean trabajos | No hay runtime desatendido en la carpeta | Ver 16.4, "Robot desatendido en la PC" |
-| `RecogerRevisiones` falla con *No folders exist with action admin permissions* | El usuario del robot no tiene permisos de Action Center en `Shared` | Asignarle el rol **Folder Administrator** en la carpeta |
+| `RecogerRevisiones` falla con *No folders exist with action admin permissions* | Versiones ≤ 0.1.6 listaban tareas con `Get Form Tasks` (consulta de administrador de Action Center) | Usar `VC.Analisis` 0.1.7 o superior, que consulta cada tarea por su número, con la API reiniciada. El usuario del robot debe tener **Folder Administrator** en `Shared`. |
 | La API no obtiene token de Orchestrator (`invalid_client`) | Un `#` en el secreto sin comillas | Escribir el valor entre comillas dobles en `.env` |
 | Las descargas de `VC.Concurso` vencen por tiempo | Edge abre el PDF en el visor | Activar "Descargar siempre los archivos PDF" en Edge |
 | `VC.Concurso` se detiene con un aviso | Guatecompras pidió verificación | Resolverla en Edge y presionar Aceptar. **Nunca automatizarla.** |

@@ -171,6 +171,13 @@
           </upaf:CreateFormTask.FormData>
         </upaf:CreateFormTask>
         <ui:LogMessage DisplayName="Log · tarea creada" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Info" Message="[&quot;NOG &quot; &amp; nog &amp; &quot;: tarea de validación &quot; &amp; tarea.Id.ToString &amp; &quot; creada (&quot; &amp; estado &amp; &quot;)&quot;]" />
+        <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="True" DisplayName="Registrar la tarea en la API (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_R1" UnSafe="False" WorkflowFileName="RegistrarTarea.cs">
+          <ui:InvokeWorkflowFile.Arguments>
+            <InArgument x:TypeArguments="x:String" x:Key="nog">[nog]</InArgument>
+            <InArgument x:TypeArguments="x:Int64" x:Key="tareaId">[tarea.Id.Value]</InArgument>
+            <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+          </ui:InvokeWorkflowFile.Arguments>
+        </ui:InvokeWorkflowFile>
         <ui:GetRobotAsset AssetName="VC_RevisorFichas" DisplayName="Get Asset · VC_RevisorFichas" sap2010:WorkflowViewState.IdRef="GetRobotAsset_7">
           <ui:GetRobotAsset.Value><OutArgument x:TypeArguments="x:String">[revisor]</OutArgument></ui:GetRobotAsset.Value>
         </ui:GetRobotAsset>
