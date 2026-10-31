@@ -1,0 +1,485 @@
+// Vigía de Contrataciones · modelo de datos (ver docs/07-modelo-de-datos.md).
+// Se implementa por partes: aquí están las tablas que usa la captura del boletín.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum EstadoSistema {
+  PRESELECCIONADO
+  CAPTURADO
+  TEXTO_EXTRAIDO
+  ANALIZADO
+  REVISION_MANUAL
+  NOTIFICADO
+  CERRADO
+  FINALIZADO
+  ERROR_CAPTURA
+}
+
+enum EtapaCoincidencia {
+  /// Calculada con los datos del boletín (preselección)
+  PRELIMINAR
+  /// Calculada con la ficha de la IA
+  COMPLETA
+}
+
+enum EstadoEjecucion {
+  EN_CURSO
+  EXITOSA
+  PARCIAL
+  FALLIDA
+}
+
+model Entidad {
+  id           Int        @id @default(autoincrement())
+  codigoGc     String?    @map("codigo_gc")
+  nombre       String     @unique
+  tipo         String?
+  departamento String?
+  concursos    Concurso[]
+
+  @@map("entidad")
+}
+
+model Concurso {
+  id               Int           @id @default(autoincrement())
+  nog              String        @unique @db.VarChar(20)
+  entidadId        Int           @map("entidad_id")
+  entidad          Entidad       @relation(fields: [entidadId], references: [id])
+  titulo           String
+  unidadCompradora String?       @map("unidad_compradora")
+  modalidad        String        @db.VarChar(120)
+  categorias       String[]
+  montoEstimado    Decimal?      @map("monto_estimado") @db.Decimal(14, 2)
+  fechaPublicacion DateTime?     @map("fecha_publicacion") @db.Date
+  fechaCierre      DateTime?     @map("fecha_cierre") @db.Date
+  estadoGc         String?       @map("estado_gc") @db.VarChar(60)
+  estadoSistema    EstadoSistema? @map("estado_sistema")
+  url              String
+  /// Datos tal como llegaron del boletín
+  origenBoletin    Json?         @map("origen_boletin")
+  /// Último detalle leído por VC.Concurso; se compara para detectar cambios
+  instantanea      Json?
+  creadoEn         DateTime      @default(now()) @map("creado_en")
+  revisadoEn       DateTime?     @map("revisado_en")
+  coincidencias    Coincidencia[]
+  documentos       Documento[]
+  cambios          CambioConcurso[]
+  ficha            Ficha?
+  usosIa           UsoIa[]
+  seguimientos     Seguimiento[]
+  expedientes      Expediente[]
+
+  @@index([estadoSistema, fechaCierre])
+  @@map("concurso")
+}
+
+enum TipoDocumento {
+  BASES
+  ESPECIFICACIONES
+  ANEXO
+  ADENDA
+  ACLARACION
+  OTRO
+}
+
+enum TipoCambio {
+  DOCUMENTO
+  FECHA
+  ESTADO
+  ACLARACION
+}
+
+model Documento {
+  id             Int           @id @default(autoincrement())
+  concursoId     Int           @map("concurso_id")
+  concurso       Concurso      @relation(fields: [concursoId], references: [id])
+  nombreOriginal String        @map("nombre_original")
+  tipo           TipoDocumento
+  sha256         String        @db.Char(64)
+  rutaAlmacen    String        @map("ruta_almacen")
+  tamanoBytes    Int           @map("tamano_bytes")
+  paginas        Int?
+  requiereOcr    Boolean?      @map("requiere_ocr")
+  textoExtraido  String?       @map("texto_extraido")
+  publicadoEn    DateTime?     @map("publicado_en")
+  creadoEn       DateTime      @default(now()) @map("creado_en")
+
+  /// RN-02: un documento es nuevo si su hash no existe para ese concurso
+  @@unique([concursoId, sha256])
+  @@map("documento")
+}
+
+model CambioConcurso {
+  id          Int        @id @default(autoincrement())
+  concursoId  Int        @map("concurso_id")
+  concurso    Concurso   @relation(fields: [concursoId], references: [id])
+  tipo        TipoCambio
+  antes       Json?
+  despues     Json?
+  resumenIa   String?    @map("resumen_ia")
+  detectadoEn DateTime   @default(now()) @map("detectado_en")
+
+  @@index([concursoId, detectadoEn])
+  @@map("cambio_concurso")
+}
+
+model PerfilEmpresa {
+  id                   Int      @id @default(autoincrement())
+  nombre               String
+  nit                  String?
+  activo               Boolean  @default(true)
+  categorias           String[]
+  palabrasClave        String[] @map("palabras_clave")
+  /// Prefijos de modalidad aceptados ("Cotización", "Licitación", "Compra Directa"); vacío = todas
+  modalidades          String[]
+  departamentos        String[]
+  montoMin             Decimal? @map("monto_min") @db.Decimal(14, 2)
+  montoMax             Decimal? @map("monto_max") @db.Decimal(14, 2)
+  umbralCompatibilidad Int      @default(60) @map("umbral_compatibilidad")
+  horaResumen          String   @default("07:00") @map("hora_resumen")
+  canales              String[] @default(["correo"])
+  /// Chats de Telegram vinculados desde el dashboard; reciben los avisos del perfil (RF-NOT-02)
+  telegramChats        String[] @default([]) @map("telegram_chats")
+  vinculosTelegram     VinculoTelegram[]
+  coincidencias        Coincidencia[]
+  notificaciones       Notificacion[]
+  documentos           DocumentoEmpresa[]
+  seguimientos         Seguimiento[]
+  usuarios             Usuario[]
+  expedientes          Expediente[]
+
+  @@map("perfil_empresa")
+}
+
+model Coincidencia {
+  id                   Int               @id @default(autoincrement())
+  concursoId           Int               @map("concurso_id")
+  concurso             Concurso          @relation(fields: [concursoId], references: [id])
+  perfilId             Int               @map("perfil_id")
+  perfil               PerfilEmpresa     @relation(fields: [perfilId], references: [id])
+  etapa                EtapaCoincidencia
+  puntaje              Int               @db.SmallInt
+  /// Componentes del puntaje
+  detalle              Json
+  faltantes            String[]          @default([])
+  notificado           Boolean           @default(false)
+  calificacionUsuario  String?           @map("calificacion_usuario")
+  calculadoEn          DateTime          @default(now()) @map("calculado_en")
+
+  @@unique([concursoId, perfilId, etapa])
+  @@index([perfilId, notificado, puntaje(sort: Desc)])
+  @@map("coincidencia")
+}
+
+model EjecucionRobot {
+  id                    Int             @id @default(autoincrement())
+  proceso               String
+  jobKey                String?         @unique @map("job_key")
+  estado                EstadoEjecucion
+  inicio                DateTime        @default(now())
+  fin                   DateTime?
+  elementosExitosos     Int             @default(0) @map("elementos_exitosos")
+  excepcionesNegocio    Int             @default(0) @map("excepciones_negocio")
+  excepcionesSistema    Int             @default(0) @map("excepciones_sistema")
+  concursosNuevos       Int             @default(0) @map("concursos_nuevos")
+  documentosDescargados Int             @default(0) @map("documentos_descargados")
+  detalle               Json?
+
+  @@index([inicio(sort: Desc)])
+  @@map("ejecucion_robot")
+}
+
+enum ValidadaPor {
+  IA
+  HUMANO
+}
+
+/// Ficha estructurada de un concurso (docs/09-ia-extraccion.md). Una por concurso: un nuevo
+/// análisis (por ejemplo, tras una adenda) la reemplaza.
+model Ficha {
+  id                  Int                    @id @default(autoincrement())
+  concursoId          Int                    @unique @map("concurso_id")
+  concurso            Concurso               @relation(fields: [concursoId], references: [id])
+  resumen             String
+  objeto              String
+  monto               Decimal?               @db.Decimal(14, 2)
+  plazoEntrega        String?                @map("plazo_entrega")
+  lugarEntrega        String?                @map("lugar_entrega")
+  fechaLimiteOfertas  DateTime?              @map("fecha_limite_ofertas")
+  garantias           Json
+  /// JSON validado completo
+  datosCompletos      Json                   @map("datos_completos")
+  confianza           Decimal                @db.Decimal(3, 2)
+  componentesConfianza Json                  @map("componentes_confianza")
+  validadaPor         ValidadaPor            @map("validada_por")
+  tareaActionCenter   String?                @map("tarea_action_center")
+  modeloIa            String                 @map("modelo_ia")
+  tokensEntrada       Int                    @map("tokens_entrada")
+  tokensSalida        Int                    @map("tokens_salida")
+  costoUsd            Decimal                @map("costo_usd") @db.Decimal(8, 5)
+  generadoEn          DateTime               @default(now()) @map("generado_en")
+  requisitos          Requisito[]
+  criterios           CriterioCalificacion[]
+
+  @@map("ficha")
+}
+
+model Requisito {
+  id                   Int      @id @default(autoincrement())
+  fichaId              Int      @map("ficha_id")
+  ficha                Ficha    @relation(fields: [fichaId], references: [id], onDelete: Cascade)
+  tipo                 String
+  descripcion          String
+  documentoNormalizado String?  @map("documento_normalizado")
+  obligatorio          Boolean
+  referencia           String?
+  posibleRestrictivo   Boolean  @map("posible_restrictivo")
+  motivoRestrictivo    String?  @map("motivo_restrictivo")
+
+  @@map("requisito")
+}
+
+model CriterioCalificacion {
+  id          Int      @id @default(autoincrement())
+  fichaId     Int      @map("ficha_id")
+  ficha       Ficha    @relation(fields: [fichaId], references: [id], onDelete: Cascade)
+  criterio    String
+  ponderacion Decimal? @db.Decimal(6, 2)
+
+  @@map("criterio_calificacion")
+}
+
+/// Cada llamada a la IA, aunque la ficha resulte inválida (control de costos, RNF-11)
+model UsoIa {
+  id            Int       @id @default(autoincrement())
+  concursoId    Int?      @map("concurso_id")
+  concurso      Concurso? @relation(fields: [concursoId], references: [id])
+  modelo        String
+  tokensEntrada Int       @map("tokens_entrada")
+  tokensSalida  Int       @map("tokens_salida")
+  costoUsd      Decimal   @map("costo_usd") @db.Decimal(8, 5)
+  creadoEn      DateTime  @default(now()) @map("creado_en")
+
+  @@index([creadoEn])
+  @@map("uso_ia")
+}
+
+enum Rol {
+  PROVEEDOR
+  ANALISTA
+  ADMIN
+}
+
+enum EstadoSeguimiento {
+  SIGUIENDO
+  PARTICIPARE
+  DESCARTADO
+}
+
+model Usuario {
+  id             Int             @id @default(autoincrement())
+  correo         String          @unique
+  hashContrasena String          @map("hash_contrasena")
+  nombre         String
+  rol            Rol             @default(PROVEEDOR)
+  activo         Boolean         @default(true)
+  intentosFallidos Int           @default(0) @map("intentos_fallidos")
+  bloqueadoHasta DateTime?       @map("bloqueado_hasta")
+  telegramChatId String?         @map("telegram_chat_id")
+  perfiles       PerfilEmpresa[]
+  creadoEn       DateTime        @default(now()) @map("creado_en")
+
+  @@map("usuario")
+}
+
+/// Documentos que la empresa tiene, para calcular faltantes (RN-09)
+model DocumentoEmpresa {
+  id                   Int           @id @default(autoincrement())
+  perfilId             Int           @map("perfil_id")
+  perfil               PerfilEmpresa @relation(fields: [perfilId], references: [id], onDelete: Cascade)
+  documentoNormalizado String        @map("documento_normalizado")
+  venceEn              DateTime?     @map("vence_en") @db.Date
+
+  @@unique([perfilId, documentoNormalizado])
+  @@map("documento_empresa")
+}
+
+model Seguimiento {
+  id            Int               @id @default(autoincrement())
+  perfilId      Int               @map("perfil_id")
+  perfil        PerfilEmpresa     @relation(fields: [perfilId], references: [id], onDelete: Cascade)
+  concursoId    Int               @map("concurso_id")
+  concurso      Concurso          @relation(fields: [concursoId], references: [id])
+  estado        EstadoSeguimiento
+  actualizadoEn DateTime          @default(now()) @updatedAt @map("actualizado_en")
+
+  @@unique([perfilId, concursoId])
+  @@map("seguimiento")
+}
+
+enum TipoNotificacion {
+  RESUMEN
+  FICHA
+  CAMBIO
+  ADMIN
+}
+
+enum EstadoNotificacion {
+  ENVIADO
+  FALLIDO
+}
+
+/// Cada envío de VC.Notificador (RF-NOT): evita repetir avisos y deja evidencia de lo enviado
+model Notificacion {
+  id             Int                @id @default(autoincrement())
+  perfilId       Int?               @map("perfil_id")
+  perfil         PerfilEmpresa?     @relation(fields: [perfilId], references: [id], onDelete: SetNull)
+  tipo           TipoNotificacion
+  canal          String             @default("correo")
+  estado         EstadoNotificacion
+  destinatarios  String[]
+  asunto         String
+  /// NOG de los concursos incluidos
+  nogs           String[]           @default([])
+  error          String?
+  enviadoEn      DateTime           @default(now()) @map("enviado_en")
+
+  @@index([perfilId, enviadoEn])
+  @@map("notificacion")
+}
+
+// ---------- Histórico OCDS y banderas rojas (docs/10-banderas-rojas.md, ADR-0001) ----------
+
+/// Proceso de contratación de los datos abiertos OCDS de Guatecompras (un registro compilado por ocid)
+model OcdsProceso {
+  id                Int               @id @default(autoincrement())
+  ocid              String            @unique
+  nog               String?           @db.VarChar(20)
+  compradorId       String            @map("comprador_id")
+  compradorNombre   String            @map("comprador_nombre")
+  /// Unidad compradora (parte con rol buyer que pertenece a la entidad): base de IR-04
+  unidadId          String?           @map("unidad_id")
+  unidadNombre      String?           @map("unidad_nombre")
+  titulo            String
+  /// procurementMethodDetails: "Cotización (Art. 38 LCE)"
+  modalidad         String
+  /// mainProcurementCategory: goods, services, works
+  categoria         String?
+  /// Códigos UNSPSC de los ítems
+  clasificaciones   String[]          @default([])
+  fechaPublicacion  DateTime?         @map("fecha_publicacion")
+  inicioOfertas     DateTime?         @map("inicio_ofertas")
+  finOfertas        DateTime?         @map("fin_ofertas")
+  numeroOfertas     Int?              @map("numero_ofertas")
+  /// statusDetails: Adjudicado, Desierto, Prescindido, Vigente...
+  estado            String?
+  /// Puntaje compuesto de riesgo 0–100 (docs/10, 10.4)
+  puntajeRiesgo     Int               @default(0) @map("puntaje_riesgo") @db.SmallInt
+  actualizadoEn     DateTime?         @map("actualizado_en")
+  adjudicaciones    OcdsAdjudicacion[]
+  indicadores       IndicadorRiesgo[]
+
+  @@index([compradorNombre, fechaPublicacion])
+  @@index([nog])
+  @@index([puntajeRiesgo(sort: Desc)])
+  @@map("ocds_proceso")
+}
+
+model OcdsAdjudicacion {
+  id          Int         @id @default(autoincrement())
+  procesoId   Int         @map("proceso_id")
+  proceso     OcdsProceso @relation(fields: [procesoId], references: [id], onDelete: Cascade)
+  proveedorId Int         @map("proveedor_id")
+  proveedor   Proveedor   @relation(fields: [proveedorId], references: [id])
+  monto       Decimal?    @db.Decimal(16, 2)
+  fecha       DateTime?
+  /// active, cancelled
+  estado      String?
+
+  @@index([proveedorId, fecha])
+  @@index([procesoId])
+  @@map("ocds_adjudicacion")
+}
+
+model Proveedor {
+  id             Int                @id @default(autoincrement())
+  /// Identificador OCDS: GT-NIT-1234567
+  identificador  String             @unique
+  nit            String?
+  nombre         String
+  /// INDIVIDUAL, SOCIEDAD ANÓNIMA...
+  tipo           String?
+  adjudicaciones OcdsAdjudicacion[]
+
+  @@index([nombre])
+  @@map("proveedor")
+}
+
+/// Indicador activado en un proceso. Es una señal que amerita revisión, no una acusación.
+model IndicadorRiesgo {
+  id          Int         @id @default(autoincrement())
+  procesoId   Int         @map("proceso_id")
+  proceso     OcdsProceso @relation(fields: [procesoId], references: [id], onDelete: Cascade)
+  codigo      String      @db.VarChar(8)
+  valor       Decimal     @db.Decimal(14, 4)
+  evidencia   String
+  calculadoEn DateTime    @default(now()) @map("calculado_en")
+
+  @@unique([procesoId, codigo])
+  @@index([codigo])
+  @@map("indicador_riesgo")
+}
+
+enum EstadoCarga {
+  EN_CURSO
+  EXITOSA
+  FALLIDA
+}
+
+/// Cada carga de datos OCDS (CU-11); VC.Datos consulta su estado hasta que termina
+model OcdsCarga {
+  id         Int         @id @default(autoincrement())
+  anios      Int[]
+  estado     EstadoCarga @default(EN_CURSO)
+  etapa      String      @default("iniciando")
+  registros  Int         @default(0)
+  indicadores Int        @default(0)
+  error      String?
+  inicio     DateTime    @default(now())
+  fin        DateTime?
+
+  @@map("ocds_carga")
+}
+
+/// Cada expediente de oferta armado por VC.Expediente (CU-16). duracion_seg mide el tiempo frente al proceso manual (OE7)
+model Expediente {
+  id          Int           @id @default(autoincrement())
+  perfilId    Int           @map("perfil_id")
+  perfil      PerfilEmpresa @relation(fields: [perfilId], references: [id], onDelete: Cascade)
+  concursoId  Int           @map("concurso_id")
+  concurso    Concurso      @relation(fields: [concursoId], references: [id])
+  ruta        String
+  faltantes   String[]      @default([])
+  duracionSeg Int           @map("duracion_seg")
+  generadoEn  DateTime      @default(now()) @map("generado_en")
+
+  @@index([perfilId, concursoId])
+  @@map("expediente")
+}
+
+/// Código de un solo uso para vincular un chat de Telegram a un perfil: el bot lo recibe con /start <codigo>
+model VinculoTelegram {
+  codigo   String        @id
+  perfilId Int           @map("perfil_id")
+  perfil   PerfilEmpresa @relation(fields: [perfilId], references: [id], onDelete: Cascade)
+  venceEn  DateTime      @map("vence_en")
+
+  @@map("vinculo_telegram")
+}

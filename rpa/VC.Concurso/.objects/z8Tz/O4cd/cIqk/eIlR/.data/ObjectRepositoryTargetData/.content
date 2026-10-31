@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ObjectRepositoryTargetData ContentHash="FCw88looG0uI3FDeNXwNBg" xmlns="http://schemas.uipath.com/workflow/activities/uix" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ObjectRepositoryTargetData.Data>
+    <TargetAnchorable x:Key="TargetAnchorable" BrowserURL="guatecompras.gt/concursos/consultaConcurso.aspx" DesignTimeRectangle="183, 953, 1560, 46" DesignTimeScaleFactor="1.25" ElementVisibilityArgument="Interactive" FullSelectorArgument="&lt;webctrl id='MasterGC_ContentBlockHolder_wucTiposAnexoConcurso_h0' tag='DIV' /&gt;" Guid="c5b49795-b2b4-46c9-8c17-370776f026db" ScopeSelectorArgument="&lt;html app='msedge.exe' title='Guatecompras - Sistema de Contrataciones y Adquisiciones del Estado de Guatemala' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive">
+      <TargetAnchorable.PointOffset>
+        <PointOffset />
+      </TargetAnchorable.PointOffset>
+      <imageRef attrName="InformativeScreenshot" originalValue="7e3f8e808beb0e9433efa8146485e878.jpg" xmlns="">0qAD0VoRP1Eyk5gmFQeJUsg</imageRef>
+    </TargetAnchorable>
+  </ObjectRepositoryTargetData.Data>
+</ObjectRepositoryTargetData>

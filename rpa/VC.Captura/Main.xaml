@@ -1,0 +1,208 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Main" this:Main.in_PreseleccionLocal="True" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:snm="clr-namespace:System.Net.Mail;assembly=System.Net.Mail" xmlns:ss="clr-namespace:System.Security;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:this="clr-namespace:" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property sap2010:Annotation.AnnotationText="True mientras no existe la API: preselecciona con Data/Config.json. En producción, False." Name="in_PreseleccionLocal" Type="InArgument(x:Boolean)" />
+    <x:Property sap2010:Annotation.AnnotationText="Ruta de un boletín HTML ya guardado (pruebas o carga manual). Vacío = leerlo del correo de suscripción." Name="in_RutaBoletin" Type="InArgument(x:String)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>Main_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.Platform.ResourceHandling</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>UiPath.Mail.IMAP.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic.Core</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Runtime</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+      <AssemblyReference>UiPath.Studio.Constants</AssemblyReference>
+      <AssemblyReference>System.Net.Mail</AssemblyReference>
+      <AssemblyReference>UiPath.Mail.Activities</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Despachador desatendido (por la mañana; se repite cada hora hasta que llega el boletín). Lee el boletín diario de Guatecompras (suscripción por correo; el portal no se descarga porque Cloudflare rechaza clientes que no son navegador), obtiene los candidatos preseleccionados y los agrega a la cola VC_Concursos. No abre el detalle de los concursos: eso lo hace VC.Concurso (atendido). Ver docs/08-diseno-del-bot.md (8.3) y ADR-0006." DisplayName="VC.Captura · Despachador del boletín diario" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="apiUrl" />
+      <Variable x:TypeArguments="x:String" Name="rutaBoletin" />
+      <Variable x:TypeArguments="sd:DataTable" Name="dt_Candidatos" />
+      <Variable x:TypeArguments="x:Int32" Name="publicados" />
+      <Variable x:TypeArguments="x:String" Name="resumen" />
+      <Variable x:TypeArguments="x:Int32" Default="0" Name="encolados" />
+      <Variable x:TypeArguments="x:String" Name="detalleCorreo" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:LogMessage DisplayName="Log · Inicio" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;VC.Captura: inicio. Preselección local = &quot; &amp; in_PreseleccionLocal.ToString]" />
+    <Sequence DisplayName="Leer configuración de Orchestrator" sap2010:WorkflowViewState.IdRef="Sequence_2">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <If Condition="[Not in_PreseleccionLocal]" DisplayName="¿Preselección con la API?" sap2010:WorkflowViewState.IdRef="If_1">
+        <If.Then>
+          <Sequence DisplayName="URL de la API" sap2010:WorkflowViewState.IdRef="Sequence_3">
+            <ui:GetRobotAsset AssetName="VC_ApiUrl" DisplayName="Get Asset · VC_ApiUrl" sap2010:WorkflowViewState.IdRef="GetRobotAsset_2">
+              <ui:GetRobotAsset.Value>
+                <OutArgument x:TypeArguments="x:String">[apiUrl]</OutArgument>
+              </ui:GetRobotAsset.Value>
+            </ui:GetRobotAsset>
+          </Sequence>
+        </If.Then>
+      </If>
+    </Sequence>
+    <If Condition="[String.IsNullOrWhiteSpace(in_RutaBoletin)]" DisplayName="Obtener el boletín" sap2010:WorkflowViewState.IdRef="If_2">
+      <If.Then>
+        <Sequence sap2010:Annotation.AnnotationText="Lee el buzón del proyecto (suscrito al Boletín diario de concursos) con la actividad IMAP y guarda el HTML del boletín de hoy en VC_CarpetaTrabajo. Si aún no llegó, rutaBoletin queda vacía y el robot termina sin error." DisplayName="Desde el correo de suscripción" sap2010:WorkflowViewState.IdRef="Sequence_5">
+          <Sequence.Variables>
+            <Variable x:TypeArguments="x:String" Name="correoUsuario" />
+            <Variable x:TypeArguments="ss:SecureString" Name="correoClave" />
+            <Variable x:TypeArguments="x:String" Name="imapServidor" />
+            <Variable x:TypeArguments="x:String" Name="carpetaTrabajo" />
+            <Variable x:TypeArguments="scg:List(snm:MailMessage)" Name="correos" />
+          </Sequence.Variables>
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ui:GetRobotCredential CacheStrategy="None" DisplayName="Get Credential · VC_SMTP (cuenta de correo)" sap2010:WorkflowViewState.IdRef="GetRobotCredential_1" AssetName="VC_SMTP" Password="[correoClave]" Username="[correoUsuario]" />
+          <ui:GetRobotAsset AssetName="VC_IMAP_Servidor" DisplayName="Get Asset · VC_IMAP_Servidor" sap2010:WorkflowViewState.IdRef="GetRobotAsset_3">
+            <ui:GetRobotAsset.Value>
+              <OutArgument x:TypeArguments="x:String">[imapServidor]</OutArgument>
+            </ui:GetRobotAsset.Value>
+          </ui:GetRobotAsset>
+          <ui:GetRobotAsset AssetName="VC_CarpetaTrabajo" DisplayName="Get Asset · VC_CarpetaTrabajo" sap2010:WorkflowViewState.IdRef="GetRobotAsset_4">
+            <ui:GetRobotAsset.Value>
+              <OutArgument x:TypeArguments="x:String">[carpetaTrabajo]</OutArgument>
+            </ui:GetRobotAsset.Value>
+          </ui:GetRobotAsset>
+          <ui:GetIMAPMailMessages DeleteMessages="False" DisplayName="Get IMAP Mail Messages · bandeja de entrada" Email="[correoUsuario]" sap2010:WorkflowViewState.IdRef="GetIMAPMailMessages_1" MailFolder="INBOX" MarkAsRead="False" Messages="[correos]" OnlyUnreadMessages="False" Port="[CInt(imapServidor.Split(&quot;:&quot;c)(1))]" SecureConnection="Auto" SecurePassword="[correoClave]" Server="[imapServidor.Split(&quot;:&quot;c)(0)]" Top="30" />
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" sap2010:Annotation.AnnotationText="Coded workflow (C#): elige el correo de Guatecompras con asunto &quot;Publicaciones de ayer&quot; recibido hoy y guarda su HTML (adjunto o cuerpo)." DisplayName="Guardar el boletín de hoy (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_2" UnSafe="False" WorkflowFileName="GuardarBoletinCorreo.cs">
+            <ui:InvokeWorkflowFile.Arguments>
+              <InArgument x:TypeArguments="scg:List(snm:MailMessage)" x:Key="correos">[correos]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="carpetaTrabajo">[carpetaTrabajo]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="remitente">[String.Empty]</InArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="rutaBoletin">[rutaBoletin]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="detalle">[detalleCorreo]</OutArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+            <sap:WorkflowViewStateService.ViewState>
+              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+              </scg:Dictionary>
+            </sap:WorkflowViewStateService.ViewState>
+          </ui:InvokeWorkflowFile>
+          <ui:LogMessage DisplayName="Log · Correo del boletín" sap2010:WorkflowViewState.IdRef="LogMessage_3" Level="Info" Message="[detalleCorreo]" />
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Assign DisplayName="Usar el archivo indicado" sap2010:WorkflowViewState.IdRef="Assign_2">
+          <Assign.To>
+            <OutArgument x:TypeArguments="x:String">[rutaBoletin]</OutArgument>
+          </Assign.To>
+          <Assign.Value>
+            <InArgument x:TypeArguments="x:String">[in_RutaBoletin]</InArgument>
+          </Assign.Value>
+        </Assign>
+      </If.Else>
+    </If>
+    <If Condition="[String.IsNullOrEmpty(rutaBoletin)]" DisplayName="¿Llegó el boletín?" sap2010:WorkflowViewState.IdRef="If_3">
+      <If.Then>
+        <ui:LogMessage DisplayName="Log · Boletín pendiente" sap2010:WorkflowViewState.IdRef="LogMessage_4" Level="Info" Message="[&quot;VC.Captura: el boletín de hoy aún no llega; se revisará en la siguiente ejecución.&quot;]" />
+      </If.Then>
+      <If.Else>
+        <Sequence DisplayName="Leer, preseleccionar y encolar" sap2010:WorkflowViewState.IdRef="Sequence_6">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+            <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" sap2010:Annotation.AnnotationText="Coded workflow (C#): interpreta el boletín con BoletinParser y preselecciona (la clave de la API la lee del asset VC_ApiClave). Si el número de concursos leídos no coincide con el que declara el boletín, lanza CAMBIO_ESTRUCTURA." DisplayName="Leer boletín y preseleccionar (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="LeerBoletin.cs">
+              <ui:InvokeWorkflowFile.Arguments>
+                <InArgument x:TypeArguments="x:String" x:Key="rutaBoletin">[rutaBoletin]</InArgument>
+                <InArgument x:TypeArguments="x:Boolean" x:Key="preseleccionLocal">[in_PreseleccionLocal]</InArgument>
+                <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+                <OutArgument x:TypeArguments="sd:DataTable" x:Key="candidatos">[dt_Candidatos]</OutArgument>
+                <OutArgument x:TypeArguments="x:Int32" x:Key="publicados">[publicados]</OutArgument>
+                <OutArgument x:TypeArguments="x:String" x:Key="resumen">[resumen]</OutArgument>
+              </ui:InvokeWorkflowFile.Arguments>
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+            </ui:InvokeWorkflowFile>
+            <ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[dt_Candidatos]" DisplayName="Por cada candidato" sap2010:WorkflowViewState.IdRef="ForEachRow_1">
+              <ui:ForEachRow.Body>
+                <ActivityAction x:TypeArguments="sd:DataRow">
+                  <ActivityAction.Argument>
+                    <DelegateInArgument x:TypeArguments="sd:DataRow" Name="fila" />
+                  </ActivityAction.Argument>
+                  <Sequence DisplayName="Encolar candidato" sap2010:WorkflowViewState.IdRef="Sequence_4">
+                    <ui:AddQueueItem ContinueOnError="{x:Null}" DeferDate="{x:Null}" DueDate="{x:Null}" ItemInformationCollection="{x:Null}" ServiceBaseAddress="{x:Null}" TimeoutMS="{x:Null}" DisplayName="Add Queue Item · VC_Concursos" FolderPath="{x:Null}" sap2010:WorkflowViewState.IdRef="AddQueueItem_1" Priority="Normal" QueueType="VC_Concursos" Reference="[&quot;NUEVO-&quot; &amp; fila(&quot;Nog&quot;).ToString &amp; &quot;-&quot; &amp; Now.ToString(&quot;yyyyMMdd&quot;)]">
+                      <ui:AddQueueItem.ItemInformation>
+                        <InArgument x:TypeArguments="x:String" x:Key="Nog">[fila("Nog").ToString]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="Tipo">NUEVO</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="Url">[fila("Url").ToString]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="Descripcion">[fila("Descripcion").ToString]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="Entidad">[fila("Entidad").ToString]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="Modalidad">[fila("Modalidad").ToString]</InArgument>
+                        <InArgument x:TypeArguments="x:String" x:Key="FechaCierre">[fila("FechaCierre").ToString]</InArgument>
+                      </ui:AddQueueItem.ItemInformation>
+                    </ui:AddQueueItem>
+                    <Assign DisplayName="Contar encolados" sap2010:WorkflowViewState.IdRef="Assign_1">
+                      <Assign.To>
+                        <OutArgument x:TypeArguments="x:Int32">[encolados]</OutArgument>
+                      </Assign.To>
+                      <Assign.Value>
+                        <InArgument x:TypeArguments="x:Int32">[encolados + 1]</InArgument>
+                      </Assign.Value>
+                    </Assign>
+                  </Sequence>
+                </ActivityAction>
+              </ui:ForEachRow.Body>
+            </ui:ForEachRow>
+            <ui:LogMessage DisplayName="Log · Fin" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Info" Message="[resumen &amp; &quot;. Encolados en VC_Concursos: &quot; &amp; encolados.ToString]" />
+        </Sequence>
+      </If.Else>
+    </If>
+  </Sequence>
+</Activity>

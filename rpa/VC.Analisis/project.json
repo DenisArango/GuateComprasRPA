@@ -1,0 +1,109 @@
+{
+  "name": "VC.Analisis",
+  "projectId": "434d0a35-6640-4571-956a-863525b0f6aa",
+  "description": "Vigía de Contrataciones · Ejecutor en segundo plano (REFramework): texto de los PDF, ficha con Claude, validación humana en Action Center",
+  "main": "Main.xaml",
+  "dependencies": {
+    "Anthropic": "[13.3.0]",
+    "UiPath.Excel.Activities": "[3.5.1]",
+    "UiPath.PDF.Activities": "[4.3.0]",
+    "UiPath.Persistence.Activities": "[1.13.0]",
+    "UiPath.System.Activities": "[26.10.0]",
+    "UiPath.Testing.Activities": "[25.10.0]",
+    "UiPath.UIAutomation.Activities": "[26.10.2]"
+  },
+  "webServices": [],
+  "entitiesStores": [],
+  "schemaVersion": "4.0",
+  "studioVersion": "26.0.204.0",
+  "projectVersion": "0.1.6",
+  "runtimeOptions": {
+    "autoDispose": false,
+    "netFrameworkLazyLoading": false,
+    "isPausable": true,
+    "isAttended": false,
+    "requiresUserInteraction": false,
+    "supportsPersistence": false,
+    "workflowSerialization": "DataContract",
+    "excludedLoggedData": [
+      "Private:*",
+      "*password*",
+      "*clave*"
+    ],
+    "executionType": "Workflow",
+    "readyForPiP": false,
+    "startsInPiP": false,
+    "mustRestoreAllDependencies": false,
+    "pipType": "ChildSession"
+  },
+  "designOptions": {
+    "projectProfile": "Developement",
+    "outputType": "Process",
+    "libraryOptions": {
+      "privateWorkflows": []
+    },
+    "processOptions": {
+      "ignoredFiles": []
+    },
+    "fileInfoCollection": [
+      {
+        "editingStatus": "InProgress",
+        "testCaseId": "ec55ea38-634a-4595-9930-26afe84eeb05",
+        "testCaseType": "TestCase",
+        "fileName": "Tests\\GetTransactionDataTestCase.xaml"
+      },
+      {
+        "editingStatus": "InProgress",
+        "testCaseId": "f6d75977-0f98-4622-92db-5783bc2ec928",
+        "testCaseType": "TestCase",
+        "fileName": "Tests\\InitAllApplicationsTestCase.xaml"
+      },
+      {
+        "editingStatus": "InProgress",
+        "testCaseId": "96f1a392-aa6c-4723-87af-3943538809e4",
+        "testCaseType": "TestCase",
+        "fileName": "Tests\\InitAllSettingsTestCase.xaml"
+      },
+      {
+        "editingStatus": "InProgress",
+        "testCaseId": "2ad1f870-c63f-4464-b1e6-525dda4441de",
+        "testCaseType": "TestCase",
+        "fileName": "Tests\\MainTestCase.xaml"
+      },
+      {
+        "editingStatus": "InProgress",
+        "testCaseId": "273382ea-e26c-477e-95cb-d942ed75f11a",
+        "testCaseType": "TestCase",
+        "fileName": "Tests\\ProcessTestCase.xaml"
+      },
+      {
+        "editingStatus": "InProgress",
+        "testCaseId": "a3ae7ee1-032a-4fc8-8731-8a5b0b5f48bc",
+        "testCaseType": "TestCase",
+        "fileName": "Tests\\WorkflowTestCaseTemplate.xaml"
+      }
+    ],
+    "modernBehavior": false,
+    "saveToCloud": false
+  },
+  "expressionLanguage": "VisualBasic",
+  "entryPoints": [
+    {
+      "filePath": "Main.xaml",
+      "uniqueId": "933f6bf8-4bbe-4b8f-b155-dcbd5d39f5a6",
+      "input": [],
+      "output": []
+    },
+    {
+      "filePath": "RecogerRevisiones.xaml",
+      "uniqueId": "6a8d2d59-16e2-4aaf-a446-5145fcad7737",
+      "input": [],
+      "output": []
+    }
+  ],
+  "isTemplate": false,
+  "templateProjectData": {},
+  "publishData": {},
+  "targetFramework": "Windows",
+  "dotNetVersion": "net10.0"
+}

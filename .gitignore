@@ -17,8 +17,18 @@ database/ocds/raw/
 *.pdf
 !docs/**/*.pdf
 
-# Evidencia del robot
-bot/evidence/
+# UiPath: archivos locales de Studio, paquetes y evidencia
+rpa/**/.local/
+rpa/**/.tmh/
+rpa/**/Output/
+rpa/**/Exceptions_Screenshots/
+*.nupkg
+rpa/tests/**/bin/
+rpa/tests/**/obj/
+
+# Cliente de Prisma generado (npm run db:generate)
+api/src/generated/
+
 test-results/
 playwright-report/
 
@@ -29,3 +39,7 @@ Thumbs.db
 !.vscode/extensions.json
 .idea/
 *.log
+
+# Archivos de trabajo de las skills (capturas, inspecciones)
+.playwright-cli/
+.taste-skill/

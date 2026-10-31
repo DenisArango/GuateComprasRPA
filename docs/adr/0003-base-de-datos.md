@@ -17,7 +17,7 @@ SQL Server, PostgreSQL, MySQL.
 - `jsonb` para los registros OCDS originales y las fichas de IA.
 - Búsqueda de texto completo en español (`to_tsvector('spanish', ...)`).
 - Extensión `pgvector` para embeddings.
-- `pg-boss` para la cola de trabajos y la programación, sin necesidad de Redis.
+- ~~`pg-boss` para la cola de trabajos y la programación~~. Desde [ADR-0004](0004-uipath-como-centro.md), la cola y la programación las maneja Orchestrator.
 - Gratuito y disponible en Docker y en cualquier proveedor de nube.
 
 ## Consecuencias

@@ -1,0 +1,113 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="RecogerRevisiones" this:RecogerRevisiones.in_CatalogoTareas="VC_ValidacionFichas" this:RecogerRevisiones.in_ColaNotificaciones="VC_Notificaciones" this:RecogerRevisiones.in_Maximo="50" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:this="clr-namespace:" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:upaf="clr-namespace:UiPath.Persistence.Activities.FormTask;assembly=UiPath.Persistence.Activities" xmlns:upat="clr-namespace:UiPath.Persistence.Activities.Tasks;assembly=UiPath.Persistence.Activities" xmlns:upam="clr-namespace:UiPath.Persistence.Activities.Model.Task;assembly=UiPath.Persistence.Activities">
+  <x:Members>
+    <x:Property Name="in_CatalogoTareas" Type="InArgument(x:String)" />
+    <x:Property Name="in_ColaNotificaciones" Type="InArgument(x:String)" />
+    <x:Property Name="in_Maximo" Type="InArgument(x:Int32)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>RecogerRevisiones_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.Persistence.Activities.FormTask</x:String>
+      <x:String>UiPath.Persistence.Activities.Model.Task</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic.Core</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Runtime</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+      <AssemblyReference>UiPath.Persistence.Activities</AssemblyReference>
+      <AssemblyReference>Newtonsoft.Json</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Segundo punto de entrada de VC.Analisis (trigger cada 30 minutos). Recoge las tareas de Action Center ya completadas, guarda en la API las fichas corregidas (validadaPor = HUMANO) y encola su notificación. ProcesarRevision.cs es idempotente: una tarea ya guardada no se procesa dos veces (CU-17). Get Form Tasks devuelve la lista sin los datos del formulario: por eso cada tarea se lee con Get Task Data." DisplayName="RecogerRevisiones" sap2010:WorkflowViewState.IdRef="Sequence_100">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="apiUrl" />
+      <Variable x:TypeArguments="x:String" Name="nog" />
+      <Variable x:TypeArguments="x:String" Name="resultado" />
+      <Variable x:TypeArguments="x:Boolean" Name="procesada" />
+      <Variable x:TypeArguments="x:Int32" Name="procesadas" Default="0" />
+      <Variable x:TypeArguments="scg:List(upaf:FormTaskData)" Name="tareas" />
+      <Variable x:TypeArguments="upam:TaskData" Name="datosTarea" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:GetRobotAsset AssetName="VC_ApiUrl" DisplayName="Get Asset · VC_ApiUrl" sap2010:WorkflowViewState.IdRef="GetRobotAsset_1">
+        <ui:GetRobotAsset.Value><OutArgument x:TypeArguments="x:String">[apiUrl]</OutArgument></ui:GetRobotAsset.Value>
+      </ui:GetRobotAsset>
+    <upaf:GetFormTasks DisplayName="Get Form Tasks · completadas" Filter="[&quot;Status eq 'Completed'&quot;]" OrderBy="[&quot;LastModificationTime desc&quot;]" sap2010:WorkflowViewState.IdRef="GetFormTasks_1" TaskCatalogName="[in_CatalogoTareas]" TaskObjects="[tareas]" Top="[CType(in_Maximo, Nullable(Of Int32))]" />
+    <ui:ForEach x:TypeArguments="upaf:FormTaskData" CurrentIndex="{x:Null}" DisplayName="Por cada tarea completada" sap2010:WorkflowViewState.IdRef="ForEach_1" Values="[tareas]">
+      <ui:ForEach.Body>
+        <ActivityAction x:TypeArguments="upaf:FormTaskData">
+          <ActivityAction.Argument>
+            <DelegateInArgument x:TypeArguments="upaf:FormTaskData" Name="tarea" />
+          </ActivityAction.Argument>
+          <Sequence DisplayName="Cuerpo" sap2010:WorkflowViewState.IdRef="Sequence_2">
+          <upat:GetTaskData DisplayName="Get Task Data (datos del formulario)" sap2010:WorkflowViewState.IdRef="GetTaskData_1" TaskId="[tarea.Id.Value]" TaskOutput="[datosTarea]" />
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Guardar la ficha corregida (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="ProcesarRevision.cs">
+        <ui:InvokeWorkflowFile.Arguments>
+          <InArgument x:TypeArguments="x:Int64" x:Key="tareaId">[tarea.Id.Value]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="accion">[If(datosTarea.Action Is Nothing, &quot;&quot;, datosTarea.Action)]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="datosJson">[If(datosTarea.Data Is Nothing, &quot;{}&quot;, Newtonsoft.Json.JsonConvert.SerializeObject(datosTarea.Data))]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+          <OutArgument x:TypeArguments="x:Boolean" x:Key="procesada">[procesada]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="nog">[nog]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="resultado">[resultado]</OutArgument>
+        </ui:InvokeWorkflowFile.Arguments>
+      </ui:InvokeWorkflowFile>
+          <If Condition="[procesada]" DisplayName="¿Se guardó? → notificar la ficha" sap2010:WorkflowViewState.IdRef="If_1">
+      <If.Then>
+        <Sequence DisplayName="Then" sap2010:WorkflowViewState.IdRef="Sequence_1">
+        <ui:AddQueueItem ContinueOnError="{x:Null}" DeferDate="{x:Null}" DueDate="{x:Null}" ItemInformationCollection="{x:Null}" ServiceBaseAddress="{x:Null}" TimeoutMS="{x:Null}" DisplayName="Add Queue Item · VC_Notificaciones" FolderPath="{x:Null}" sap2010:WorkflowViewState.IdRef="AddQueueItem_1" Priority="Normal" QueueType="[in_ColaNotificaciones]" Reference="[nog &amp; &quot;-FICHA-&quot; &amp; Now.ToString(&quot;yyyyMMddHHmm&quot;)]">
+          <ui:AddQueueItem.ItemInformation>
+            <InArgument x:TypeArguments="x:String" x:Key="Nog">[nog]</InArgument>
+            <InArgument x:TypeArguments="x:String" x:Key="Tipo">[&quot;FICHA&quot;]</InArgument>
+            <InArgument x:TypeArguments="x:String" x:Key="Resumen">[&quot;Ficha validada por una persona&quot;]</InArgument>
+          </ui:AddQueueItem.ItemInformation>
+        </ui:AddQueueItem>
+        <Assign DisplayName="Contar procesadas" sap2010:WorkflowViewState.IdRef="Assign_1">
+          <Assign.To><OutArgument x:TypeArguments="x:Int32">[procesadas]</OutArgument></Assign.To>
+          <Assign.Value><InArgument x:TypeArguments="x:Int32">[procesadas + 1]</InArgument></Assign.Value>
+        </Assign>
+        </Sequence>
+      </If.Then>
+    </If>
+          <ui:LogMessage DisplayName="Log · resultado de la tarea" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;Tarea &quot; &amp; tarea.Id.Value.ToString &amp; &quot;: &quot; &amp; resultado]" />
+          </Sequence>
+        </ActivityAction>
+      </ui:ForEach.Body>
+    </ui:ForEach>
+    <ui:LogMessage DisplayName="Log · Fin" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Info" Message="[&quot;Revisiones de Action Center procesadas: &quot; &amp; procesadas.ToString &amp; &quot; de &quot; &amp; tareas.Count.ToString &amp; &quot; tareas completadas recientes&quot;]" />
+  </Sequence>
+</Activity>

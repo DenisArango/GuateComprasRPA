@@ -1,0 +1,27 @@
+# Vigía de Contrataciones · servicios de la API, el dashboard y la base de datos.
+# Los robots UiPath corren fuera de Docker (ver docs/05-arquitectura.md).
+#
+#   docker compose -f infra/docker-compose.yml --env-file infra/.env up -d
+
+name: vigia
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-vigia}
+      POSTGRES_USER: ${POSTGRES_USER:-vigia}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-vigia}
+    ports:
+      - "5433:5432"  # 5432 lo usa el PostgreSQL local de Windows
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-vigia} -d $${POSTGRES_DB:-vigia}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  db-data:

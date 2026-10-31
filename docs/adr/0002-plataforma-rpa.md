@@ -1,6 +1,6 @@
 # ADR-0002 · Plataforma del robot RPA
 
-**Estado:** Propuesta (confirmar con el catedrático) · **Fecha:** 2026-10-03
+**Estado:** Reemplazada por [ADR-0004](0004-uipath-como-centro.md) (el curso exige UiPath) · **Fecha:** 2026-10-03
 
 ## Contexto
 

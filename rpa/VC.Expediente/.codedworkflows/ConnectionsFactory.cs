@@ -1,0 +1,3 @@
+namespace VC.Expediente
+{
+}

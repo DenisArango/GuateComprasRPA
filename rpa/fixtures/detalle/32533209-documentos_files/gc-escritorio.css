@@ -1,0 +1,201 @@
+@font-face {
+  font-family: 'gc-escritorio';
+  src:
+    url('../fonts/gc-escritorio.ttf?z4oaf') format('truetype'),
+    url('../fonts/gc-escritorio.woff?z4oaf') format('woff'),
+    url('../fonts/gc-escritorio.svg?z4oaf#gc-escritorio') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+
+:root {
+    --color-blue: #465e93;
+    --color-blue2: #3b516f;
+    --color-skyblue: #5ea8ef;
+    --color-skyblue2: #5fa8dc;
+    --color-green: #7ab142;
+    --color-yellow: #fbb315;
+    --color-red: #db4f27;
+    --color-silver: #b7bfd1;
+    --color-silver2: #969696;
+    --color-white: #fff;
+    --color-purple: #3d4e8b;
+    --color-purple2: #814e9b;
+    --color-indigo: #3f6aa8;
+    --color-indigo2: #4a80bd;
+    --color-aqua: #1598be;
+    --color-logo-blue: #001689;
+    --color-logo-skyblue: #4aa2da;
+    --color-icon-blue: #172d3a;
+    --color-iconmini-blue: #4585b0;
+    --gc-display: inline-block;
+    --color-facebook: #4690f7;
+    --color-whatsapp: #1EAA63;
+    --color-twitter: #000000;
+    --color-instagram: #943f8c;
+    --color-google: #c6523f;
+    --color-inverse: var(--color-white);
+}
+
+[class^="gce-"], [class*=" gce-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'gc-escritorio' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  color:var(--color-icon-blue);
+  font-size: 28px;
+  display: inline-block;
+  display: var(--gc-display,inline-block);
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.gc-1x {font-size: 1em}
+.gc-2x {font-size: 2em}
+.gc-3x {font-size: 3em}
+.gc-4x {font-size: 4em}
+.gc-5x {font-size: 5em}
+.gc-6x {font-size: 6em}
+.gc-7x {font-size: 7em}
+.gc-8x {font-size: 8em}
+.gc-9x {font-size: 9em}
+.gc-10x {font-size: 10em}
+
+.gc-2xs {
+  font-size: .625em;
+  line-height: .1em;
+  vertical-align: .225em
+}
+.gc-xs {
+    font-size: .75em;
+    line-height: .08333em;
+    vertical-align: .125em
+}
+.gc-sm {
+    font-size: .875em;
+    line-height: .07143em;
+    vertical-align: .05357em
+}
+.gc-lg {
+    font-size: 1.25em;
+    line-height: .05em;
+    vertical-align: -.075em
+}
+.gc-xl {
+    font-size: 1.5em;
+    line-height: .04167em;
+    vertical-align: -.125em
+}
+.gc-2xl {
+    font-size: 2em;
+    line-height: .03125em;
+    vertical-align: -.1875em
+}
+.gc-fw {
+    text-align: center;
+    width: 1.25em
+}
+.gc-primary{
+  color:var(--color-purple);
+}
+.gc-secundary{
+  color: var(--color-skyblue);
+}
+.gc-disable{
+  color:var(--color-silver);
+}
+.gc-inverse{
+  color: var(--color-inverse,#fff);
+}
+.gc-danger{
+  color:var(--color-red);
+}
+.gc-warning{
+  color:var(--color-yellow);
+}
+.gc-success{
+  color:var(--color-green);
+}
+.gc-indigo{
+  color:var(--color-indigo);
+}
+.gce-sobreabierto:before {
+  content: "\e900";
+}
+.gce-sobrecerrado:before {
+  content: "\e901";
+}
+
+.gce-bandera:before {
+  content: "\e943";
+}
+
+.gce-bandera-roja:before {
+    content: "\e943";
+    color: var(--color-red);
+}
+
+.gce-bandera-amarilla:before {
+    content: "\e943";
+    color: var(--color-yellow);
+}
+
+.gce-bandera-verde:before {
+    content: "\e943";
+    color: var(--color-green);
+}
+
+.gce-bandera-azul:before {
+    content: "\e943";
+    color: var(--color-blue);
+}
+
+.gce-alerta:before {
+  content: "\e903";
+}
+.gce-npg:before {
+  content: "\e904";
+  color:var(--color-blue2);
+}
+.gce-nog:before {
+  content: "\e905";
+  color:var(--color-indigo);
+}
+.gce-creacionprecalificacion:before {
+  content: "\e906";
+  color:var(--color-aqua);
+}
+.gce-creacioninhabilitacion:before {
+  content: "\e907";
+  color:var(--color-red);
+}
+.gce-marcochatio:before {
+  content: "\e908";
+  color:var(--color-skyblue2);
+}
+.gce-videotutoriales:before {
+  content: "\e909";
+  color:var(--color-yellow);
+}
+.gce-contactenos:before {
+  content: "\e90a";
+  color:var(--color-green);
+}
+.gce-capacitaciones:before {
+  content: "\e90b";
+  color:var(--color-purple2);
+}
+.gce-email:before {
+  content: "\e90c";
+  color:var(--color-indigo2);
+}
+.gce-noticias:before {
+  content: "\e90d";
+  color:var(--color-silver2);
+}

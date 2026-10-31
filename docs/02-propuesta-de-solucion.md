@@ -4,7 +4,7 @@
 
 **Vigía de Contrataciones** es una plataforma que combina tres capacidades:
 
-1. **Robot RPA** que navega Guatecompras como lo haría una persona: busca concursos nuevos, entra a cada uno, descarga los documentos y detecta cambios.
+1. **Robots RPA en UiPath**, coordinados por Orchestrator, que ejecutan el proceso de punta a punta: navegan Guatecompras como lo haría una persona, descargan los documentos, detectan cambios, obtienen la ficha con IA (con validación humana cuando hace falta), envían las alertas y arman el expediente de oferta.
 2. **Inteligencia artificial** que lee las bases y produce una ficha estructurada: qué se compra, monto, fechas, requisitos, garantías y criterios de calificación.
 3. **Inteligencia de datos** construida con los datos abiertos OCDS: quién ha ganado concursos similares, a qué precio, y qué procesos presentan señales de riesgo.
 
@@ -48,15 +48,16 @@ El diagrama comparativo AS-IS / TO-BE está en [06 · Diagramas](06-diagramas.md
 
 | Módulo | Responsabilidad | Tecnología principal |
 |---|---|---|
-| **M1 · Robot de captura** | Navegar Guatecompras, capturar concursos y documentos, detectar cambios | Playwright (RPA web) |
-| **M2 · Procesamiento de documentos** | Extraer texto de PDF, aplicar OCR a documentos escaneados | pdf.js / Tesseract |
-| **M3 · Extracción con IA** | Convertir el texto de las bases en una ficha estructurada validada | API de LLM + validación de esquema |
-| **M4 · Compatibilidad** | Comparar requisitos contra el perfil de la empresa y calcular puntaje | Reglas + similitud semántica |
-| **M5 · Datos abiertos OCDS** | Cargar y actualizar el histórico de procesos y adjudicaciones | ETL programado |
+| **M1 · Robots de captura** | Leer el boletín diario, preseleccionar, capturar documentos y detectar cambios | UiPath: `VC.Captura` (boletín, desatendido) y `VC.Concurso` (detalle, atendido, REFramework) |
+| **M2 · Procesamiento de documentos** | Extraer texto de PDF, aplicar OCR a documentos escaneados | UiPath `VC.Analisis`: actividades PDF y OCR |
+| **M3 · Extracción con IA** | Convertir el texto de las bases en una ficha estructurada validada, con revisión humana si la confianza es baja | UiPath `VC.Analisis` + API de LLM + Action Center |
+| **M4 · Compatibilidad** | Comparar requisitos contra el perfil de la empresa y calcular puntaje | API: reglas + similitud semántica |
+| **M5 · Datos abiertos OCDS** | Cargar y actualizar el histórico de procesos y adjudicaciones | ETL en Node, disparado por UiPath `VC.Datos` |
 | **M6 · Banderas rojas** | Calcular indicadores de riesgo sobre el histórico | Consultas SQL |
-| **M7 · Notificaciones** | Enviar resumen diario y alertas inmediatas | Correo SMTP, bot de Telegram |
-| **M8 · Dashboard web** | Consulta de concursos, fichas, perfil, historial y riesgos | Aplicación web |
-| **M9 · Orquestación y monitoreo** | Programar ejecuciones, reintentos, bitácora y alertas de fallo | Planificador + cola de trabajos |
+| **M7 · Notificaciones** | Enviar resumen diario, alertas inmediatas y recordatorios | UiPath `VC.Notificador`: correo SMTP y Telegram |
+| **M8 · Dashboard web** | Consulta de concursos, fichas, perfil, historial y riesgos | Angular |
+| **M9 · Orquestación y monitoreo** | Programar ejecuciones, reintentos, bitácora y alertas de fallo | UiPath Orchestrator: triggers, colas, assets, logs |
+| **M10 · Expediente de oferta** | Armar la carpeta del concurso: bases, documentos vigentes de la empresa, checklist y borradores de formularios | UiPath `VC.Expediente` (robot atendido) |
 
 ## 2.4 ¿Por qué RPA y no solo datos abiertos?
 

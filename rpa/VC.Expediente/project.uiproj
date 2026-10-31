@@ -1,0 +1,6 @@
+{
+  "Name": "VC.Expediente",
+  "ProjectType": "Process",
+  "Description": "Vigía de Contrataciones · Expediente: arma la carpeta de la oferta de un concurso (bases, documentos vigentes de la empresa, checklist y borradores). Atendido.",
+  "MainFile": "Main.xaml"
+}

@@ -1,0 +1,119 @@
+﻿/*Acordeon 1   */
+/*con tabla de detalle dentro de del acordeon*/
+/*__________________________________________________________________________________________________________________________________________________________*/
+.accordionCabecera {
+    border-style: solid;
+    border-color: #dddddd;
+    border-width: 1px 1px 0px 1px;
+    padding: 7px;
+    background-color: #E9F4FF;
+    font-family: Arial, Sans-Serif;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+    .accordionCabecera #icono1 {
+        content: url("/imagenes/Botones/Activos/circulo1.1.png");
+        background-image: url("/imagenes/Botones/Activos/circulo1.1.png");
+        background-repeat: no-repeat;
+        display: block;
+        background-repeat: no-repeat;
+        height: 20px;
+        width: 20px;
+    }
+
+ .accordionCabecera #iconoarriba {
+        display: none !important;        
+    }
+
+.accordionCabeceraSelect #iconoabajo {
+    display: none !important;
+}
+.accordionCabeceraSelect #iconoarriba {
+    padding-left: 5px;
+}
+
+.accordionCabeceraSelect {
+    background-color: white;
+    font-family: Arial, Sans-Serif;
+    font-size: 14px;
+    padding: 7px;
+    cursor: pointer;
+    border-style: solid;
+    border-color: #dddddd;
+    border-width: 1px 1px 0px 1px;
+}
+
+    .accordionCabeceraSelect #icono1 {
+        content: url("/imagenes/Botones/Activos/circulo2.1.png");
+        background-image: url("../../imagenes/Botones/Activos/circulo2.1.png");
+        display: block;
+        background-repeat: no-repeat;
+        height: 20px;
+        width: 20px;
+    }
+
+.accordionContenido {
+    font-family: Sans-Serif;
+    background-color: white;
+    font-size: 12px;
+    border-style: solid;
+    border-color: #dddddd;
+    border-width: 1px 1px 1px 1px;
+    padding: 7px;
+    overflow: hidden !important;
+    text-align: left;
+    color: black;
+}
+
+.accordionContenidoResponsive {
+    font-family: Sans-Serif;
+    background-color: white;
+    font-size: 12px;
+    border-style: solid;
+    border-color: #dddddd;
+    border-width: 1px 1px 1px 1px;
+    overflow: hidden !important;
+    text-align: left;
+    color: black;
+    width: 100%;
+    float: left;
+}
+
+.panel-acordeones {
+    margin:15px 0px 15px 0px;
+}
+/* Tabla */
+.TablaBordeInferior {
+    font-size: 12px;
+    border-style: solid;
+    border-color: #dddddd;
+    border-width: 0px 0px 1px 0px;
+    padding: 7px;
+}
+
+.TablaBordeSuperior {
+    font-size: 12px;
+    border-style: solid;
+    border-color: #dddddd;
+    border-width: 1px 0px 0px 0px;
+    padding: 7px;
+}
+
+.TablaBordeDerecha {
+    font-size: 12px;
+    border-style: solid;
+    border-color: #dddddd;
+    border-width: 0px 1px 1px 0px;
+    padding: 7px;
+}
+
+.TablaBordeIzquierda {
+    font-size: 12px;
+    border-style: solid;
+    border-color: #dddddd;
+    border-width: 0px 0px 1px 1px;
+    padding: 7px;
+}
+/*Fin de Acordeon 1*/
+/*__________________________________________________________________________________________________________________________________________________________*/

@@ -1,0 +1,6 @@
+{
+  "Name": "VC.Notificador",
+  "ProjectType": "Process",
+  "Description": "Vigía de Contrataciones · Notificador: resumen diario por correo y avisos de la cola VC_Notificaciones",
+  "MainFile": "Main.xaml"
+}

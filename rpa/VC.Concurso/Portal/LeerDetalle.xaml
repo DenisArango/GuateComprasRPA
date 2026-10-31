@@ -1,0 +1,155 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="LeerDetalle" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:si="clr-namespace:System.IO;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:uix="http://schemas.uipath.com/workflow/activities/uix" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_Nog" Type="InArgument(x:String)" />
+    <x:Property Name="in_Config" Type="InArgument(scg:Dictionary(x:String, x:Object))" />
+    <x:Property Name="out_Titulo" Type="OutArgument(x:String)" />
+    <x:Property Name="out_Entidad" Type="OutArgument(x:String)" />
+    <x:Property Name="out_UnidadCompradora" Type="OutArgument(x:String)" />
+    <x:Property Name="out_Modalidad" Type="OutArgument(x:String)" />
+    <x:Property Name="out_EstadoGc" Type="OutArgument(x:String)" />
+    <x:Property Name="out_MontoTexto" Type="OutArgument(x:String)" />
+    <x:Property Name="out_FechaCierreTexto" Type="OutArgument(x:String)" />
+    <x:Property Name="out_dt_Documentos" Type="OutArgument(sd:DataTable)" />
+    <x:Property Name="out_Aclaraciones" Type="OutArgument(x:Int32)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>LeerDetalle_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.UIAutomationNext.Enums</x:String>
+      <x:String>UiPath.UIAutomationCore.Contracts</x:String>
+      <x:String>UiPath.UIAutomationNext.Contracts</x:String>
+      <x:String>UiPath.UIAutomationNext.Activities</x:String>
+      <x:String>UiPath.Platform.ObjectLibrary</x:String>
+      <x:String>UiPath.Platform.ResourceHandling</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic.Core</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Runtime</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationCore</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText='Lee el detalle ya abierto: el HTML de DatosGenerales y, tras abrir la pestaña "Historial de acciones" (se carga sin recargar la página), el de ContenidoPestana. El historial trae cada documento con su enlace y fecha, y las acciones posteriores (adendas, aclaraciones). El monto no está en el detalle: lo extrae la IA de las bases.' DisplayName="LeerDetalle" sap2010:WorkflowViewState.IdRef="Sequence_0">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="htmlDatos" />
+      <Variable x:TypeArguments="x:String" Name="htmlHistorial" />
+      <Variable x:TypeArguments="x:Int32" Name="intentos" />
+      <Variable x:TypeArguments="x:Object" Name="valorDatos" />
+      <Variable x:TypeArguments="x:Object" Name="valorHistorial" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+<uix:NApplicationCard AttachMode="ByInstance" CloseMode="Never" DisplayName="Use Browser Edge · Guatecompras" HealingAgentBehavior="Job" OpenMode="Never" sap2010:WorkflowViewState.IdRef="NApplicationCard_2" ScopeGuid="d81ee056-e32a-44e0-af83-ce56b78407b3" Version="V2">
+  <uix:NApplicationCard.Body>
+    <ActivityAction x:TypeArguments="x:Object">
+      <ActivityAction.Argument>
+        <DelegateInArgument x:TypeArguments="x:Object" Name="WSSessionData" />
+      </ActivityAction.Argument>
+      <Sequence DisplayName="Do" sap2010:WorkflowViewState.IdRef="Sequence_4">
+<uix:NGetAttribute Attribute="outerhtml" DisplayName="Get Attribute · HTML de los datos generales" HealingAgentBehavior="SameAsCard" ScopeIdentifier="d81ee056-e32a-44e0-af83-ce56b78407b3" sap2010:WorkflowViewState.IdRef="NGetAttribute_1">
+  <uix:NGetAttribute.Result>
+    <OutArgument x:TypeArguments="x:Object">[valorDatos]</OutArgument>
+  </uix:NGetAttribute.Result>
+  <uix:NGetAttribute.Target>
+    <uix:TargetAnchorable BrowserURL="guatecompras.gt/concursos/consultaConcurso.aspx" ContentHash="ea3hZA-6PEeZjQiop3XL7Q" FullSelectorArgument="&lt;webctrl parentid='MasterGC_ContentBlockHolder_WUCDetalleConcurso_divDetalleConcurso' tag='DIV' /&gt;" Guid="01b36e30-8a4b-4481-a31b-3d224a0667de" Reference="EktFMx7gGEaUEx8Ka57bkQ/C2JH3BGLkEOX6D_FehMXlA" ScopeSelectorArgument="&lt;html app='msedge.exe' title='Guatecompras - Sistema de Contrataciones y Adquisiciones del Estado de Guatemala' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+  </uix:NGetAttribute.Target>
+</uix:NGetAttribute>
+<Assign DisplayName="Datos como texto" sap2010:WorkflowViewState.IdRef="Assign_1">
+  <Assign.To><OutArgument x:TypeArguments="x:String">[htmlDatos]</OutArgument></Assign.To>
+  <Assign.Value><InArgument x:TypeArguments="x:String">[If(valorDatos Is Nothing, String.Empty, valorDatos.ToString)]</InArgument></Assign.Value>
+</Assign>
+<uix:NClick ActivateBefore="True" ClickType="Single" DisplayName="Click · pestaña 'Historial de acciones'" HealingAgentBehavior="SameAsCard" KeyModifiers="None" MouseButton="Left" ScopeIdentifier="d81ee056-e32a-44e0-af83-ce56b78407b3" sap2010:WorkflowViewState.IdRef="NClick_1">
+  <uix:NClick.Target>
+    <uix:TargetAnchorable BrowserURL="guatecompras.gt/concursos/consultaConcurso.aspx" ContentHash="0NqBY0nCbku8K1sY1bmZlA" FullSelectorArgument="&lt;webctrl class='rtsIn' innertext='Historial de acciones' parentid='MasterGC_ContentBlockHolder_RadTabStrip1' tag='SPAN' /&gt;" Guid="9c30eefb-07aa-4122-8199-f868f661c026" Reference="EktFMx7gGEaUEx8Ka57bkQ/cY8zpRAJ_0yeNC2XM8CIBQ" ScopeSelectorArgument="&lt;html app='msedge.exe' title='Guatecompras - Sistema de Contrataciones y Adquisiciones del Estado de Guatemala' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+  </uix:NClick.Target>
+</uix:NClick>
+<Assign DisplayName="Intentos = 0" sap2010:WorkflowViewState.IdRef="Assign_2">
+  <Assign.To><OutArgument x:TypeArguments="x:Int32">[intentos]</OutArgument></Assign.To>
+  <Assign.Value><InArgument x:TypeArguments="x:Int32">0</InArgument></Assign.Value>
+</Assign>
+<Assign DisplayName="Historial vacío" sap2010:WorkflowViewState.IdRef="Assign_3">
+  <Assign.To><OutArgument x:TypeArguments="x:String">[htmlHistorial]</OutArgument></Assign.To>
+  <Assign.Value><InArgument x:TypeArguments="x:String">[String.Empty]</InArgument></Assign.Value>
+</Assign>
+<While Condition="[Not htmlHistorial.Contains(&quot;wucConsultaConcursoHistorial_gvResultado&quot;) AndAlso intentos &lt; 20]" DisplayName="Esperar a que cargue la pestaña (se carga sin recargar la página)" sap2010:WorkflowViewState.IdRef="While_1">
+  <Sequence DisplayName="Leer la pestaña" sap2010:WorkflowViewState.IdRef="Sequence_3">
+    <Delay DisplayName="Esperar 1 s" Duration="00:00:01" sap2010:WorkflowViewState.IdRef="Delay_2" />
+    <uix:NGetAttribute Attribute="outerhtml" DisplayName="Get Attribute · HTML de la pestaña" HealingAgentBehavior="SameAsCard" ScopeIdentifier="d81ee056-e32a-44e0-af83-ce56b78407b3" sap2010:WorkflowViewState.IdRef="NGetAttribute_2">
+  <uix:NGetAttribute.Result>
+    <OutArgument x:TypeArguments="x:Object">[valorHistorial]</OutArgument>
+  </uix:NGetAttribute.Result>
+  <uix:NGetAttribute.Target>
+    <uix:TargetAnchorable BrowserURL="guatecompras.gt/concursos/consultaConcurso.aspx" ContentHash="d5mxKR9r10-cHVcKDKrwaQ" FullSelectorArgument="&lt;webctrl id='MasterGC_ContentBlockHolder_RPOperacionesConcurso' tag='DIV' /&gt;" Guid="bb168d49-5673-4df6-aa9f-80b45cdad07e" Reference="EktFMx7gGEaUEx8Ka57bkQ/lfkepANXzEK3B8CHOvPcqw" ScopeSelectorArgument="&lt;html app='msedge.exe' title='Guatecompras - Sistema de Contrataciones y Adquisiciones del Estado de Guatemala' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+  </uix:NGetAttribute.Target>
+</uix:NGetAttribute>
+    <Assign DisplayName="Pestaña como texto" sap2010:WorkflowViewState.IdRef="Assign_4">
+  <Assign.To><OutArgument x:TypeArguments="x:String">[htmlHistorial]</OutArgument></Assign.To>
+  <Assign.Value><InArgument x:TypeArguments="x:String">[If(valorHistorial Is Nothing, String.Empty, valorHistorial.ToString)]</InArgument></Assign.Value>
+</Assign>
+    <Assign DisplayName="Contar intento" sap2010:WorkflowViewState.IdRef="Assign_5">
+  <Assign.To><OutArgument x:TypeArguments="x:Int32">[intentos]</OutArgument></Assign.To>
+  <Assign.Value><InArgument x:TypeArguments="x:Int32">[intentos + 1]</InArgument></Assign.Value>
+</Assign>
+  </Sequence>
+</While>
+      </Sequence>
+    </ActivityAction>
+  </uix:NApplicationCard.Body>
+  <uix:NApplicationCard.TargetApp>
+    <uix:TargetApp BrowserType="Edge" ContentHash="UUAviAYTnk2D0ric-O4q_g" Reference="EktFMx7gGEaUEx8Ka57bkQ/cIqkXh5-sUaT0TuVstLjbg" Selector="&lt;html app='msedge.exe' title='Guatecompras - Sistema de Contrataciones y Adquisiciones del Estado de Guatemala' /&gt;" Url="https://www.guatecompras.gt/concursos/consultaConcurso.aspx?o=5&amp;nog=32533209" Version="V3" />
+  </uix:NApplicationCard.TargetApp>
+</uix:NApplicationCard>
+<ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" sap2010:Annotation.AnnotationText="Coded workflow (C#): DetallePortal interpreta las filas etiqueta/valor y los documentos del historial (con pruebas contra páginas reales en rpa/fixtures/detalle). Si no encuentra las filas, lanza CAMBIO_ESTRUCTURA." DisplayName="Interpretar el detalle (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="InterpretarDetalle.cs">
+  <ui:InvokeWorkflowFile.Arguments>
+    <InArgument x:TypeArguments="x:String" x:Key="htmlDatos">[htmlDatos]</InArgument>
+    <InArgument x:TypeArguments="x:String" x:Key="htmlHistorial">[htmlHistorial]</InArgument>
+    <InArgument x:TypeArguments="x:String" x:Key="nogEsperado">[in_Nog]</InArgument>
+    <OutArgument x:TypeArguments="x:String" x:Key="titulo">[out_Titulo]</OutArgument>
+    <OutArgument x:TypeArguments="x:String" x:Key="entidad">[out_Entidad]</OutArgument>
+    <OutArgument x:TypeArguments="x:String" x:Key="unidadCompradora">[out_UnidadCompradora]</OutArgument>
+    <OutArgument x:TypeArguments="x:String" x:Key="modalidad">[out_Modalidad]</OutArgument>
+    <OutArgument x:TypeArguments="x:String" x:Key="estadoGc">[out_EstadoGc]</OutArgument>
+    <OutArgument x:TypeArguments="x:String" x:Key="montoTexto">[out_MontoTexto]</OutArgument>
+    <OutArgument x:TypeArguments="x:String" x:Key="fechaCierreTexto">[out_FechaCierreTexto]</OutArgument>
+    <OutArgument x:TypeArguments="sd:DataTable" x:Key="dt_Documentos">[out_dt_Documentos]</OutArgument>
+    <OutArgument x:TypeArguments="x:Int32" x:Key="aclaraciones">[out_Aclaraciones]</OutArgument>
+  </ui:InvokeWorkflowFile.Arguments>
+</ui:InvokeWorkflowFile>
+  </Sequence>
+</Activity>

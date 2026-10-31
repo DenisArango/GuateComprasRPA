@@ -1,0 +1,169 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Main" this:Main.in_Anios="" this:Main.in_EsperaMaximaMinutos="240" this:Main.in_IntervaloSegundos="60" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:ss="clr-namespace:System.Security;assembly=System.Private.CoreLib" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:this="clr-namespace:" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property sap2010:Annotation.AnnotationText="Años a cargar separados por coma (2025,2026). Vacío: el año en curso y el anterior." Name="in_Anios" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Tiempo máximo de espera de la carga antes de darla por fallida." Name="in_EsperaMaximaMinutos" Type="InArgument(x:Int32)" />
+    <x:Property Name="in_IntervaloSegundos" Type="InArgument(x:Int32)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>Main_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Security</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.Mail.SMTP.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic.Core</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Runtime</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Mail.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+      <AssemblyReference>UiPath.Studio.Constants</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Proceso semanal (CU-11). Pide a la API la carga del histórico OCDS de Guatecompras y el recálculo de banderas rojas, vigila el avance cada minuto y avisa al administrador si falla (RF-NOT-05). Los datos históricos vienen de OCDS, nunca del portal con el robot (ADR-0001). Ver docs/08-diseno-del-bot.md (8.6)." DisplayName="VC.Datos · Carga semanal OCDS" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="apiUrl" />
+      <Variable x:TypeArguments="x:Int32" Name="idCarga" />
+      <Variable x:TypeArguments="x:String" Name="estado" />
+      <Variable x:TypeArguments="x:String" Name="detalle" />
+      <Variable x:TypeArguments="s:DateTime" Name="limite" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:GetRobotAsset AssetName="VC_ApiUrl" DisplayName="Get Asset · VC_ApiUrl" sap2010:WorkflowViewState.IdRef="GetRobotAsset_1">
+      <ui:GetRobotAsset.Value>
+        <OutArgument x:TypeArguments="x:String">[apiUrl]</OutArgument>
+      </ui:GetRobotAsset.Value>
+    </ui:GetRobotAsset>
+    <TryCatch DisplayName="Try Catch · carga OCDS" sap2010:WorkflowViewState.IdRef="TryCatch_1">
+      <TryCatch.Try>
+        <Sequence DisplayName="Iniciar y vigilar la carga" sap2010:WorkflowViewState.IdRef="Sequence_2">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Iniciar carga en la API (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="IniciarCarga.cs">
+            <ui:InvokeWorkflowFile.Arguments>
+              <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="anios">[in_Anios]</InArgument>
+              <OutArgument x:TypeArguments="x:Int32" x:Key="idCarga">[idCarga]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="detalle">[detalle]</OutArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+          <ui:LogMessage DisplayName="Log · Carga iniciada" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[detalle]" />
+          <Assign DisplayName="Calcular hora límite" sap2010:WorkflowViewState.IdRef="Assign_1">
+            <Assign.To>
+              <OutArgument x:TypeArguments="s:DateTime">[limite]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="s:DateTime">[Now.AddMinutes(in_EsperaMaximaMinutos)]</InArgument>
+            </Assign.Value>
+          </Assign>
+          <Assign DisplayName="Estado inicial" sap2010:WorkflowViewState.IdRef="Assign_2">
+            <Assign.To>
+              <OutArgument x:TypeArguments="x:String">[estado]</OutArgument>
+            </Assign.To>
+            <Assign.Value>
+              <InArgument x:TypeArguments="x:String">EN_CURSO</InArgument>
+            </Assign.Value>
+          </Assign>
+          <While Condition="[estado = &quot;EN_CURSO&quot; AndAlso Now &lt; limite]" DisplayName="Mientras la carga siga en curso" sap2010:WorkflowViewState.IdRef="While_1">
+            <Sequence DisplayName="Esperar y consultar" sap2010:WorkflowViewState.IdRef="Sequence_3">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <Delay DisplayName="Esperar el intervalo" Duration="[TimeSpan.FromSeconds(in_IntervaloSegundos)]" sap2010:WorkflowViewState.IdRef="Delay_1" />
+              <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Consultar estado de la carga (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_2" UnSafe="False" WorkflowFileName="ConsultarCarga.cs">
+                <ui:InvokeWorkflowFile.Arguments>
+                  <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+                  <InArgument x:TypeArguments="x:Int32" x:Key="idCarga">[idCarga]</InArgument>
+                  <OutArgument x:TypeArguments="x:String" x:Key="estado">[estado]</OutArgument>
+                  <OutArgument x:TypeArguments="x:String" x:Key="detalle">[detalle]</OutArgument>
+                </ui:InvokeWorkflowFile.Arguments>
+              </ui:InvokeWorkflowFile>
+              <ui:LogMessage DisplayName="Log · Avance" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Info" Message="[detalle]" />
+            </Sequence>
+          </While>
+          <If Condition="[estado &lt;&gt; &quot;EXITOSA&quot;]" DisplayName="¿Terminó bien?" sap2010:WorkflowViewState.IdRef="If_1">
+            <If.Then>
+              <Throw DisplayName="Throw · carga fallida o sin terminar" Exception="[New Exception(If(estado = &quot;EN_CURSO&quot;, &quot;La carga OCDS no terminó en &quot; &amp; in_EsperaMaximaMinutos.ToString &amp; &quot; minutos. &quot;, &quot;&quot;) &amp; detalle)]" sap2010:WorkflowViewState.IdRef="Throw_1" />
+            </If.Then>
+          </If>
+          <ui:LogMessage DisplayName="Log · Fin" sap2010:WorkflowViewState.IdRef="LogMessage_3" Level="Info" Message="[&quot;VC.Datos: &quot; &amp; detalle]" />
+        </Sequence>
+      </TryCatch.Try>
+      <TryCatch.Catches>
+        <Catch x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="Catch`1_1">
+          <ActivityAction x:TypeArguments="s:Exception">
+            <ActivityAction.Argument>
+              <DelegateInArgument x:TypeArguments="s:Exception" Name="ex" />
+            </ActivityAction.Argument>
+            <Sequence sap2010:Annotation.AnnotationText="RF-NOT-05: aviso al administrador y el trabajo termina como fallido en Orchestrator." DisplayName="Avisar al administrador" sap2010:WorkflowViewState.IdRef="Sequence_4">
+              <Sequence.Variables>
+                <Variable x:TypeArguments="x:String" Name="correoUsuario" />
+                <Variable x:TypeArguments="ss:SecureString" Name="correoClave" />
+                <Variable x:TypeArguments="x:String" Name="smtpServidor" />
+                <Variable x:TypeArguments="x:String" Name="correoAdmin" />
+              </Sequence.Variables>
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                  <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:LogMessage DisplayName="Log · Error" sap2010:WorkflowViewState.IdRef="LogMessage_4" Level="Error" Message="[&quot;VC.Datos falló: &quot; &amp; ex.Message]" />
+              <ui:GetRobotAsset AssetName="VC_CorreoAdmin" DisplayName="Get Asset · VC_CorreoAdmin" sap2010:WorkflowViewState.IdRef="GetRobotAsset_2">
+                <ui:GetRobotAsset.Value>
+                  <OutArgument x:TypeArguments="x:String">[correoAdmin]</OutArgument>
+                </ui:GetRobotAsset.Value>
+              </ui:GetRobotAsset>
+              <ui:GetRobotAsset AssetName="VC_SMTP_Servidor" DisplayName="Get Asset · VC_SMTP_Servidor" sap2010:WorkflowViewState.IdRef="GetRobotAsset_3">
+                <ui:GetRobotAsset.Value>
+                  <OutArgument x:TypeArguments="x:String">[smtpServidor]</OutArgument>
+                </ui:GetRobotAsset.Value>
+              </ui:GetRobotAsset>
+              <ui:GetRobotCredential CacheStrategy="None" DisplayName="Get Credential · VC_SMTP (cuenta de correo)" sap2010:WorkflowViewState.IdRef="GetRobotCredential_1" AssetName="VC_SMTP" Password="[correoClave]" Username="[correoUsuario]" />
+              <ui:SendMail Body="[&quot;La carga semanal del histórico OCDS no terminó bien.&quot; &amp; Environment.NewLine &amp; Environment.NewLine &amp; ex.Message &amp; Environment.NewLine &amp; Environment.NewLine &amp; &quot;Revise el trabajo de VC.Datos en Orchestrator. El dashboard sigue mostrando el histórico de la última carga exitosa.&quot;]" DisplayName="Send SMTP Mail Message · aviso al administrador" Email="[correoUsuario]" From="[correoUsuario]" sap2010:WorkflowViewState.IdRef="SendMail_1" IsBodyHtml="False" Name="Vigía de Contrataciones" Port="[CInt(smtpServidor.Split(&quot;:&quot;c)(1))]" SecureConnection="Auto" SecurePassword="[correoClave]" Server="[smtpServidor.Split(&quot;:&quot;c)(0)]" Subject="Falló la carga semanal de datos OCDS (VC.Datos)" To="[correoAdmin]" />
+              <Rethrow DisplayName="Rethrow · el trabajo termina como fallido" sap2010:WorkflowViewState.IdRef="Rethrow_1" />
+            </Sequence>
+          </ActivityAction>
+        </Catch>
+      </TryCatch.Catches>
+    </TryCatch>
+  </Sequence>
+</Activity>

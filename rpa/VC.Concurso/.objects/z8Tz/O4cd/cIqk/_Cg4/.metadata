@@ -1,0 +1,14 @@
+﻿{
+  "Name": "Encabezado",
+  "Type": "Element",
+  "TaxonomyType": "Label",
+  "Id": "_Cg4TGUM00yZdqw-Kj8JkQ",
+  "Reference": "EktFMx7gGEaUEx8Ka57bkQ/_Cg4TGUM00yZdqw-Kj8JkQ",
+  "ParentRef": "EktFMx7gGEaUEx8Ka57bkQ/cIqkXh5-sUaT0TuVstLjbg",
+  "Created": "2026-10-31T08:34:58.8894479Z",
+  "Updated": "2026-10-31T08:34:58.8894479Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.2.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

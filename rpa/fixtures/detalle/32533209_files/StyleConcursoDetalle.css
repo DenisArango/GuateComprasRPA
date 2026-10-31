@@ -1,0 +1,14 @@
+﻿.divEncabezado{padding-top: 10px;}
+.divSeparador{ background-color: #0f3d85!important;width: 98%;margin: auto;margin-bottom: 10px;}
+.divTitulo{ padding-top: 5px;padding-bottom: 5px;margin-left: 10px;}
+.TablaForm3{ border: 0px solid #a09f9f;}
+.contenidoTab{margin-top: 10px; border: 1px solid #a09f9f;padding-bottom: 10px; height:fit-content} 
+.EtiquetaForm3{ color: #3f4b75;}
+.EtiquetaInfo{ color: #3f4b75;}
+.TablaDetalle{ margin: auto!important;width: 98%!important;}
+.updateProgress{ bottom: 96px;left: 500px;}
+.TablaItemDesc{ font-size: 0.8em;}
+.TablaItemNormal{font-size: 0.8em;}
+.FooterTablaDetalle {text-align:center; text-align:-webkit-center;}
+.contenidoTab .mensajeRecuperadosxden {float: right;margin-right: 12px;}
+@media print {#submodulo_header_container{ display: none;}#banner{ display: none;}#MasterGC_ContentBlockHolder_reloj_tblTimer{ display: none;} a[href]:after {content: none !important;}}

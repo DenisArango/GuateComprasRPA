@@ -1,0 +1,6 @@
+{
+  "Name": "VC.Captura",
+  "ProjectType": "Process",
+  "Description": "Vigía de Contrataciones · Despachador: lee el boletín diario de Guatecompras, preselecciona y agrega candidatos a VC_Concursos",
+  "MainFile": "Main.xaml"
+}

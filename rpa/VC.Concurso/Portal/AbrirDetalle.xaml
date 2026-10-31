@@ -1,0 +1,105 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="AbrirDetalle" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:si="clr-namespace:System.IO;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:uix="http://schemas.uipath.com/workflow/activities/uix" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_Url" Type="InArgument(x:String)" />
+    <x:Property Name="in_Config" Type="InArgument(scg:Dictionary(x:String, x:Object))" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>AbrirDetalle_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.UIAutomationNext.Enums</x:String>
+      <x:String>UiPath.UIAutomationCore.Contracts</x:String>
+      <x:String>UiPath.UIAutomationNext.Contracts</x:String>
+      <x:String>UiPath.UIAutomationNext.Activities</x:String>
+      <x:String>UiPath.Platform.ObjectLibrary</x:String>
+      <x:String>UiPath.Platform.ResourceHandling</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic.Core</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Runtime</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationCore</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Abre el detalle del concurso en Edge (robot atendido). Si aparece la verificación de Cloudflare, la resuelve la persona: el robot avisa y espera (ADR-0006, RF-CAP-12). Elementos del Object Repository: Guatecompras &gt; DetalleConcurso." DisplayName="AbrirDetalle" sap2010:WorkflowViewState.IdRef="Sequence_0">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:Boolean" Name="cargado" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+<uix:NApplicationCard AttachMode="ByInstance" CloseMode="Never" DisplayName="Use Browser Edge · Guatecompras" HealingAgentBehavior="Job" OpenMode="IfNotOpen" sap2010:WorkflowViewState.IdRef="NApplicationCard_1" ScopeGuid="87087ca4-5fca-41bf-874b-13a40663a8c1" Version="V2">
+  <uix:NApplicationCard.Body>
+    <ActivityAction x:TypeArguments="x:Object">
+      <ActivityAction.Argument>
+        <DelegateInArgument x:TypeArguments="x:Object" Name="WSSessionData" />
+      </ActivityAction.Argument>
+      <Sequence DisplayName="Do" sap2010:WorkflowViewState.IdRef="Sequence_2">
+<uix:NGoToUrl DisplayName="Ir al detalle del concurso" HealingAgentBehavior="SameAsCard" ScopeIdentifier="87087ca4-5fca-41bf-874b-13a40663a8c1" sap2010:WorkflowViewState.IdRef="NGoToUrl_1" Url="[in_Url]" />
+<uix:NCheckState DisplayName="Check App State · ¿cargó el detalle?" Exists="[cargado]" HealingAgentBehavior="SameAsCard" ScopeIdentifier="87087ca4-5fca-41bf-874b-13a40663a8c1" Timeout="[15]" sap2010:WorkflowViewState.IdRef="NCheckState_1">
+  <uix:NCheckState.Target>
+    <uix:TargetAnchorable BrowserURL="guatecompras.gt/concursos/consultaConcurso.aspx" ContentHash="-VtTYQNiLECVa7piQBF8_w" ElementType="Text" FullSelectorArgument="&lt;webctrl parentid='titulo' tag='SPAN' /&gt;" Guid="789be618-b316-49a7-947c-4b3983d9f57d" Reference="EktFMx7gGEaUEx8Ka57bkQ/_Cg4TGUM00yZdqw-Kj8JkQ" ScopeSelectorArgument="&lt;html app='msedge.exe' title='Guatecompras - Sistema de Contrataciones y Adquisiciones del Estado de Guatemala' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+  </uix:NCheckState.Target>
+</uix:NCheckState>
+<If Condition="[Not cargado]" DisplayName="¿Pidió verificación?" sap2010:WorkflowViewState.IdRef="If_1">
+  <If.Then>
+    <Sequence sap2010:Annotation.AnnotationText="Cloudflare pidió verificar que es una persona. El robot no la resuelve (ADR-0006): avisa y espera a que la persona la complete en Edge." DisplayName="Esperar a la persona" sap2010:WorkflowViewState.IdRef="Sequence_1">
+      <ui:LogMessage DisplayName="Log" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Warn" Message='["VC.Concurso: el portal pide verificación; se espera a la persona"]' />
+      <ui:MessageBox Caption="Vigía de Contrataciones" ChosenButton="{x:Null}" DisplayName="Message Box · pedir la verificación" sap2010:WorkflowViewState.IdRef="MessageBox_1" Text="[&quot;Guatecompras pide verificar que eres una persona. Complétalo en Edge y luego presiona Aceptar.&quot;]" TopMost="True" />
+      <uix:NCheckState DisplayName="Check App State · esperar el detalle" Exists="[cargado]" HealingAgentBehavior="SameAsCard" ScopeIdentifier="87087ca4-5fca-41bf-874b-13a40663a8c1" Timeout="[CDbl(in_Config(&quot;EsperaVerificacionSegundos&quot;))]" sap2010:WorkflowViewState.IdRef="NCheckState_2">
+  <uix:NCheckState.Target>
+    <uix:TargetAnchorable BrowserURL="guatecompras.gt/concursos/consultaConcurso.aspx" ContentHash="-VtTYQNiLECVa7piQBF8_w" ElementType="Text" FullSelectorArgument="&lt;webctrl parentid='titulo' tag='SPAN' /&gt;" Guid="a3b236af-50c4-488d-9693-81ba5d496344" Reference="EktFMx7gGEaUEx8Ka57bkQ/_Cg4TGUM00yZdqw-Kj8JkQ" ScopeSelectorArgument="&lt;html app='msedge.exe' title='Guatecompras - Sistema de Contrataciones y Adquisiciones del Estado de Guatemala' /&gt;" SearchSteps="Selector" Version="V6" WaitForReadyArgument="Interactive" />
+  </uix:NCheckState.Target>
+</uix:NCheckState>
+    </Sequence>
+  </If.Then>
+</If>
+<If Condition="[Not cargado]" DisplayName="¿Sigue sin cargar?" sap2010:WorkflowViewState.IdRef="If_2">
+  <If.Then>
+    <Throw DisplayName="Throw · el detalle no cargó" Exception="[New Exception(&quot;El detalle del concurso no cargó (¿verificación sin completar?): &quot; &amp; in_Url)]" sap2010:WorkflowViewState.IdRef="Throw_1" />
+  </If.Then>
+</If>
+<Delay DisplayName="Pausa responsable (2–3 s)" Duration="[TimeSpan.FromMilliseconds(New Random().Next(2000, 3000))]" sap2010:WorkflowViewState.IdRef="Delay_1" />
+      </Sequence>
+    </ActivityAction>
+  </uix:NApplicationCard.Body>
+  <uix:NApplicationCard.TargetApp>
+    <uix:TargetApp BrowserType="Edge" ContentHash="UUAviAYTnk2D0ric-O4q_g" Reference="EktFMx7gGEaUEx8Ka57bkQ/cIqkXh5-sUaT0TuVstLjbg" Selector="&lt;html app='msedge.exe' title='Guatecompras - Sistema de Contrataciones y Adquisiciones del Estado de Guatemala' /&gt;" Url="[in_Url]" Version="V3" />
+  </uix:NApplicationCard.TargetApp>
+</uix:NApplicationCard>
+  </Sequence>
+</Activity>

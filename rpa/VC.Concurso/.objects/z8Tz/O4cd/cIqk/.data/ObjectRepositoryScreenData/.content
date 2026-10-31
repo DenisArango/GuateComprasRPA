@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-16"?>
+<ObjectRepositoryScreenData ContentHash="UUAviAYTnk2D0ric-O4q_g" xmlns="http://schemas.uipath.com/workflow/activities/uix" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ObjectRepositoryScreenData.Data>
+    <TargetApp x:Key="TargetApp" Area="-9, -9, 1938, 1098" BrowserType="Edge" IconBase64="iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAZdEVYdFNvZnR3YXJlAEFkb2JlIEltYWdlUmVhZHlxyWU8AAAA+ElEQVQ4T6XTIUsEURQF4EX/gDaDQTT4EwwWw2L7/Bki2NVo0yYIym4QxL+xYLMZFCwGk8VkVRAZecOb9c5bYRg8cJj7zj333MeDGVRVNfgPZ4S+7A2soWpY9juBLTxhJTEJi7gPqbvZOMR71iYhYA83MXGcAnJ9mIZy/ZLPaUFdZ/0cRzFgko1pY3OL1fwdTo2//lvsROE03KAJSQFxa6zfUj8GlG8wDmHNG6R+8i3gE3PTgD7AJh5KvQbWU7ODr7grZ2tgCccdvMJ+OTsDbOMSy0G7yO9x3Xb/ATxn80nQPrL2jfn2RAEc4BEbQTvDF0Ytc/l39eUPOU8wvLO5+j4AAAAASUVORK5CYII=" Selector="&lt;html app='msedge.exe' title='Guatecompras - Sistema de Contrataciones y Adquisiciones del Estado de Guatemala' /&gt;" Url="https://www.guatecompras.gt/concursos/consultaConcurso.aspx?o=5&amp;nog=32533209" Version="V3">
+      <imageRef attrName="InformativeScreenshot" originalValue="b2a2ade1eeeb1121dd423eaace188f57.jpg" xmlns="">0D2Q1iDfKOU-ov1C65rawjw</imageRef>
+    </TargetApp>
+  </ObjectRepositoryScreenData.Data>
+</ObjectRepositoryScreenData>

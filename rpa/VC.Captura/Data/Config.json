@@ -1,0 +1,10 @@
+{
+  "TimeoutSegundos": 120,
+  "PreseleccionLocal": {
+    "_comentario": "Solo para desarrollo, mientras no existe la API. En producción la preselección la hace la API con los perfiles activos.",
+    "Secciones": [ "CONCURSO" ],
+    "Categorias": [ "Salud e insumos hospitalarios", "Computación y telecomunicaciones" ],
+    "PalabrasClave": [],
+    "Modalidades": [ "Cotización", "Licitación" ]
+  }
+}

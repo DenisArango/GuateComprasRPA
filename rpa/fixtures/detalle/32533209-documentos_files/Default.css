@@ -1,0 +1,21 @@
+﻿body {
+    font-family: 'Avenir LT Std 55 Roman' !important;
+}
+.TituloPag4 {
+    font-family: 'Avenir LT Std 55 Roman';
+    font-size: 26px !important;
+    font-weight: bold;
+    text-align: left !important;
+    border-collapse: collapse;
+    border: none;
+    color: #0a88e5 !important;
+}
+
+.barra-categoria {
+    background-color: #0a88e5;
+    left: 0px;
+    width: 59%;
+}
+.btn{
+    min-width: unset;
+}

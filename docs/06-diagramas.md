@@ -35,10 +35,11 @@ En rojo, los pasos que más tiempo consumen y donde más errores ocurren.
 
 ```mermaid
 flowchart TD
-    subgraph BOT["🤖 Automático (madrugada)"]
-        A1[Planificador inicia captura] --> A2[Robot busca concursos nuevos]
-        A2 --> A3[Robot descarga documentos]
-        A3 --> A4[IA genera ficha y resumen]
+    subgraph BOT["🤖 Robots UiPath (madrugada)"]
+        A1[Orchestrator inicia captura] --> A2[Robot lee el boletín diario<br/>y preselecciona candidatos]
+        A2 --> A2b[Resumen preliminar 07:00]
+        A2b --> A3[Robot atendido descarga documentos<br/>la persona solo resuelve el captcha]
+        A3 --> A4[Robot obtiene ficha con IA<br/>validación humana si hace falta]
         A4 --> A5[Cálculo de compatibilidad<br/>y documentos faltantes]
         A5 --> A6[Agregar historial de<br/>adjudicaciones y precios]
         A1 --> B1[Robot revisa concursos<br/>en seguimiento]
@@ -53,7 +54,9 @@ flowchart TD
         C1 --> D1[Leer resumen en<br/>correo o Telegram]
         D1 --> D2{¿Interesa?}
         D2 -- Sí --> D3[Abrir ficha en dashboard]
-        D3 --> D4[Marcar 'Participaré'<br/>y preparar faltantes]
+        D3 --> D4[Marcar 'Participaré']
+        D4 --> D6[Robot atendido arma<br/>el expediente de oferta]
+        D6 --> D7[Conseguir solo<br/>lo que falta]
         D2 -- No --> D5[Descartar / calificar 👎]
     end
 ```
@@ -67,6 +70,7 @@ flowchart TD
 | Leer bases | Manual, 30–90 min por concurso | IA; el usuario lee un resumen de 3–5 líneas |
 | Determinar si califica | Criterio del encargado | Puntaje de compatibilidad + faltantes |
 | Seguimiento de adendas | Manual, a veces se omite | Robot + alerta inmediata |
+| Armar expediente de oferta | Manual: buscar documentos, revisar vigencias | Robot atendido + checklist |
 | Referencia de precios | Rara vez se hace | Automática con datos OCDS |
 | **Tiempo diario** | **60–120 min** (a validar) | **10–15 min** (meta) |
 
@@ -75,48 +79,54 @@ flowchart TD
 ```mermaid
 sequenceDiagram
     autonumber
-    participant PL as Planificador
-    participant BOT as Robot RPA
+    participant OR as Orchestrator
+    participant CAP as VC.Captura
     participant GC as Guatecompras
-    participant FS as Almacén docs
-    participant DB as PostgreSQL / Cola
-    participant WD as Worker documentos
+    participant CON as VC.Concurso
+    participant ANA as VC.Analisis
     participant IA as Servicio IA
-    participant WC as Worker compatibilidad
-    participant NT as Notificador
+    participant API as API
+    participant NOT as VC.Notificador
 
-    PL->>DB: Encolar "captura-diaria" (02:00)
-    BOT->>DB: Tomar trabajo
-    BOT->>DB: Registrar inicio de ejecución
-    BOT->>GC: Abrir buscador y aplicar filtros
-    GC-->>BOT: Resultados (páginas)
-    loop Por cada NOG nuevo
-        BOT->>GC: Abrir detalle
-        GC-->>BOT: Datos generales + lista de documentos
-        BOT->>GC: Descargar documentos
-        GC-->>BOT: Archivos PDF
-        BOT->>FS: Guardar archivo (por hash)
-        BOT->>DB: Insertar concurso y documentos
-        BOT->>DB: Encolar "extraer-texto"
+    OR->>CAP: Trigger de tiempo (02:00)
+    CAP->>API: Registrar ejecución, leer filtros
+    CAP->>GC: Descargar boletín diario
+    GC-->>CAP: HTML con los concursos de ayer
+    CAP->>API: Concursos del boletín
+    API-->>CAP: Candidatos (preselección por perfiles)
+    CAP->>OR: Add Queue Item (VC_Concursos) por candidato
+
+    OR->>NOT: Trigger de tiempo (07:00)
+    NOT->>NOT: Resumen preliminar por correo y Telegram
+
+    Note over CON: 07:30 la persona inicia VC.Concurso<br/>en UiPath Assistant (atendido)
+    loop Por cada elemento de VC_Concursos
+        CON->>OR: Get Transaction Item
+        CON->>GC: Abrir detalle
+        opt Aparece la verificación de Cloudflare
+            CON->>CON: Pedir a la persona que la resuelva
+        end
+        GC-->>CON: Datos + archivos PDF
+        CON->>API: Registrar concurso y subir documentos
+        CON->>OR: Add Queue Item (VC_Analisis)
+        CON->>OR: Set Transaction Status
     end
-    BOT->>DB: Registrar fin de ejecución
 
-    WD->>DB: Tomar "extraer-texto"
-    WD->>FS: Leer PDF
-    WD->>WD: Extraer texto / OCR
-    WD->>DB: Guardar texto, encolar "extraer-ficha"
-    WD->>IA: Texto relevante + esquema
-    IA-->>WD: Ficha JSON
-    WD->>WD: Validar con Zod
-    WD->>DB: Guardar ficha, encolar "compatibilidad"
+    OR->>ANA: Trigger de cola
+    loop Por cada elemento de VC_Analisis
+        ANA->>API: Descargar documentos
+        ANA->>ANA: Texto / OCR y segmentación
+        ANA->>IA: Contexto + esquema
+        IA-->>ANA: Ficha JSON
+        ANA->>API: Validar (Zod) y guardar ficha
+        API-->>ANA: Compatibilidad y faltantes calculados
+        ANA->>OR: Add Queue Item (VC_Notificaciones, FICHA)
+    end
 
-    WC->>DB: Tomar trabajo, leer perfiles
-    WC->>DB: Guardar puntaje y faltantes
-
-    PL->>NT: Disparar "resumen-diario" (07:00)
-    NT->>DB: Consultar oportunidades y cambios
-    NT-->>NT: Generar mensajes
-    NT->>NT: Enviar correo y Telegram
+    OR->>NOT: Trigger de cola
+    NOT->>API: Ficha y perfiles compatibles
+    NOT->>NOT: Enviar ficha por correo y Telegram
+    NOT->>API: Registrar envíos
 ```
 
 ## 6.5 Diagrama de secuencia · Detección de cambios
@@ -124,40 +134,43 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     autonumber
-    participant BOT as Robot RPA
+    participant OR as Orchestrator
+    participant CON as VC.Concurso
     participant GC as Guatecompras
-    participant DB as PostgreSQL
-    participant IA as Servicio IA
-    participant NT as Notificador
+    participant API as API
+    participant ANA as VC.Analisis
+    participant NOT as VC.Notificador
     participant U as Usuario
 
-    BOT->>DB: Concursos en seguimiento con cierre vigente
-    loop Por cada concurso
-        BOT->>GC: Abrir detalle del NOG
-        GC-->>BOT: Estado, fechas, documentos, aclaraciones
-        BOT->>DB: Comparar con última instantánea
-        alt Hay documento nuevo (adenda)
-            BOT->>GC: Descargar
-            BOT->>DB: Guardar y registrar cambio
-            DB->>IA: Resumir qué cambió
-            IA-->>DB: Resumen del cambio
-            DB->>NT: Evento "concurso-cambió"
-            NT->>U: 🔔 Alerta inmediata
-        else Cambió fecha o estado
-            BOT->>DB: Registrar cambio
-            DB->>NT: Evento "concurso-cambió"
-            NT->>U: 🔔 Alerta inmediata
-        else Sin cambios
-            BOT->>DB: Actualizar fecha de revisión
-        end
+    Note over OR: VC.Captura agregó elementos REVISION<br/>por cada concurso en seguimiento
+    OR->>CON: Elemento REVISION (la persona ya inició VC.Concurso)
+    CON->>GC: Abrir detalle del NOG
+    GC-->>CON: Estado, fechas, documentos, aclaraciones
+    CON->>API: Comparar con la última instantánea
+    alt Documento nuevo (adenda)
+        CON->>GC: Descargar
+        CON->>API: Subir documento y registrar cambio
+        CON->>OR: Add Queue Item (VC_Analisis, ADENDA)
+        OR->>ANA: Trigger de cola
+        ANA->>API: Resumen del cambio con IA
+        ANA->>OR: Add Queue Item (VC_Notificaciones)
+    else Cambió fecha o estado
+        CON->>API: Registrar cambio
+        CON->>OR: Add Queue Item (VC_Notificaciones)
+    else Sin cambios
+        CON->>API: Actualizar fecha de revisión
     end
+    OR->>NOT: Trigger de cola
+    NOT->>U: 🔔 Alerta inmediata
 ```
 
 ## 6.6 Diagrama de estados · Concurso (en el sistema)
 
 ```mermaid
 stateDiagram-v2
-    [*] --> CAPTURADO: Robot registra NOG
+    [*] --> PRESELECCIONADO: Boletín + preselección
+    PRESELECCIONADO --> CAPTURADO: Robot atendido descarga documentos
+    PRESELECCIONADO --> CERRADO: Nadie lo capturó antes del cierre
     CAPTURADO --> TEXTO_EXTRAIDO: Texto / OCR listo
     CAPTURADO --> ERROR_CAPTURA: Fallo al descargar
     ERROR_CAPTURA --> CAPTURADO: Reintento
@@ -194,24 +207,23 @@ stateDiagram-v2
 
 _Los nombres exactos de estados se confirmarán al levantar la estructura del portal en la fase 3._
 
-## 6.8 Diagrama de actividad · Manejo de errores del robot
+## 6.8 Diagrama de actividad · Manejo de errores (REFramework)
 
 ```mermaid
 flowchart TD
-    S([Paso del robot]) --> T{¿Éxito?}
-    T -- Sí --> N([Siguiente paso])
-    T -- No --> C{Tipo de error}
-    C -- "Tiempo de espera /<br/>red" --> R{¿Intentos < 3?}
-    R -- Sí --> W[Esperar 2^n × 5 s] --> S
-    R -- No --> F
-    C -- "Selector no<br/>encontrado" --> E[Guardar captura + HTML<br/>Error CAMBIO_ESTRUCTURA]
-    E --> AL[Alerta al administrador]
-    C -- "Archivo<br/>corrupto" --> M[Marcar documento<br/>para revisión]
-    M --> N
-    F[Registrar error en bitácora<br/>con captura] --> X{¿Error de un<br/>solo concurso?}
-    X -- Sí --> N2([Continuar con siguiente NOG])
-    X -- No --> AB([Abortar ejecución<br/>y alertar])
-    AL --> X
+    S([Process: un elemento de la cola]) --> T{¿Resultado?}
+    T -- Éxito --> OK[Set Transaction Status:<br/>Successful]
+    T -- Business Rule Exception --> BR[Set Transaction Status: Failed<br/>tipo Business, sin reintento]
+    T -- System Exception --> EV[Guardar captura + HTML<br/>y subirlos a la API]
+    EV --> CE{¿Selector no<br/>encontrado?}
+    CE -- Sí --> AL[Alerta CAMBIO_ESTRUCTURA<br/>al administrador]
+    CE -- No --> R
+    AL --> R{¿Reintentos de la<br/>cola agotados?}
+    R -- No --> RQ[Orchestrator reintenta<br/>el elemento]
+    R -- Sí --> FS[Set Transaction Status: Failed<br/>tipo Application]
+    FS --> RS[Reiniciar aplicación<br/>Init]
+    OK & BR & RQ & RS --> N([Siguiente elemento])
+    I([Init falla: portal caído]) --> F([Ejecución FALLIDA<br/>reintento programado en 1 h])
 ```
 
 ## 6.9 Flujo de datos (DFD nivel 1)

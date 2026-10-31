@@ -1,0 +1,242 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Main" this:Main.in_Modo="RESUMEN" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:ss="clr-namespace:System.Security;assembly=System.Private.CoreLib" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:this="clr-namespace:" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property sap2010:Annotation.AnnotationText="RESUMEN: resumen diario por perfil (disparador de tiempo, 07:00). AVISOS: atiende la cola VC_Notificaciones (FICHA y CAMBIO) hasta vaciarla (disparador de cola)." Name="in_Modo" Type="InArgument(x:String)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>Main_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Security</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.Platform.ResourceHandling</x:String>
+      <x:String>UiPath.Mail.SMTP.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic.Core</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Runtime</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Mail.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+      <AssemblyReference>UiPath.Studio.Constants</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Envía los avisos por correo (RF-NOT). La API decide qué se notifica y a quién; el robot arma el correo (PrepararCorreos.cs), lo envía con Send SMTP Mail Message y registra cada envío (RegistrarEnvio.cs). Ver docs/08-diseno-del-bot.md (8.6)." DisplayName="VC.Notificador" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="apiUrl" />
+      <Variable x:TypeArguments="x:String" Name="smtpServidor" />
+      <Variable x:TypeArguments="x:Int32" Default="0" Name="enviados" />
+      <Variable x:TypeArguments="x:Int32" Default="0" Name="fallidos" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:LogMessage DisplayName="Log · Inicio" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;VC.Notificador: inicio, modo &quot; &amp; in_Modo]" />
+    <Sequence DisplayName="Leer configuración de Orchestrator" sap2010:WorkflowViewState.IdRef="Sequence_2">
+      <sap:WorkflowViewStateService.ViewState>
+        <scg:Dictionary x:TypeArguments="x:String, x:Object">
+          <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        </scg:Dictionary>
+      </sap:WorkflowViewStateService.ViewState>
+      <ui:GetRobotAsset AssetName="VC_ApiUrl" DisplayName="Get Asset · VC_ApiUrl" sap2010:WorkflowViewState.IdRef="GetRobotAsset_1">
+        <ui:GetRobotAsset.Value>
+          <OutArgument x:TypeArguments="x:String">[apiUrl]</OutArgument>
+        </ui:GetRobotAsset.Value>
+      </ui:GetRobotAsset>
+      <ui:GetRobotAsset AssetName="VC_SMTP_Servidor" DisplayName="Get Asset · VC_SMTP_Servidor" sap2010:WorkflowViewState.IdRef="GetRobotAsset_2">
+        <ui:GetRobotAsset.Value>
+          <OutArgument x:TypeArguments="x:String">[smtpServidor]</OutArgument>
+        </ui:GetRobotAsset.Value>
+      </ui:GetRobotAsset>
+    </Sequence>
+    <If Condition="[in_Modo = &quot;RESUMEN&quot;]" DisplayName="¿Resumen diario o avisos de la cola?" sap2010:WorkflowViewState.IdRef="If_1">
+      <If.Then>
+        <Sequence DisplayName="Resumen diario" sap2010:WorkflowViewState.IdRef="Sequence_3">
+          <Sequence.Variables>
+            <Variable x:TypeArguments="sd:DataTable" Name="dt_Resumenes" />
+            <Variable x:TypeArguments="x:String" Name="detalleResumen" />
+          </Sequence.Variables>
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" sap2010:Annotation.AnnotationText="Coded workflow (C#): pide el resumen a la API y arma un correo por perfil (oportunidades nuevas, recordatorios de cierre y documentos por vencer)." DisplayName="Preparar resúmenes (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="PrepararCorreos.cs">
+            <ui:InvokeWorkflowFile.Arguments>
+              <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="modo">RESUMEN</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="nog">[String.Empty]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="resumenCola">[String.Empty]</InArgument>
+              <OutArgument x:TypeArguments="sd:DataTable" x:Key="dt_Correos">[dt_Resumenes]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="detalle">[detalleResumen]</OutArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+            <sap:WorkflowViewStateService.ViewState>
+              <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+              </scg:Dictionary>
+            </sap:WorkflowViewStateService.ViewState>
+          </ui:InvokeWorkflowFile>
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="True" sap2010:Annotation.AnnotationText="RF-NOT-02: la misma información, corta, a los chats de Telegram vinculados al perfil desde el dashboard. Va antes de los correos (lee el contenido antes de que se marque como notificado). Si Telegram falla, los correos salen igual." DisplayName="Enviar resúmenes por Telegram (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_T1" UnSafe="False" WorkflowFileName="EnviarTelegram.cs">
+            <ui:InvokeWorkflowFile.Arguments>
+              <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="modo">RESUMEN</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="nog">[String.Empty]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="resumenCola">[String.Empty]</InArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+          <ui:LogMessage DisplayName="Log · Resúmenes" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Info" Message="[detalleResumen]" />
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Enviar resúmenes" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_2" UnSafe="False" WorkflowFileName="EnviarCorreos.xaml">
+            <ui:InvokeWorkflowFile.Arguments>
+              <InArgument x:TypeArguments="sd:DataTable" x:Key="in_dt_Correos">[dt_Resumenes]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_ApiUrl">[apiUrl]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="in_SmtpServidor">[smtpServidor]</InArgument>
+              <InOutArgument x:TypeArguments="x:Int32" x:Key="io_Enviados">[enviados]</InOutArgument>
+              <InOutArgument x:TypeArguments="x:Int32" x:Key="io_Fallidos">[fallidos]</InOutArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+        </Sequence>
+      </If.Then>
+      <If.Else>
+        <Sequence sap2010:Annotation.AnnotationText="Atiende VC_Notificaciones hasta vaciarla. Cada elemento trae Nog, Tipo (FICHA o CAMBIO) y Resumen; lo encolan VC.Analisis (ficha lista) y VC.Concurso (cambio detectado)." DisplayName="Avisos de la cola VC_Notificaciones" sap2010:WorkflowViewState.IdRef="Sequence_4">
+          <Sequence.Variables>
+            <Variable x:TypeArguments="ui:QueueItem" Name="elemento" />
+            <Variable x:TypeArguments="x:Boolean" Default="True" Name="hayElementos" />
+          </Sequence.Variables>
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+              <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <While Condition="[hayElementos]" DisplayName="Mientras haya elementos" sap2010:WorkflowViewState.IdRef="While_1">
+            <Sequence DisplayName="Atender un elemento" sap2010:WorkflowViewState.IdRef="Sequence_5">
+              <sap:WorkflowViewStateService.ViewState>
+                <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                  <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                </scg:Dictionary>
+              </sap:WorkflowViewStateService.ViewState>
+              <ui:GetQueueItem ContinueOnError="{x:Null}" DisplayName="Get Transaction Item · VC_Notificaciones" sap2010:WorkflowViewState.IdRef="GetQueueItem_1" QueueType="VC_Notificaciones" TransactionItem="[elemento]">
+                <ui:GetQueueItem.Reference>
+                  <InArgument x:TypeArguments="x:String" />
+                </ui:GetQueueItem.Reference>
+                <ui:GetQueueItem.TimeoutMS>
+                  <InArgument x:TypeArguments="x:Int32" />
+                </ui:GetQueueItem.TimeoutMS>
+              </ui:GetQueueItem>
+              <If Condition="[elemento Is Nothing]" DisplayName="¿Cola vacía?" sap2010:WorkflowViewState.IdRef="If_2">
+                <If.Then>
+                  <Assign DisplayName="Terminar" sap2010:WorkflowViewState.IdRef="Assign_1">
+                    <Assign.To>
+                      <OutArgument x:TypeArguments="x:Boolean">[hayElementos]</OutArgument>
+                    </Assign.To>
+                    <Assign.Value>
+                      <InArgument x:TypeArguments="x:Boolean">False</InArgument>
+                    </Assign.Value>
+                  </Assign>
+                </If.Then>
+                <If.Else>
+                  <TryCatch DisplayName="Try Catch · aviso" sap2010:WorkflowViewState.IdRef="TryCatch_1">
+                    <TryCatch.Try>
+                      <Sequence DisplayName="Preparar y enviar el aviso" sap2010:WorkflowViewState.IdRef="Sequence_6">
+                        <Sequence.Variables>
+                          <Variable x:TypeArguments="sd:DataTable" Name="dt_Avisos" />
+                          <Variable x:TypeArguments="x:String" Name="detalleAviso" />
+                        </Sequence.Variables>
+                        <sap:WorkflowViewStateService.ViewState>
+                          <scg:Dictionary x:TypeArguments="x:String, x:Object">
+                            <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+                          </scg:Dictionary>
+                        </sap:WorkflowViewStateService.ViewState>
+                        <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Preparar aviso (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_3" UnSafe="False" WorkflowFileName="PrepararCorreos.cs">
+                          <ui:InvokeWorkflowFile.Arguments>
+                            <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="modo">[elemento.SpecificContent("Tipo").ToString]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="nog">[elemento.SpecificContent("Nog").ToString]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="resumenCola">[If(elemento.SpecificContent.ContainsKey("Resumen"), elemento.SpecificContent("Resumen").ToString, String.Empty)]</InArgument>
+                            <OutArgument x:TypeArguments="sd:DataTable" x:Key="dt_Correos">[dt_Avisos]</OutArgument>
+                            <OutArgument x:TypeArguments="x:String" x:Key="detalle">[detalleAviso]</OutArgument>
+                          </ui:InvokeWorkflowFile.Arguments>
+                        </ui:InvokeWorkflowFile>
+                        <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="True" sap2010:Annotation.AnnotationText="RF-NOT-02: la misma información, corta, a los chats de Telegram vinculados al perfil desde el dashboard. Va antes de los correos (lee el contenido antes de que se marque como notificado). Si Telegram falla, los correos salen igual." DisplayName="Enviar aviso por Telegram (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_T2" UnSafe="False" WorkflowFileName="EnviarTelegram.cs">
+                          <ui:InvokeWorkflowFile.Arguments>
+                            <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="modo">[elemento.SpecificContent("Tipo").ToString]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="nog">[elemento.SpecificContent("Nog").ToString]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="resumenCola">[If(elemento.SpecificContent.ContainsKey("Resumen"), elemento.SpecificContent("Resumen").ToString, String.Empty)]</InArgument>
+                          </ui:InvokeWorkflowFile.Arguments>
+                        </ui:InvokeWorkflowFile>
+                        <ui:LogMessage DisplayName="Log · Aviso" sap2010:WorkflowViewState.IdRef="LogMessage_3" Level="Info" Message="[detalleAviso]" />
+                        <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Enviar avisos" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_4" UnSafe="False" WorkflowFileName="EnviarCorreos.xaml">
+                          <ui:InvokeWorkflowFile.Arguments>
+                            <InArgument x:TypeArguments="sd:DataTable" x:Key="in_dt_Correos">[dt_Avisos]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="in_ApiUrl">[apiUrl]</InArgument>
+                            <InArgument x:TypeArguments="x:String" x:Key="in_SmtpServidor">[smtpServidor]</InArgument>
+                            <InOutArgument x:TypeArguments="x:Int32" x:Key="io_Enviados">[enviados]</InOutArgument>
+                            <InOutArgument x:TypeArguments="x:Int32" x:Key="io_Fallidos">[fallidos]</InOutArgument>
+                          </ui:InvokeWorkflowFile.Arguments>
+                        </ui:InvokeWorkflowFile>
+                        <ui:SetTransactionStatus ContinueOnError="{x:Null}" ServiceBaseAddress="{x:Null}" DisplayName="Set Transaction Status · Successful" ErrorType="Application" sap2010:WorkflowViewState.IdRef="SetTransactionStatus_1" Status="Successful" TransactionItem="[elemento]" />
+                      </Sequence>
+                    </TryCatch.Try>
+                    <TryCatch.Catches>
+                      <Catch x:TypeArguments="ui:BusinessRuleException" sap2010:WorkflowViewState.IdRef="Catch`1_1">
+                        <ActivityAction x:TypeArguments="ui:BusinessRuleException">
+                          <ActivityAction.Argument>
+                            <DelegateInArgument x:TypeArguments="ui:BusinessRuleException" Name="exNegocio" />
+                          </ActivityAction.Argument>
+                          <ui:SetTransactionStatus ContinueOnError="{x:Null}" ServiceBaseAddress="{x:Null}" DisplayName="Set Transaction Status · Business" ErrorType="Business" sap2010:WorkflowViewState.IdRef="SetTransactionStatus_2" Reason="[exNegocio.Message]" Status="Failed" TransactionItem="[elemento]" />
+                        </ActivityAction>
+                      </Catch>
+                      <Catch x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="Catch`1_2">
+                        <ActivityAction x:TypeArguments="s:Exception">
+                          <ActivityAction.Argument>
+                            <DelegateInArgument x:TypeArguments="s:Exception" Name="exSistema" />
+                          </ActivityAction.Argument>
+                          <ui:SetTransactionStatus ContinueOnError="{x:Null}" ServiceBaseAddress="{x:Null}" DisplayName="Set Transaction Status · Application" ErrorType="Application" sap2010:WorkflowViewState.IdRef="SetTransactionStatus_3" Reason="[exSistema.Message]" Status="Failed" TransactionItem="[elemento]" />
+                        </ActivityAction>
+                      </Catch>
+                    </TryCatch.Catches>
+                  </TryCatch>
+                </If.Else>
+              </If>
+            </Sequence>
+          </While>
+        </Sequence>
+      </If.Else>
+    </If>
+    <ui:LogMessage DisplayName="Log · Fin" sap2010:WorkflowViewState.IdRef="LogMessage_4" Level="Info" Message="[&quot;VC.Notificador: fin. Correos enviados: &quot; &amp; enviados.ToString &amp; &quot;, fallidos: &quot; &amp; fallidos.ToString]" />
+  </Sequence>
+</Activity>

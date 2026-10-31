@@ -1,0 +1,259 @@
+{
+  "type": "object",
+  "properties": {
+    "resumen": {
+      "type": "string",
+      "description": "3 a 5 oraciones en español sencillo: qué se compra, para quién, por cuánto, cuándo cierra y el requisito más exigente"
+    },
+    "objeto": {
+      "type": "string"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "descripcion": {
+            "type": "string"
+          },
+          "cantidad": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "unidad": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "descripcion",
+          "cantidad",
+          "unidad"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "montoEstimado": {
+      "description": "Monto total estimado en quetzales",
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "moneda": {
+      "anyOf": [
+        {
+          "type": "string",
+          "enum": [
+            "GTQ"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "fechaLimiteOfertas": {
+      "description": "Fecha y hora límite de presentación de ofertas, formato AAAA-MM-DDTHH:MM:SS",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "plazoEntrega": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "lugarEntrega": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "requisitos": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "legal",
+              "tecnico",
+              "financiero",
+              "experiencia",
+              "otro"
+            ]
+          },
+          "descripcion": {
+            "type": "string"
+          },
+          "documento": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "RTU",
+                  "RGAE",
+                  "PATENTE_EMPRESA",
+                  "PATENTE_SOCIEDAD",
+                  "SOLVENCIA_FISCAL",
+                  "DPI_REPRESENTANTE",
+                  "NOMBRAMIENTO",
+                  "FIANZA_SOSTENIMIENTO",
+                  "FIANZA_CUMPLIMIENTO",
+                  "DECLARACION_JURADA",
+                  "CARTA_DISTRIBUIDOR",
+                  "REGISTRO_SANITARIO",
+                  "EXPERIENCIA",
+                  "ESTADOS_FINANCIEROS",
+                  "OTRO"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Código del catálogo si el requisito es un documento; OTRO si no está en el catálogo; null si no es un documento"
+          },
+          "obligatorio": {
+            "type": "boolean"
+          },
+          "pagina": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Página del documento donde aparece el dato ([p. N]); null si no se puede ubicar"
+          },
+          "posibleRestrictivo": {
+            "type": "boolean"
+          },
+          "motivoRestrictivo": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "tipo",
+          "descripcion",
+          "documento",
+          "obligatorio",
+          "pagina",
+          "posibleRestrictivo",
+          "motivoRestrictivo"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "garantias": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tipo": {
+            "type": "string"
+          },
+          "porcentaje": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "pagina": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Página del documento donde aparece el dato ([p. N]); null si no se puede ubicar"
+          }
+        },
+        "required": [
+          "tipo",
+          "porcentaje",
+          "pagina"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "criteriosCalificacion": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "criterio": {
+            "type": "string"
+          },
+          "ponderacion": {
+            "description": "Puntos o porcentaje",
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "pagina": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Página del documento donde aparece el dato ([p. N]); null si no se puede ubicar"
+          }
+        },
+        "required": [
+          "criterio",
+          "ponderacion",
+          "pagina"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "formaPago": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "observaciones": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "resumen",
+    "objeto",
+    "items",
+    "montoEstimado",
+    "moneda",
+    "fechaLimiteOfertas",
+    "plazoEntrega",
+    "lugarEntrega",
+    "requisitos",
+    "garantias",
+    "criteriosCalificacion",
+    "formaPago",
+    "observaciones"
+  ],
+  "additionalProperties": false
+}

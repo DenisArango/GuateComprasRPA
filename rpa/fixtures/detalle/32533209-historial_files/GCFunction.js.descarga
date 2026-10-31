@@ -1,0 +1,591 @@
+﻿if (typeof jQuery === 'undefined') {
+    throw new Error('GCFunction\'s JavaScript requires jQuery')
+}
+
+// Creado por Ervin Santos 26-08-2022
+// funciones de uso global dentro de la plataforma
+(function ($) {
+
+    // Define la función de callback para el observador
+    var callback = function (mutationsList, observer) {
+        for (var mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+
+                        let elements = node.parentNode;
+                        if (elements != null) {
+                            // Formatear números en elementos con la clase 'amount'
+                            elements.querySelectorAll(".amount").forEach(element => {
+                                if (element.tagName != "INPUT") {
+                                    element.innerHTML = formatNumber.amount(element.innerText);
+                                } else {
+                                    $(element).validakeyup("amount");
+                                }
+                            });
+
+                            // Agregar contador de caracteres a elementos con la clase 'countCharInput'
+                            elements.querySelectorAll('.countCharInput').forEach((elemento) => {
+                                elemento.addEventListener("keyup", function () {
+                                    evetCharInput(elemento);
+                                });
+
+                                let validElementbtn = !!elemento.parentNode.querySelector('.btnCharInput');
+                                if (!validElementbtn) { evetCharInput(elemento); }
+                            });
+
+                            // Configurar calendario en elementos con la clase 'dateTimeInput'
+                            elements.querySelectorAll('.dateTimeInput').forEach((elemento) => {
+                                if (elemento.tagName == "INPUT") {
+                                    if (elemento.getAttribute('type') == "TEXT" || elemento.getAttribute('type') === 'text') {
+                                        let format = "DD-MM-YYYY hh:mm:ss";
+                                        if (elemento.getAttribute('data-format')) format = elemento.getAttribute('data-format');
+
+                                        if (elemento.value != "") {
+                                            calendar(elemento, format, elemento.value);
+                                        } else {
+                                            calendar(elemento, format);
+                                        }
+                                    }
+                                }
+                            });
+                        }
+
+                    }
+                });
+            }
+        }
+    };
+
+    var observer = new MutationObserver(callback);
+    var targetNode = document;
+    var config = { childList: true, subtree: true };
+    observer.observe(targetNode, config);
+
+    // Inicializar campos de contraseña al cargar la página
+    document.addEventListener("DOMContentLoaded", function () {
+        initializePasswordFields();
+        setupMutationObserver();
+    });
+
+    $(window).on('load', function (event) {
+        $(".triggerPicker").click(function (e) {
+            let idInput = $(this).data("idinput");
+            $("#" + idInput).trigger("focus");
+        })
+    })
+
+    const porcentaje = (valtotal, valing) => Math.round((valing / valtotal) * 100)
+
+    /**
+     * Contador de caracteres dentron un un input (tipo text) o textarea
+     * el cual agrega en la parte inferior derecha un contador,
+     * conforme se agote la cantidad que puede contener el input o textarea cambia 
+     * de color
+     * @param {any} element
+     */
+    function evetCharInput(element) {
+        if (element.tagName == "INPUT" || element.tagName == "TEXTAREA") {
+            let content = element.parentNode;
+            let maxlength = element.getAttribute("maxlength");
+            let maxlengthInt = parseInt(maxlength);
+            if (maxlengthInt == null) return false;
+            let txtActualInt = element.value.length;
+            let remainingCharacters = maxlengthInt - txtActualInt
+
+            if (document.addEventListener && !window.requestAnimationFrame) {
+                if (remainingCharacters <= -1) {
+                    remainingCharacters = 0;
+                    return false
+                }
+            }
+            const val = porcentaje(maxlengthInt, txtActualInt);
+
+            let clas = "btnCharInput-" + (val >= 50 && val < 80 ? "medium" : (val > 79 ? "low" : "full"));
+            let badge = '<span class="badge badge-light">' + remainingCharacters + '</span>';
+            let titleBtn = "title='Caracteres restantes: " + txtActualInt + "/" + maxlengthInt + "'";
+            let btn = '<button class=" ' + clas + ' btnCharInput" ' + titleBtn + ' >' + remainingCharacters + '</button>';
+
+            let validElementbtn = !!content.querySelector('.btnCharInput');
+            if (!validElementbtn) {
+                content.innerHTML += btn;
+            } else {
+                content.querySelector('.btnCharInput').innerHTML = "" + remainingCharacters;
+                content.querySelector('.btnCharInput').setAttribute("class", "btnCharInput " + clas);
+                content.querySelector('.btnCharInput').setAttribute("title", "Caracteres restantes: " + txtActualInt + "/" + maxlengthInt);
+                if (content.querySelector('.btnCharInput').hasAttribute("data-original-title")) {
+                    content.querySelector('.btnCharInput').setAttribute("data-original-title", "Caracteres restantes: " + txtActualInt + "/" + maxlengthInt);
+                }
+            }
+        }
+    }
+
+    /**
+     * DateTimePicker para seleccionar una fecha / hora o solo uno de cada uno
+     * donde el formato define el calendario o hora o ambos
+     * @param {any} element
+     * @param {any} format
+     */
+    function calendar(element, format) {
+        $(element).parent().children('div.input-group-prepend').children("div.input-group-text").addClass("triggerPicker").attr("data-idinput", element.id);
+
+        $(element).datetimepicker({
+            "allowInputToggle": true,
+            "showClose": true,
+            "showClear": true,
+            //"showTodayButton": true,
+            locale: "es",
+            "format": format,
+            tooltips: {
+                today: 'Hoy',
+                clear: 'Limpiar selección',
+                close: 'Cerrar',
+                selectMonth: 'Seleccionar mes',
+                prevMonth: 'Mes anterior',
+                nextMonth: 'Siguiente mes',
+                "selectYear": 'Seleccione año',
+                "prevYear": 'Año anterior',
+                "nextYear": 'Siguiente año',
+                "selectDecade": 'Seleccionar década',
+                "prevDecade": 'Década anterior',
+                "nextDecade": 'Siguiente década',
+                "prevCentury": 'Siglo anterior',
+                "nextCentury": 'Siguiente siglo'
+            },
+            icons: {
+                //time: 'glyphicon glyphicon-time',
+                //date: 'gch-calendario gc-1x',
+                up: 'gch-flecha-top',
+                down: 'gch-flecha-bottom',
+                previous: 'gch-flecha-left',
+                next: 'gch-flecha-right',
+                //today: 'glyphicon glyphicon-screenshot',
+                //clear: 'gch-eliminar',
+                //close: 'glyphicon glyphicon-remove'
+            }
+        });
+    }
+    function calendar(element, format, dateDefault) {
+        $(element).parent().children('div.input-group-prepend').children("div.input-group-text").addClass("triggerPicker").attr("data-idinput", element.id);
+        $(element).datetimepicker({
+            "allowInputToggle": true,
+            "showClose": true,
+            "showClear": true,
+            //"showTodayButton": true,
+            locale: "es",
+            date: dateDefault,
+            defaultDate: dateDefault,
+            "format": format,
+            tooltips: {
+                today: 'Hoy',
+                clear: 'Limpiar selección',
+                close: 'Cerrar',
+                selectMonth: 'Seleccionar mes',
+                prevMonth: 'Mes anterior',
+                nextMonth: 'Siguiente mes',
+                "selectYear": 'Seleccione año',
+                "prevYear": 'Año anterior',
+                "nextYear": 'Siguiente año',
+                "selectDecade": 'Seleccionar década',
+                "prevDecade": 'Década anterior',
+                "nextDecade": 'Siguiente década',
+                "prevCentury": 'Siglo anterior',
+                "nextCentury": 'Siguiente siglo'
+            },
+            icons: {
+                //time: 'glyphicon glyphicon-time',
+                //date: 'gch-calendario gc-1x',
+                up: 'gch-flecha-top',
+                down: 'gch-flecha-bottom',
+                previous: 'gch-flecha-left',
+                next: 'gch-flecha-right',
+                //today: 'glyphicon glyphicon-screenshot',
+                //clear: 'gch-eliminar',
+                //close: 'glyphicon glyphicon-remove'
+            }
+        });
+    }
+})(jQuery);
+
+let observerInitialized = false; // Variable para verificar si el observer ya está inicializado
+let observer; // Variable para el observer
+
+function setupMutationObserver() {
+    if (observerInitialized) return; // Si ya está inicializado, salimos
+
+    // Use MutationObserver to detect changes in the DOM
+    observer = new MutationObserver((mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                initializePasswordFields();
+            }
+        }
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+    observerInitialized = true; // Marcamos que el observer ha sido inicializado
+}
+
+const progressbarTemplate = id => `
+    <div id="${id}" class="progress mt-2">
+      <div class="progress-bar bg-danger" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>`;
+
+function initializePasswordFields() {
+
+    let elements = document.body;
+    elements.querySelectorAll(".password, .password-confirm").forEach(element => {
+        if (element.tagName === "INPUT") {
+            const typeInput = element.getAttribute('type').toUpperCase();
+            if (typeInput === "TEXT" || typeInput === "PASSWORD") {
+                const idElement = element.getAttribute('id');
+                const progressbarId = `${idElement}-bar`;
+                const viewPassId = `${idElement}-viewPass`;
+                if (!document.getElementById(progressbarId)) {
+                    element.insertAdjacentHTML('beforebegin', progressbarTemplate(progressbarId));
+                }
+
+                // Si el event listener ya está agregado, no lo agregamos de nuevo
+                if (!element.dataset.listenerAdded) {
+                    element.addEventListener("keyup", function (ev) {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+
+                        if (!element.value && !window.requestAnimationFrame) {
+                            return false;
+                        }
+                        passwordStrength(this);
+                        return false;
+                    });
+                    //// se quito debido a que se permite al usuario ingresar cualquier cosa en el campo y se valida desde codebehind
+                    //element.addEventListener("keypress", validateInputCharacter); // Agregar el event listener de validación de caracteres
+                    element.dataset.listenerAdded = true; // Marcar que el listener fue agregado
+                }
+            }
+        }
+    });
+
+    elements.querySelectorAll(".password-login").forEach(element => {
+        if (element.tagName === "INPUT") {
+            element.addEventListener("keyup", function (ev) {
+                ev.preventDefault();
+
+                if (!element.value && !window.requestAnimationFrame) {
+                    return false;
+                }
+                return false;
+            });
+            element.addEventListener("keypress", validateInputCharacter); // Agregar el event listener de validación de caracteres
+            element.dataset.listenerAdded = true; // Marcar que el listener fue agregado
+        }
+    });
+}
+
+// Función para verificar y permitir solo ciertos caracteres
+function validateInputCharacter(event) {
+    const allowedCharacters = /[.\$\-_+@A-Za-z0-9]/;
+    const char = String.fromCharCode(event.which);
+
+    if (!allowedCharacters.test(char)) {
+        event.preventDefault();
+        return false;
+    }
+}
+
+function passwordStrength(element) {
+    const password = element.value;
+    let passwordStrength = calculatePasswordStrength(password);
+    const idElement = element.id;
+    const progressBarElement = $('body #' + idElement + '-bar .progress-bar');
+
+    const strengthMapping = {
+        'waytooweak': { class: 'bg-danger', width: '25%', text: 'Demasiado Débil' },
+        'veryweak': { class: 'bg-danger', width: '34%', text: 'Muy Débil' },
+        'weak': { class: 'bg-danger', width: '43%', text: 'Débil' },
+        'medium': { class: 'bg-warning', width: '65%', text: 'Medio' },
+        'strong': { class: 'bg-success', width: '100%', text: 'Fuerte' }
+    };
+
+    const defaultStrength = { class: 'bg-danger', width: '25%', text: '' };
+
+    const { class: newClass, width, text } = strengthMapping[passwordStrength[0]] || defaultStrength;
+
+    progressBarElement
+        .removeClass('bg-danger bg-warning bg-success')
+        .addClass(newClass)
+        .css('width', width)
+        .text(text);
+
+    divToRemove = document.getElementById(idElement + '-msj-pass');
+    if (document.body.contains(divToRemove)) {
+        divToRemove.remove();
+    }
+    $(element).after("<span id='" + idElement + "-msj-pass' class='text-small text-danger'>" + passwordStrength[1] + "</span>");
+
+    if (element.hasAttribute('data-inputconfirm')) {
+        const idElementConfirm = element.getAttribute('data-inputconfirm');
+        const confirmElementValue = $("#" + idElementConfirm).val();
+        const elementValue = $(element).val();
+
+        const isMatch = elementValue === confirmElementValue;
+        const validConfirm = isMatch ? "Coincidencia" : "No hay coincidencia";
+        const classValidConfirm = isMatch ? "text-success" : "text-danger";
+        const messageId = idElementConfirm + "-msj";
+
+        // Remover el mensaje previo si existe
+        $("#" + messageId).remove();
+
+        // Añadir el nuevo mensaje
+        $(element).after(`<span id="${messageId}" class="${classValidConfirm} d-block">${validConfirm}</span>`);
+        if (elementValue == '') {
+            $("#" + messageId).remove();
+        }
+    }
+}
+
+function calculatePasswordStrength(password) {
+    const matchedCase = [
+        /[.\$\-_+@]/, // Caracteres especiales
+        /[A-Z]/,    // Mayúsculas
+        /[0-9]/,    // Números
+        /[a-z]/     // Minúsculas
+    ];
+
+    const messageCase = [
+        "Caracter especial",
+        "Mayúsculas",
+        "Números",
+        "Minúsculas"
+    ];
+
+    let ctr = 0;
+    const messages = [];
+    matchedCase.forEach((regex, index) => {
+        if (regex.test(password)) {
+            ctr++;
+        } else {
+            messages.push(messageCase[index]);
+        }
+    });
+
+    let passwordStrength = "waytooweak";
+
+    if (ctr === 4) {
+        passwordStrength = password.length >= 8 ? "strong" : "medium";
+    } else if (ctr === 3) {
+        passwordStrength = "weak";
+    } else if (ctr === 2) {
+        passwordStrength = "veryweak";
+    }
+
+    let additionalText = "";
+    if (password.length < 8) {
+        additionalText += `${8 - password.length} ó más caracteres, `;
+    }
+    additionalText += messages.join(", ");
+    if (additionalText) {
+        additionalText = " Necesitas " + additionalText;
+    }
+    return [passwordStrength, additionalText];
+}
+
+// valida si una cadena es null o vacío
+const isStringNullOrEmpty = function (val) {
+    switch (val) {
+        case "":
+        case 0:
+        case "0":
+        case null:
+        case false:
+        case undefined:
+        case typeof this === 'undefined':
+            return true;
+        default: return false;
+    }
+}
+// calida si una cadena es nula o con espacio en blanco
+const isStringNullOrWhiteSpace = function (val) {
+    return isStringNullOrEmpty(val) || val.replace(/\s/g, "") === '';
+}
+// valida si una cadena es nula o esta vacío, retornando null o el valor original
+const nullIfStringNullOrEmpty = function (val) {
+    if (isStringNullOrEmpty(val)) {
+        return null;
+    }
+    return val;
+}
+//mostrar cantidades con formato ###,###.##
+// formatNumber.new(4546.54) => 4,546.54
+const formatNumber = {
+    separador: ",", // separador para los miles
+    sepDecimal: '.', // separador para los decimales
+    decimales: 2,
+    formatear: function (num) {
+        num = num.replace(/,/g, '');
+        num = round(num, this.decimales);
+        num += '';
+        var splitStr = num.split('.');
+        var splitLeft = splitStr[0];
+        var splitRight = splitStr.length > 1 ? this.sepDecimal + splitStr[1] : this.sepDecimal + '00';
+        var regx = /(\d+)(\d{3})/;
+        while (regx.test(splitLeft)) {
+            splitLeft = splitLeft.replace(regx, '$1' + this.separador + '$2');
+        }
+        return this.simbol + splitLeft + splitRight;
+    },
+    amount: function (num, simbol, separador, sepDecimal) {
+        this.separador = separador || ',';
+        this.sepDecimal = sepDecimal || '.';
+        this.simbol = simbol || '';
+        return this.formatear(num);
+    }
+}
+
+function round(num, decimales = 2) {
+    var signo = (num >= 0 ? 1 : -1);
+    num = num * signo;
+    if (decimales === 0) //con 0 decimales
+        return signo * Math.round(num);
+    // round(x * 10 ^ decimales)
+    num = num.toString().split('e');
+    num = Math.round(+(num[0] + 'e' + (num[1] ? (+num[1] + decimales) : decimales)));
+    // x * 10 ^ (-decimales)
+    num = num.toString().split('e');
+    return signo * (num[0] + 'e' + (num[1] ? (+num[1] - decimales) : -decimales));
+}
+(function ($) {
+    $.fn.extend({ // valida un input con keyup de jquery	
+        validakeyup: function (op) {
+            // uso para funcion de keyup sobre inputs
+            // $([elemento]).validakeyup([opcion de validación])
+            // ejemplo de uso => $(".amount").validakeyup("amount");
+            this.each(function () {
+                var $this = $(this);
+                if ($this.nullIfStringNullOrEmpty != null) return false;
+                switch (op) {
+                    case "text":
+                        $this.on('keyup', function () {
+                            $this.val = $this.replace(/[^a-zA-Z-\u00A0-\uD7FF-\uF900-\uFDCF-\uFDF0-\uFFEF-\u0020]/g, '');
+                        });
+                        break;
+                    case "texts":
+                        $this.on('keyup', function () {
+                            $this.val = $this.replace(/[^a-zA-Z \u00A0-\uD7FF-\uF900-\uFDCF-\uFDF0-\uFFEF-\u0020]/g, '');
+                        });
+                        break;
+                    case "texts.":
+                        $this.on('keyup', function () {
+                            $this.val = $this.replace(/[^a-zA-Z .,\u00A0-\uD7FF-\uF900-\uFDCF-\uFDF0-\uFFEF-\u0020]/g, '');
+                        });
+                        break;
+                    case "textsnum":
+                        $this.on('keyup', function () {
+                            $this.val = $this.replace(/[^a-zA-Z0-9 \u00A0-\uD7FF-\uF900-\uFDCF-\uFDF0-\uFFEF-\u0020]/g, '');
+                        });
+                        break;
+                    case "num":
+                        $this.on('keyup', function () {
+                            $this.val = $this.replace(/[^0-9]/g, '');
+                        });
+                        break;
+                    case "num.":
+                        $this.on('keyup', function () {
+                            $this.val = $this.replace(/[^0-9.]/g, '');
+                        });
+                        break;
+                    case "amount":
+                        $this.on({
+                            'focus': function (ev) {
+                                $(ev.target).select()
+                            },
+                            'keyup': function (ev) {
+                                $(ev.target).val(function (index, value) {
+                                    const separador = ","; // separador para los miles
+                                    const sepDecimal = '.'; // separador para los decimales
+                                    return value.replace(/\D/g, "")
+                                        .replace(/([0-9])([0-9]{2})$/, '$1' + sepDecimal + '$2')
+                                        .replace(/\B(?=(\d{3})+(?!\d)\.?)/g, separador);
+                                });
+                            }
+                        })
+                        break;
+                    case "num_texts"://valida que no inicie con un signo
+                        $this.on('keyup', function () {
+                            if ($this.val.match(/^[ .,¡?¿!()]+$/)) {
+                                $this.val = $this.replace(this.value.slice(-1), '');
+                            } else {
+                                $this.val = $this.replace(/[^a-zA-Z0-9 .,() \u00A0-\uD7FF-\uF900-\uFDCF-\uFDF0-\uFFEF-\u0020]/g, '');
+                            }
+                        });
+                        break;
+                }
+            });
+        }
+    });
+})(jQuery);
+
+function buscar(link) {
+    var img = document.createElement("img");
+    img.src = "/imagenes/misc/indicator.gif"
+    img.alt = "Procesando";
+    link.style.display = 'none';
+    link.parentNode.insertBefore(img, link)
+}
+
+function showToastSuccess(titulo, mensaje) {
+    bootoast.toast({
+        message: mensaje,
+        title: titulo,
+        type: 'success',
+        position: 'right-top',
+        icon: 'gcp-cheque'
+    });
+}
+
+var control = true
+$(window).scroll(function () {
+    fixSiteInfo()
+});
+function fixSiteInfo() {
+    if ($(window).scrollTop() <= 110) {
+        if (control) {
+            $('[data-id=divSiteName]').removeClass("site-info-float")
+        }
+        control = true;
+    } else {
+        $('[data-id=divSiteName]').addClass('site-info-float');
+        control = false
+    }
+}
+
+function mostrarPdf(pdf, title) {
+    let pdfWindow = window.open("")
+    pdfWindow.document.body.style.margin = "0";
+    pdfWindow.document.write("<style>body {size: auto;margin: 0;}</style>")
+    pdfWindow.document.write("<title>Guatecompras - " + title +"</title>")
+    pdfWindow.document.write(
+        "<iframe width='100%' height='100%' style='border:0;' src='data:application/pdf;base64, " +
+        encodeURI(pdf) + "'></iframe>"
+    )
+}
+
+if (typeof txtCalendarExtenderPopUp === 'undefined') {
+    function txtCalendarExtenderPopUp(calendar) {
+        $("#" + calendar.id).focus().click();
+    }
+}
+
+if (typeof mostrarModal === 'undefined') {
+    function mostrarModal(modal) {
+        $("#" + modal).modal("show")
+    }
+}
+
+if (typeof cerrarModal === 'undefined') {
+    function cerrarModal(modal) {
+        $("#" + modal).modal("hide")
+    }
+}

@@ -1,0 +1,14 @@
+﻿{
+  "Name": "PestanaRequisitos",
+  "Type": "Element",
+  "TaxonomyType": "None",
+  "Id": "Am77KBeeqkyHzmJC2DPPQw",
+  "Reference": "EktFMx7gGEaUEx8Ka57bkQ/Am77KBeeqkyHzmJC2DPPQw",
+  "ParentRef": "EktFMx7gGEaUEx8Ka57bkQ/cIqkXh5-sUaT0TuVstLjbg",
+  "Created": "2026-10-31T08:34:59.0395646Z",
+  "Updated": "2026-10-31T08:34:59.0395646Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.2.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

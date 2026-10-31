@@ -1,0 +1,194 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Main" this:Main.in_Nog="" this:Main.in_PerfilId="0" this:Main.in_Desatendido="False" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:uc="clr-namespace:UiPath.Core;assembly=UiPath.System.Activities" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:this="clr-namespace:" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property sap2010:Annotation.AnnotationText="NOG del concurso. Vacío: el robot lo pregunta." Name="in_Nog" Type="InArgument(x:String)" />
+    <x:Property sap2010:Annotation.AnnotationText="Perfil de la empresa. 0: el único perfil activo." Name="in_PerfilId" Type="InArgument(x:Int32)" />
+    <x:Property sap2010:Annotation.AnnotationText="True cuando lo inicia la API al marcar Participaré: sin ventanas ni preguntas; actualiza la carpeta existente." Name="in_Desatendido" Type="InArgument(x:Boolean)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>Main_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>GlobalConstantsNamespace</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic.Core</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.IO.FileSystem</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Runtime</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+      <AssemblyReference>UiPath.Studio.Constants</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Robot atendido (CU-16). La persona lo inicia desde UiPath Assistant con el NOG del concurso que decidió preparar. Arma la carpeta Expediente_{NOG} con las bases, los documentos vigentes de la empresa, Checklist.xlsx y borradores Word, y muestra lo que falta. Ver docs/08-diseno-del-bot.md (8.6)." DisplayName="VC.Expediente · Expediente de oferta" sap2010:WorkflowViewState.IdRef="Sequence_1">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="nog" />
+      <Variable x:TypeArguments="x:String" Name="apiUrl" />
+      <Variable x:TypeArguments="x:String" Name="carpetaBase" />
+      <Variable x:TypeArguments="x:String" Name="modo" />
+      <Variable x:TypeArguments="x:String" Name="boton" />
+      <Variable x:TypeArguments="x:String" Name="carpeta" />
+      <Variable x:TypeArguments="x:String" Name="resumen" />
+      <Variable x:TypeArguments="s:DateTime" Name="inicio" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <Assign DisplayName="Inicio (duración del armado, OE7)" sap2010:WorkflowViewState.IdRef="Assign_1">
+      <Assign.To>
+        <OutArgument x:TypeArguments="s:DateTime">[inicio]</OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="s:DateTime">[Now]</InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="NOG recibido" sap2010:WorkflowViewState.IdRef="Assign_2">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">[nog]</OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">[If(in_Nog, String.Empty).Trim]</InArgument>
+      </Assign.Value>
+    </Assign>
+    <Assign DisplayName="Modo inicial (desatendido: actualizar)" sap2010:WorkflowViewState.IdRef="Assign_4">
+      <Assign.To>
+        <OutArgument x:TypeArguments="x:String">[modo]</OutArgument>
+      </Assign.To>
+      <Assign.Value>
+        <InArgument x:TypeArguments="x:String">[If(in_Desatendido, "ACTUALIZAR", "NUEVA")]</InArgument>
+      </Assign.Value>
+    </Assign>
+    <If Condition="[String.IsNullOrWhiteSpace(nog) AndAlso Not in_Desatendido]" DisplayName="¿Falta el NOG? → preguntarlo" sap2010:WorkflowViewState.IdRef="If_1">
+      <If.Then>
+        <ui:InputDialog DisplayName="Input Dialog · NOG del concurso" sap2010:WorkflowViewState.IdRef="InputDialog_1" IsPassword="False" Label="NOG del concurso que va a preparar (por ejemplo 32557469)" Title="Vigía de Contrataciones · Expediente de oferta">
+          <ui:InputDialog.Result>
+            <OutArgument x:TypeArguments="x:String">[nog]</OutArgument>
+          </ui:InputDialog.Result>
+        </ui:InputDialog>
+      </If.Then>
+    </If>
+    <ui:GetRobotAsset AssetName="VC_ApiUrl" DisplayName="Get Asset · VC_ApiUrl" sap2010:WorkflowViewState.IdRef="GetRobotAsset_1">
+      <ui:GetRobotAsset.Value>
+        <OutArgument x:TypeArguments="x:String">[apiUrl]</OutArgument>
+      </ui:GetRobotAsset.Value>
+    </ui:GetRobotAsset>
+    <ui:GetRobotAsset AssetName="VC_CarpetaExpedientes" DisplayName="Get Asset · VC_CarpetaExpedientes" sap2010:WorkflowViewState.IdRef="GetRobotAsset_2">
+      <ui:GetRobotAsset.Value>
+        <OutArgument x:TypeArguments="x:String">[carpetaBase]</OutArgument>
+      </ui:GetRobotAsset.Value>
+    </ui:GetRobotAsset>
+    <TryCatch DisplayName="Try Catch · armar el expediente" sap2010:WorkflowViewState.IdRef="TryCatch_1">
+      <TryCatch.Try>
+        <Sequence DisplayName="Armar el expediente" sap2010:WorkflowViewState.IdRef="Sequence_2">
+          <sap:WorkflowViewStateService.ViewState>
+            <scg:Dictionary x:TypeArguments="x:String, x:Object">
+              <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+            </scg:Dictionary>
+          </sap:WorkflowViewStateService.ViewState>
+          <If Condition="[If(nog, String.Empty).Trim.Length &lt; 6 OrElse Not If(nog, String.Empty).Trim.All(AddressOf Char.IsDigit)]" DisplayName="¿NOG válido?" sap2010:WorkflowViewState.IdRef="If_2">
+            <If.Then>
+              <Throw DisplayName="Throw · NOG inválido" Exception="[New BusinessRuleException(&quot;El NOG debe tener solo números (al menos 6 dígitos).&quot;)]" sap2010:WorkflowViewState.IdRef="Throw_1" />
+            </If.Then>
+          </If>
+          <If Condition="[Not in_Desatendido AndAlso Directory.Exists(Path.Combine(carpetaBase, &quot;Expediente_&quot; &amp; nog.Trim))]" DisplayName="¿Ya existe la carpeta? → preguntar (CU-16 FA-2)" sap2010:WorkflowViewState.IdRef="If_3">
+            <If.Then>
+              <Sequence DisplayName="Actualizar o versión nueva" sap2010:WorkflowViewState.IdRef="Sequence_3">
+                <ui:MessageBox Buttons="YesNo" Caption="Vigía de Contrataciones · Expediente de oferta" ChosenButton="[boton]" DisplayName="Message Box · ¿actualizar?" sap2010:WorkflowViewState.IdRef="MessageBox_1" Text="[&quot;Ya existe el expediente del NOG &quot; &amp; nog.Trim &amp; &quot;.&quot; &amp; Environment.NewLine &amp; Environment.NewLine &amp; &quot;Sí: actualizarlo (rehace el checklist, los borradores y los documentos de la empresa).&quot; &amp; Environment.NewLine &amp; &quot;No: crear una versión nueva en otra carpeta.&quot;]" TopMost="True" />
+                <Assign DisplayName="Modo según la respuesta" sap2010:WorkflowViewState.IdRef="Assign_3">
+                  <Assign.To>
+                    <OutArgument x:TypeArguments="x:String">[modo]</OutArgument>
+                  </Assign.To>
+                  <Assign.Value>
+                    <InArgument x:TypeArguments="x:String">[If(boton = "Yes", "ACTUALIZAR", "NUEVA")]</InArgument>
+                  </Assign.Value>
+                </Assign>
+              </Sequence>
+            </If.Then>
+          </If>
+          <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Armar carpeta, checklist y borradores (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="ArmarExpediente.cs">
+            <ui:InvokeWorkflowFile.Arguments>
+              <InArgument x:TypeArguments="x:String" x:Key="nog">[nog.Trim]</InArgument>
+              <InArgument x:TypeArguments="x:Int32" x:Key="perfilId">[in_PerfilId]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="carpetaBase">[carpetaBase]</InArgument>
+              <InArgument x:TypeArguments="x:String" x:Key="modo">[modo]</InArgument>
+              <InArgument x:TypeArguments="s:DateTime" x:Key="inicio">[inicio]</InArgument>
+              <InArgument x:TypeArguments="x:Boolean" x:Key="abrirCarpeta">[Not in_Desatendido]</InArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="carpeta">[carpeta]</OutArgument>
+              <OutArgument x:TypeArguments="x:String" x:Key="resumen">[resumen]</OutArgument>
+            </ui:InvokeWorkflowFile.Arguments>
+          </ui:InvokeWorkflowFile>
+          <ui:LogMessage DisplayName="Log · Expediente listo" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;VC.Expediente: &quot; &amp; carpeta &amp; &quot; en &quot; &amp; CInt((Now - inicio).TotalSeconds).ToString &amp; &quot; s&quot;]" />
+          <If Condition="[Not in_Desatendido]" DisplayName="¿Atendido? → mostrar el resumen" sap2010:WorkflowViewState.IdRef="If_10">
+            <If.Then>
+              <ui:MessageBox Caption="Vigía de Contrataciones · Expediente de oferta" ChosenButton="{x:Null}" DisplayName="Message Box · resumen" sap2010:WorkflowViewState.IdRef="MessageBox_2" Text="[resumen]" TopMost="True" />
+            </If.Then>
+          </If>
+        </Sequence>
+      </TryCatch.Try>
+      <TryCatch.Catches>
+        <Catch x:TypeArguments="uc:BusinessRuleException" sap2010:WorkflowViewState.IdRef="Catch`1_1">
+          <ActivityAction x:TypeArguments="uc:BusinessRuleException">
+            <ActivityAction.Argument>
+              <DelegateInArgument x:TypeArguments="uc:BusinessRuleException" Name="exNegocio" />
+            </ActivityAction.Argument>
+            <Sequence DisplayName="Avisar a la persona" sap2010:WorkflowViewState.IdRef="Sequence_4">
+              <ui:LogMessage DisplayName="Log · No se puede armar" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Warn" Message="[&quot;VC.Expediente: &quot; &amp; exNegocio.Message]" />
+              <If Condition="[Not in_Desatendido]" DisplayName="¿Atendido? → mostrar el motivo" sap2010:WorkflowViewState.IdRef="If_11">
+                <If.Then>
+                  <ui:MessageBox Caption="Vigía de Contrataciones · Expediente de oferta" ChosenButton="{x:Null}" DisplayName="Message Box · motivo" sap2010:WorkflowViewState.IdRef="MessageBox_3" Text="[&quot;No se puede armar el expediente:&quot; &amp; Environment.NewLine &amp; Environment.NewLine &amp; exNegocio.Message]" TopMost="True" />
+                </If.Then>
+              </If>
+            </Sequence>
+          </ActivityAction>
+        </Catch>
+        <Catch x:TypeArguments="s:Exception" sap2010:WorkflowViewState.IdRef="Catch`1_2">
+          <ActivityAction x:TypeArguments="s:Exception">
+            <ActivityAction.Argument>
+              <DelegateInArgument x:TypeArguments="s:Exception" Name="ex" />
+            </ActivityAction.Argument>
+            <Sequence DisplayName="Error del sistema" sap2010:WorkflowViewState.IdRef="Sequence_5">
+              <ui:LogMessage DisplayName="Log · Error" sap2010:WorkflowViewState.IdRef="LogMessage_3" Level="Error" Message="[&quot;VC.Expediente falló: &quot; &amp; ex.Message]" />
+              <If Condition="[Not in_Desatendido]" DisplayName="¿Atendido? → mostrar el error" sap2010:WorkflowViewState.IdRef="If_12">
+                <If.Then>
+                  <ui:MessageBox Caption="Vigía de Contrataciones · Expediente de oferta" ChosenButton="{x:Null}" DisplayName="Message Box · error" sap2010:WorkflowViewState.IdRef="MessageBox_4" Text="[&quot;Ocurrió un error al armar el expediente. Revise que la API esté encendida e intente de nuevo.&quot; &amp; Environment.NewLine &amp; Environment.NewLine &amp; ex.Message]" TopMost="True" />
+                </If.Then>
+              </If>
+              <Rethrow DisplayName="Rethrow · el trabajo termina como fallido" sap2010:WorkflowViewState.IdRef="Rethrow_1" />
+            </Sequence>
+          </ActivityAction>
+        </Catch>
+      </TryCatch.Catches>
+    </TryCatch>
+  </Sequence>
+</Activity>

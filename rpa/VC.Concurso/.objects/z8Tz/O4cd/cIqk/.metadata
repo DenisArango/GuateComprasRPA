@@ -1,0 +1,13 @@
+﻿{
+  "Name": "DetalleConcurso",
+  "Type": "Screen",
+  "Id": "cIqkXh5-sUaT0TuVstLjbg",
+  "Reference": "EktFMx7gGEaUEx8Ka57bkQ/cIqkXh5-sUaT0TuVstLjbg",
+  "ParentRef": "EktFMx7gGEaUEx8Ka57bkQ/O4cdpx60e0SEXcU5e-7CdA",
+  "Created": "2026-10-31T08:34:58.6837139Z",
+  "Updated": "2026-10-31T08:34:58.6837139Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.2.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

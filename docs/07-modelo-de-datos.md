@@ -19,6 +19,8 @@ erDiagram
     CONCURSO ||--o{ SEGUIMIENTO : "es seguido en"
     USUARIO }o--o{ PERFIL_EMPRESA : administra
     PERFIL_EMPRESA ||--o{ NOTIFICACION : recibe
+    PERFIL_EMPRESA ||--o{ EXPEDIENTE : prepara
+    CONCURSO ||--o{ EXPEDIENTE : "se prepara en"
     EJECUCION_ROBOT ||--o{ ERROR_ROBOT : registra
     EJECUCION_ROBOT ||--o{ CONCURSO : captura
 
@@ -41,14 +43,15 @@ erDiagram
         string titulo
         string unidad_compradora
         string modalidad
-        string categoria
+        string[] categorias "del boletín diario"
+        jsonb origen_boletin "fila original del boletín"
         decimal monto_estimado
         datetime fecha_publicacion
         datetime fecha_cierre
         string estado_gc "estado en Guatecompras"
-        string estado_sistema "CAPTURADO, ANALIZADO..."
+        string estado_sistema "PRESELECCIONADO, CAPTURADO, ANALIZADO..."
         string url
-        jsonb instantanea "última versión vista"
+        jsonb instantanea "último detalle leído por VC.Concurso"
         int ejecucion_id FK
         datetime creado_en
         datetime revisado_en
@@ -60,6 +63,7 @@ erDiagram
         string tipo "bases, anexo, adenda, aclaracion"
         string sha256
         string ruta_almacen
+        int tamano_bytes
         int paginas
         boolean requiere_ocr
         text texto_extraido
@@ -68,7 +72,7 @@ erDiagram
     CAMBIO_CONCURSO {
         int id PK
         int concurso_id FK
-        string tipo "adenda, fecha, estado, aclaracion"
+        string tipo "DOCUMENTO, FECHA, ESTADO, ACLARACION"
         jsonb antes
         jsonb despues
         text resumen_ia
@@ -85,6 +89,9 @@ erDiagram
         datetime fecha_limite_ofertas
         jsonb garantias
         jsonb datos_completos "JSON validado"
+        decimal confianza "0-1, calculada por la API"
+        string validada_por "IA, HUMANO"
+        string tarea_action_center
         string modelo_ia
         int tokens_entrada
         int tokens_salida
@@ -120,8 +127,10 @@ erDiagram
         int id PK
         string nombre
         string nit
+        boolean activo
         string[] categorias
         string[] palabras_clave
+        string[] modalidades "prefijos aceptados; vacío = todas"
         string[] departamentos
         decimal monto_min
         decimal monto_max
@@ -140,6 +149,7 @@ erDiagram
         int id PK
         int concurso_id FK
         int perfil_id FK
+        string etapa "PRELIMINAR (boletín), COMPLETA (ficha IA)"
         int puntaje
         jsonb detalle "componentes del puntaje"
         string[] faltantes
@@ -162,21 +172,35 @@ erDiagram
         jsonb contenido
         datetime enviado_en
     }
+    EXPEDIENTE {
+        int id PK
+        int perfil_id FK
+        int concurso_id FK
+        string ruta "carpeta generada"
+        string[] faltantes
+        int duracion_seg
+        datetime generado_en
+    }
     EJECUCION_ROBOT {
         int id PK
-        string tipo "captura, cambios, manual"
+        string proceso "VC.Captura, VC.Concurso..."
+        string job_key "clave del trabajo en Orchestrator"
         string estado "EN_CURSO, EXITOSA, PARCIAL, FALLIDA"
         datetime inicio
         datetime fin
+        int elementos_exitosos
+        int excepciones_negocio
+        int excepciones_sistema
         int concursos_nuevos
         int documentos_descargados
-        int errores
     }
     ERROR_ROBOT {
         int id PK
         int ejecucion_id FK
         string nog
-        string tipo "RED, CAMBIO_ESTRUCTURA, ARCHIVO, OTRO"
+        string queue_item_id "elemento de la cola"
+        string tipo "SISTEMA, NEGOCIO"
+        string categoria "RED, CAMBIO_ESTRUCTURA, ARCHIVO, PORTAL_CAIDO, OTRO"
         text mensaje
         string ruta_captura
         string ruta_html
@@ -189,7 +213,8 @@ erDiagram
         int entidad_id FK
         string titulo
         string modalidad
-        string categoria
+        string[] categorias "del boletín diario"
+        jsonb origen_boletin "fila original del boletín"
         decimal monto_estimado
         datetime fecha_publicacion
         datetime fecha_cierre
@@ -237,7 +262,7 @@ erDiagram
 | fecha_publicacion | timestamptz | No | |
 | fecha_cierre | timestamptz | Sí | Fecha límite de ofertas |
 | estado_gc | varchar(60) | No | Estado según Guatecompras |
-| estado_sistema | enum | No | `CAPTURADO`, `TEXTO_EXTRAIDO`, `ANALIZADO`, `REVISION_MANUAL`, `NOTIFICADO`, `CERRADO`, `FINALIZADO`, `ERROR_CAPTURA` |
+| estado_sistema | enum | No | `PRESELECCIONADO`, `CAPTURADO`, `TEXTO_EXTRAIDO`, `ANALIZADO`, `REVISION_MANUAL`, `NOTIFICADO`, `CERRADO`, `FINALIZADO`, `ERROR_CAPTURA` |
 | url | text | No | Enlace al concurso |
 | instantanea | jsonb | No | Último estado visto, usado para detectar cambios |
 
@@ -257,6 +282,25 @@ erDiagram
 | datos_completos | jsonb | No | Respuesta de la IA validada contra el esquema (ver [09](09-ia-extraccion.md)) |
 | tokens_entrada / salida | int | No | Para control de costos (RNF-11) |
 | costo_usd | numeric(8,5) | No | Costo calculado de la llamada |
+| confianza | numeric(3,2) | No | Calculada con verificaciones objetivas (ver [09](09-ia-extraccion.md#confianza-de-la-ficha)); bajo el umbral, `VC.Analisis` envía la ficha a Action Center |
+| validada_por | enum | No | `IA` o `HUMANO` (corregida en Action Center o en el dashboard) |
+
+### EJECUCION_ROBOT y ERROR_ROBOT
+
+Orchestrator conserva sus propios logs y el historial de las colas. Estas tablas guardan un **resumen propio** para el dashboard (CU-12) y para las métricas del informe, sin depender de la retención de la licencia. `job_key` y `queue_item_id` enlazan cada registro con Orchestrator.
+
+| Campo | Descripción |
+|---|---|
+| tipo | `SISTEMA` = System Exception (se reintenta); `NEGOCIO` = Business Rule Exception (no se reintenta) |
+| categoria | Clasificación para el análisis de fallos (ver [08 · Diseño de los robots](08-diseno-del-bot.md#87-manejo-de-excepciones)) |
+
+### Telegram (RF-NOT-02)
+
+`PERFIL_EMPRESA.telegram_chats` guarda los chats vinculados al perfil; reciben los avisos del perfil además del correo. `VINCULO_TELEGRAM` (código, perfil, vence_en) guarda los códigos de un solo uso del enlace de vinculación. Se vincula por perfil, no por usuario, porque los avisos son de la empresa.
+
+### EXPEDIENTE
+
+Registra cada expediente de oferta armado por `VC.Expediente`. `duracion_seg` alimenta la métrica de tiempo de preparación frente al proceso manual.
 
 ### COINCIDENCIA
 
@@ -266,6 +310,8 @@ erDiagram
 | detalle | jsonb | No | Ej.: `{"categoria":30,"palabras":22,"departamento":10,"monto":15,"requisitos":15}` |
 | faltantes | text[] | No | Documentos normalizados que la empresa no tiene vigentes |
 | calificacion_usuario | enum | Sí | Retroalimentación para la métrica de precisión |
+
+**Etapas de COINCIDENCIA:** `PRELIMINAR` se calcula con los datos del boletín (categoría, palabras clave, modalidad) para decidir qué concursos captura el robot atendido; `COMPLETA` se calcula con la ficha de la IA (monto, departamento, requisitos). Única por `(concurso_id, perfil_id, etapa)`.
 
 ### Catálogo de documentos normalizados
 

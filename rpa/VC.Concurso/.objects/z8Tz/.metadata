@@ -1,0 +1,12 @@
+﻿{
+  "Name": "Guatecompras",
+  "Type": "App",
+  "Id": "z8TzWaK20UmVzu-7Q1o94w",
+  "Reference": "EktFMx7gGEaUEx8Ka57bkQ/z8TzWaK20UmVzu-7Q1o94w",
+  "Created": "2026-10-31T08:34:58.6254077Z",
+  "Updated": "2026-10-31T08:34:58.6254077Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.2.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

@@ -32,9 +32,15 @@
 
 | Término | Definición |
 |---|---|
+| **Action Center** | Componente de UiPath donde las personas atienden tareas que un robot les asigna (validar, aprobar, corregir). |
 | **ADR** | Architecture Decision Record; registro de una decisión técnica y su justificación. |
+| **Asset** | Valor de configuración o credencial guardado en Orchestrator y leído por los robots. |
 | **Automatización inteligente** | Combinación de RPA con inteligencia artificial para procesar información no estructurada. |
+| **Business Rule Exception** | Excepción de UiPath por una regla de negocio; el elemento no se reintenta. |
 | **C4** | Modelo de diagramas de arquitectura en niveles: contexto, contenedores, componentes y código. |
+| **Coded workflow** | Flujo de UiPath escrito en C# en lugar de XAML. |
+| **Cola (Queue)** | Lista de elementos de trabajo en Orchestrator, con estado, reintentos y métricas por elemento. |
+| **Despachador / ejecutor** | Patrón en el que un proceso carga elementos en una cola (despachador) y otro los procesa uno a uno (ejecutor). |
 | **Embedding** | Representación numérica de un texto que permite medir similitud semántica. |
 | **ETL** | Extract, Transform, Load; proceso de carga de datos. |
 | **Fixture** | Copia de datos o páginas usada para pruebas reproducibles. |
@@ -42,9 +48,14 @@
 | **Headless** | Navegador que se ejecuta sin interfaz gráfica. |
 | **LLM** | Large Language Model; modelo de lenguaje de inteligencia artificial. |
 | **MoSCoW** | Técnica de priorización: Must, Should, Could, Won't. |
+| **Object Repository** | Repositorio de UiPath donde se guardan los elementos de interfaz (selectores) para reutilizarlos. |
 | **OCR** | Reconocimiento óptico de caracteres; convierte imágenes de texto en texto. |
-| **Playwright** | Biblioteca de automatización de navegadores. |
+| **Orchestrator** | Consola de UiPath para publicar, programar y supervisar robots; administra colas, assets, triggers y logs. |
+| **Playwright** | Biblioteca de automatización de navegadores; en este proyecto solo para probar el dashboard. |
 | **REFramework** | Plantilla de UiPath para procesos RPA transaccionales robustos. |
+| **Robot atendido / desatendido** | Atendido: lo inicia una persona en su equipo (UiPath Assistant). Desatendido: lo inicia Orchestrator sin intervención. |
 | **RPA** | Robotic Process Automation; software que replica acciones humanas en interfaces de usuario. |
 | **Selector** | Expresión que identifica un elemento en una página web. |
+| **System Exception** | Excepción técnica de UiPath (red, selector, aplicación); el elemento se reintenta. |
+| **Trigger** | Disparador de Orchestrator que inicia un proceso por horario o por llegada de elementos a una cola. |
 | **Zod** | Biblioteca de TypeScript para definir y validar esquemas de datos. |

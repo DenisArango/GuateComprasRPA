@@ -8,11 +8,12 @@
 | **Gestor de licitaciones** | Primario, humano | Hereda del usuario proveedor; administra varios perfiles de empresa |
 | **Analista de transparencia** | Primario, humano | Consulta banderas rojas e historial de proveedores |
 | **Administrador** | Primario, humano | Configura el sistema, supervisa el robot y los costos de IA |
-| **Planificador** | Primario, sistema | Dispara las ejecuciones programadas |
+| **Planificador (UiPath Orchestrator)** | Primario, sistema | Dispara las ejecuciones programadas y los robots asociados a colas |
 | **Guatecompras** | Secundario, sistema externo | Portal web del que el robot captura información |
 | **Portal OCDS** | Secundario, sistema externo | Fuente de datos abiertos |
-| **Servicio de IA (LLM)** | Secundario, sistema externo | Extrae fichas estructuradas |
+| **Servicio de IA (Claude)** | Secundario, sistema externo | Extrae fichas estructuradas |
 | **Correo / Telegram** | Secundario, sistema externo | Canales de notificación |
+| **Revisor** | Primario, humano | Administrador o usuario que valida fichas en Action Center |
 
 ## 4.2 Diagrama de casos de uso
 
@@ -22,7 +23,8 @@ flowchart LR
     GL([👤 Gestor de licitaciones])
     AT([👤 Analista de transparencia])
     AD([👤 Administrador])
-    PL([⏱ Planificador])
+    PL([⏱ Orchestrator])
+    RV([👤 Revisor])
 
     GC[(Guatecompras)]
     OC[(Portal OCDS)]
@@ -45,6 +47,8 @@ flowchart LR
         CU13((CU-13 Capturar NOG manualmente))
         CU14((CU-14 Calificar alerta))
         CU15((CU-15 Iniciar sesión))
+        CU16((CU-16 Preparar expediente de oferta))
+        CU17((CU-17 Validar ficha))
     end
 
     PL --> CU01
@@ -58,6 +62,8 @@ flowchart LR
     UP --> CU09
     UP --> CU14
     UP --> CU15
+    UP --> CU16
+    RV --> CU17
     GL -. hereda .-> UP
 
     AT --> CU09
@@ -72,6 +78,7 @@ flowchart LR
     CU03 -. include .-> CU04
     CU02 -. extend .-> CU05
     CU13 -. include .-> CU01
+    CU17 -. extend .-> CU03
 
     CU01 --- GC
     CU02 --- GC
@@ -88,36 +95,36 @@ flowchart LR
 |---|---|
 | **Actor principal** | Planificador |
 | **Actores secundarios** | Guatecompras, Servicio de IA |
-| **Descripción** | El robot busca en Guatecompras los concursos publicados desde la última ejecución, registra sus datos y descarga sus documentos. |
+| **Descripción** | Un robot desatendido lee el boletín diario de Guatecompras y preselecciona los concursos que pueden interesar; un robot atendido descarga sus documentos ([ADR-0006](adr/0006-boletin-y-robot-atendido.md)). |
 | **Precondiciones** | Hay al menos un perfil de empresa activo con filtros. Existe registro de la última ejecución exitosa (o se usa la fecha de hoy). |
 | **Postcondiciones** | Los concursos nuevos quedan registrados con estado `CAPTURADO`, con documentos descargados y en cola para extracción. La ejecución queda en bitácora. |
 | **Requerimientos** | RF-CAP-01 a 05, RF-CAP-08, RF-CAP-09 |
 
 **Flujo principal**
 
-1. El planificador inicia la ejecución a la hora configurada.
+1. El planificador inicia `VC.Captura` a las 02:00.
 2. El robot registra el inicio de la ejecución en la bitácora.
-3. El robot obtiene la unión de filtros de todos los perfiles activos (modalidades, categorías, entidades).
-4. El robot abre el buscador de concursos de Guatecompras.
-5. El robot aplica los filtros y el rango de fechas desde la última ejecución.
-6. El robot recorre todas las páginas de resultados y obtiene la lista de NOG.
-7. Para cada NOG que no exista en la base de datos:
-   1. Abre el detalle del concurso.
+3. El robot descarga el boletín diario público con los concursos publicados el día anterior.
+4. El robot interpreta el boletín (NOG, fecha, modalidad, entidad, unidad, descripción, categoría) y lo envía a la API.
+5. La API guarda los concursos y preselecciona los que coinciden con algún perfil activo (estado `PRESELECCIONADO`).
+6. El robot agrega cada candidato a la cola `VC_Concursos` y registra el fin de la ejecución.
+7. Por la mañana, la persona inicia `VC.Concurso` desde UiPath Assistant. Para cada elemento de la cola:
+   1. Abre el detalle del concurso. Si aparece la verificación de Cloudflare, se detiene y le pide a la persona que la resuelva.
    2. Extrae los datos generales (RF-CAP-03).
    3. Obtiene la lista de documentos adjuntos.
-   4. Descarga cada documento, calcula su hash y lo almacena.
+   4. Descarga cada documento nuevo, calcula su hash y lo sube a la API.
    5. Registra el concurso con estado `CAPTURADO`.
-   6. Encola el concurso para extracción con IA (**include CU-03**).
-8. El robot registra el fin de la ejecución con su resumen.
+   6. Agrega el concurso a la cola `VC_Analisis` para extracción con IA (**include CU-03**).
 
 **Flujos alternos**
 
 | ID | Condición | Acción |
 |---|---|---|
-| FA-1 | Guatecompras no responde en el paso 4 | Reintentar con espera exponencial (3 intentos). Si persiste, marcar la ejecución como `FALLIDA` y notificar al administrador (RF-NOT-05). |
+| FA-1 | El boletín no está disponible en el paso 3 | Reintentar cada hora (3 intentos). Si persiste, marcar la ejecución como `FALLIDA` y notificar al administrador (RF-NOT-05). |
 | FA-2 | Un concurso individual falla en el paso 7 | Guardar captura de pantalla y HTML, registrar el error y continuar con el siguiente NOG (RNF-06). |
-| FA-3 | No hay concursos nuevos | Registrar la ejecución como `EXITOSA` con 0 concursos. |
-| FA-4 | Un selector no encuentra el elemento esperado | Registrar error de tipo `CAMBIO_ESTRUCTURA`, notificar al administrador con la captura. |
+| FA-3 | No hay candidatos | Registrar la ejecución como `EXITOSA` con 0 candidatos. |
+| FA-6 | La persona no resuelve la verificación en 3 minutos | System Exception del elemento; queda para reintento y el robot pregunta si continúa. |
+| FA-4 | Un selector no encuentra el elemento esperado o el formato del boletín cambió | Registrar error de tipo `CAMBIO_ESTRUCTURA`, notificar al administrador con la captura. |
 | FA-5 | Un documento ya existe (mismo hash) | No volver a descargarlo; enlazar el existente. |
 
 ---
@@ -137,7 +144,7 @@ flowchart LR
 
 1. El planificador inicia la revisión (después de CU-01).
 2. El robot obtiene la lista de concursos en seguimiento con cierre no vencido.
-3. Para cada concurso, abre su detalle y compara contra la última versión guardada: estado, fecha de cierre, cantidad de documentos y de aclaraciones.
+3. Para cada concurso, el robot atendido `VC.Concurso` abre su detalle y compara contra la última versión guardada: estado, fecha de cierre, cantidad de documentos y de aclaraciones.
 4. Si hay documentos nuevos, los descarga y los envía a la IA para resumir el cambio (RF-IA-05).
 5. Registra cada cambio en el historial.
 6. Envía alerta inmediata a los usuarios que siguen el concurso (**extend CU-05**).
@@ -155,7 +162,7 @@ flowchart LR
 
 | Campo | Detalle |
 |---|---|
-| **Actor principal** | Sistema (cola de trabajos) |
+| **Actor principal** | Robot `VC.Analisis` (cola `VC_Analisis`) |
 | **Actor secundario** | Servicio de IA |
 | **Descripción** | Convierte el texto de las bases de un concurso en una ficha estructurada y un resumen. |
 | **Precondiciones** | El concurso tiene al menos un documento descargado. |
@@ -177,8 +184,8 @@ flowchart LR
 | ID | Condición | Acción |
 |---|---|---|
 | FA-1 | La respuesta no cumple el esquema | Reintentar indicando el error de validación (máximo 2 reintentos). |
-| FA-2 | Siguen los errores tras los reintentos | Marcar `REVISION_MANUAL`, conservar los datos básicos (RN-06). |
-| FA-3 | Se superó el presupuesto diario de IA | Dejar el concurso en cola para el día siguiente y notificar al administrador. |
+| FA-2 | Siguen los errores tras los reintentos, o la confianza es baja | Enviar a validación humana (**extend CU-17**); mientras tanto, `REVISION_MANUAL` con datos básicos (RN-06). |
+| FA-3 | Se superó el presupuesto diario de IA | Posponer el elemento de la cola al día siguiente y notificar al administrador. |
 
 ---
 
@@ -340,7 +347,7 @@ flowchart LR
 
 1. El administrador abre "Ejecuciones".
 2. El sistema lista las ejecuciones con estado, duración, concursos procesados, errores y costo de IA.
-3. El administrador abre una ejecución con errores y ve el detalle, la captura de pantalla y el HTML guardado.
+3. El administrador abre una ejecución con errores y ve el detalle, la captura de pantalla, el HTML guardado y el enlace al trabajo en Orchestrator.
 4. Puede relanzar la ejecución o un NOG específico (CU-13).
 
 ---
@@ -355,7 +362,7 @@ flowchart LR
 **Flujo principal**
 
 1. El actor ingresa un NOG.
-2. El sistema encola la captura de ese concurso (**include CU-01**, pasos 7.1 a 7.6).
+2. La API agrega el NOG a la cola `VC_Concursos` de Orchestrator con tipo `MANUAL` (**include CU-01**, pasos 7.1 a 7.6).
 3. Al terminar, muestra la ficha del concurso.
 
 ---
@@ -389,6 +396,55 @@ flowchart LR
 
 **Flujo alterno:** credenciales inválidas → mensaje genérico; bloqueo temporal tras 5 intentos fallidos.
 
+---
+
+### CU-16 · Preparar expediente de oferta
+
+| Campo | Detalle |
+|---|---|
+| **Actor principal** | Usuario proveedor |
+| **Descripción** | Un robot atendido arma la carpeta de la oferta de un concurso que el usuario decidió preparar. |
+| **Precondiciones** | El concurso tiene ficha `ANALIZADO`. UiPath Assistant instalado en la computadora del usuario. |
+| **Postcondiciones** | Carpeta del expediente creada y registrada con su lista de faltantes. |
+| **Requerimientos** | RF-EXP-01 a 03 |
+
+**Flujo principal**
+
+1. El usuario inicia `VC.Expediente` desde UiPath Assistant y elige el concurso (o ingresa el NOG).
+2. El robot obtiene de la API la ficha, los requisitos y los documentos de la empresa.
+3. Crea la carpeta `Expediente_{NOG}` y copia las bases y los documentos vigentes.
+4. Genera `Checklist.xlsx` con cada requisito y su estado: listo, faltante o vencido.
+5. Genera borradores Word de los formularios con los datos de la empresa.
+6. Muestra un resumen con lo que falta y registra el expediente en la API.
+
+**Flujos alternos**
+
+| ID | Condición | Acción |
+|---|---|---|
+| FA-1 | Un documento de la empresa está vencido | Se marca como `VENCIDO` en el checklist y no se copia. |
+| FA-2 | La carpeta ya existe | Preguntar si se actualiza o se crea una versión nueva. |
+| FA-3 | El usuario marca **Participaré** en el dashboard | La API inicia `VC.Expediente` en el robot desatendido, sin ventanas: actualiza la carpeta y la registra; el expediente aparece en el detalle del concurso ([ADR-0008](adr/0008-automatizar-pasos-atendidos.md)). |
+
+---
+
+### CU-17 · Validar ficha
+
+| Campo | Detalle |
+|---|---|
+| **Actor principal** | Revisor |
+| **Descripción** | Una persona revisa y corrige una ficha que la IA no pudo generar con suficiente confianza. |
+| **Precondiciones** | `VC.Analisis` creó una tarea en Action Center (o el concurso está en `REVISION_MANUAL`). |
+| **Postcondiciones** | La ficha queda `ANALIZADO` con `validada_por = HUMANO` y el robot continúa el proceso. |
+| **Requerimientos** | RF-IA-07, RN-06 |
+
+**Flujo principal**
+
+1. El revisor abre la tarea en Action Center: ve los campos propuestos por la IA y el enlace al documento.
+2. Corrige o completa los campos y envía la tarea.
+3. `VC.Analisis` se reanuda, registra la ficha en la API y continúa con la compatibilidad y las notificaciones.
+
+**Flujo alterno:** si la licencia no incluye Action Center, la corrección se hace en la ficha del dashboard.
+
 ## 4.4 Historias de usuario (resumen ágil)
 
 | ID | Como… | Quiero… | Para… |
@@ -400,3 +456,4 @@ flowchart LR
 | HU-05 | gerente | ver a qué precio se adjudicó antes algo similar | ofertar un precio competitivo |
 | HU-06 | analista de transparencia | ver procesos con señales de riesgo | priorizar qué investigar |
 | HU-07 | administrador | ver por qué falló el robot | corregirlo rápido |
+| HU-08 | encargado de licitaciones | que un robot me arme la carpeta de la oferta con lo que ya tengo | dedicar mi tiempo solo a lo que falta |

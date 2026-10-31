@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Pruebas de la lógica en C# de VC.Concurso, sin dependencias de UiPath. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+    <Compile Include="..\..\VC.Concurso\NormalizarPortal.cs" Link="NormalizarPortal.cs" />
+    <Compile Include="..\..\VC.Concurso\DetallePortal.cs" Link="DetallePortal.cs" />
+    <None Include="..\..\fixtures\detalle\*.html" LinkBase="fixtures\detalle" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

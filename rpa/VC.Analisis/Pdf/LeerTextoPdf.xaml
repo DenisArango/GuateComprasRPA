@@ -1,0 +1,82 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="LeerTextoPdf" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:upa="clr-namespace:UiPath.PDF.Activities;assembly=UiPath.PDF.Activities" xmlns:updf="clr-namespace:UiPath.PDF.Activities.PDF;assembly=UiPath.PDF.Activities">
+  <x:Members>
+    <x:Property Name="in_Ruta" Type="InArgument(x:String)" />
+    <x:Property Name="out_TextoPorPagina" Type="OutArgument(scg:Dictionary(x:Int32, x:String))" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>LeerTextoPdf_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.PDF.Activities</x:String>
+      <x:String>UiPath.PDF.Activities.PDF</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic.Core</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Runtime</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+      <AssemblyReference>UiPath.PDF.Activities</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Lee el texto digital de un PDF página por página (Read PDF Text con Range = número de página), para conservar la referencia de página que exige RNF-14. Las páginas escaneadas devuelven poco o ningún texto: GuardarTexto.cs marca el documento como escaneado y la IA lo recibe como PDF." DisplayName="LeerTextoPdf" sap2010:WorkflowViewState.IdRef="Sequence_100">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:Int32" Name="paginas" />
+      <Variable x:TypeArguments="x:String" Name="texto" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <updf:GetPDFPageCount DisplayName="Contar páginas del PDF" FileName="[in_Ruta]" PageCount="[paginas]" sap2010:WorkflowViewState.IdRef="GetPDFPageCount_1" />
+    <Assign DisplayName="Iniciar texto por página" sap2010:WorkflowViewState.IdRef="Assign_1">
+          <Assign.To><OutArgument x:TypeArguments="scg:Dictionary(x:Int32, x:String)">[out_TextoPorPagina]</OutArgument></Assign.To>
+          <Assign.Value><InArgument x:TypeArguments="scg:Dictionary(x:Int32, x:String)">[New Dictionary(Of Int32, String)]</InArgument></Assign.Value>
+        </Assign>
+    <ui:ForEach x:TypeArguments="x:Int32" CurrentIndex="{x:Null}" DisplayName="Por cada página" sap2010:WorkflowViewState.IdRef="ForEach_1" Values="[Enumerable.Range(1, paginas)]">
+      <ui:ForEach.Body>
+        <ActivityAction x:TypeArguments="x:Int32">
+          <ActivityAction.Argument>
+            <DelegateInArgument x:TypeArguments="x:Int32" Name="pagina" />
+          </ActivityAction.Argument>
+          <Sequence DisplayName="Cuerpo" sap2010:WorkflowViewState.IdRef="Sequence_1">
+          <upa:ReadPDFText DisplayName="Read PDF Text (una página)" FileName="[in_Ruta]" Range="[pagina.ToString]" Text="[texto]" sap2010:WorkflowViewState.IdRef="ReadPDFText_1" />
+          <Assign DisplayName="Guardar texto de la página" sap2010:WorkflowViewState.IdRef="Assign_2">
+          <Assign.To><OutArgument x:TypeArguments="x:String">[out_TextoPorPagina(pagina)]</OutArgument></Assign.To>
+          <Assign.Value><InArgument x:TypeArguments="x:String">[texto]</InArgument></Assign.Value>
+        </Assign>
+          </Sequence>
+        </ActivityAction>
+      </ui:ForEach.Body>
+    </ui:ForEach>
+    <ui:LogMessage DisplayName="Log · páginas leídas" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;PDF &quot; &amp; Path.GetFileName(in_Ruta) &amp; &quot;: &quot; &amp; paginas.ToString &amp; &quot; páginas leídas&quot;]" />
+  </Sequence>
+</Activity>

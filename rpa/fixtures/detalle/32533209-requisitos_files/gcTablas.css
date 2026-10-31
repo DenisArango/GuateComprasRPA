@@ -1,0 +1,39 @@
+﻿.GridTabla {
+    width: 100%;
+    border: 2px solid  #e3e3e3;
+    font-size: 12px;
+}
+.GridTablaTitulo1 {
+    /* width: 1260px; */
+    border: none;
+    font-size: 13px;
+    color: #3f4b75 !important;
+    background-color: #e3e3e3;
+    vertical-align:central;
+    padding-right: 115px;
+}
+
+.GridTablaTitulo1 th, .GridTablaTitulo1 tr {
+    border: none;
+}
+
+.GridTablaFila1 {
+	font-family: Verdana, Arial;
+	background-color: #ffffff !important;	
+    border: 2px solid #e3e3e3;
+
+}
+.fondoFaseInscripcion {
+    background:#E4EDFA!important;
+}
+.GridTablaPagineo {	
+	font-family: Verdana, Arial;
+    font-size: 13px;
+	color: #3f4b75 !important;	
+	text-align: center;
+    background-color: #e3e3e3;
+}
+.GridTablaPagineo table {
+    margin-left: auto;
+    margin-right: auto;
+}

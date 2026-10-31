@@ -19,7 +19,20 @@ Identificar procesos de contratación con **señales que ameritan revisión**, a
 | **IR-07** | Precio por encima de referencia | Adjudicación | Precio unitario superior al precio de referencia publicado | > 30 % sobre la referencia |
 | **IR-08** | Alta tasa de concursos desiertos | Entidad | Entidad con proporción alta de procesos desiertos seguidos de compra directa | > percentil 90 entre entidades |
 
-**Para el proyecto se implementan IR-01 a IR-06** (objetivo OE5: mínimo 5). IR-07 depende de la disponibilidad y formato de los precios de referencia; IR-08 y la versión completa de IR-04 (con publicaciones NPG) quedan como trabajo futuro.
+**Implementación (ADR-0007).** Se implementan seis indicadores: IR-01, IR-02, IR-03, IR-04, IR-05 e IR-08, sobre los procesos adjudicados (RN-07). El objetivo OE5 pide un mínimo de 5. Los ajustes respecto a la tabla anterior salieron de los datos reales:
+
+| Código | Ajuste | Motivo |
+|---|---|---|
+| IR-02 | Por entidad, año y categoría OCDS (bienes, servicios, obras), con al menos Q900,000 adjudicados y 3 procesos. Excluye convenios, donaciones, arrendamientos, casos de excepción y proveedor único. | Evitar porcentajes altos en entidades con pocas compras o en compras que por ley tienen un solo proveedor. |
+| IR-03 | Percentil 10 del plazo (inicio y fin de `tenderPeriod`) por modalidad, con al menos 30 procesos de esa modalidad. | Comparar contra procesos iguales. |
+| IR-04 | Por **unidad compradora** (no la entidad completa), proveedor y producto (clase UNSPSC de 8 dígitos), **el mismo día** (hora de Guatemala). Cuenta 3 o más compras directas cuya suma supera el monto máximo de la compra directa (Q90,000). | La mediana de una compra directa es Q63,000. Con la regla original (entidad, 90 días) quedaban marcadas 9 de cada 10 compras directas, porque las entidades grandes compran lo mismo al mismo proveedor cada semana. Con la regla ajustada se activa en 176 mil procesos, casi todos del IGSS. Un caso: 258 compras directas del mismo medicamento, al mismo proveedor y el mismo día, que suman Q22.4 millones. |
+| IR-05 | Aproximación: primer contrato del proveedor en los datos cargados, con al menos 365 días de historia previa, y monto sobre el percentil 90 de su categoría. | OCDS no publica la fecha de inscripción en el RGAE. |
+| IR-06 | No se calcula. | OCDS de Guatecompras no publica el monto estimado (`tender.value`). |
+| IR-08 | Entidades con al menos 10 cotizaciones o licitaciones y una tasa de desiertos sobre el percentil 90. Se marcan sus procesos por "Adquisición Directa por Ausencia de Oferta". | Es calculable con `statusDetails` y la modalidad. |
+
+IR-07 depende de precios de referencia que OCDS no publica y queda como trabajo futuro.
+
+Los umbrales y pesos están en `api/src/domain/riesgos.ts` (`PARAMETROS_RIESGO`) y el cálculo, en SQL, en `api/src/ocds/riesgos.ts`. La evidencia de cada indicador se redacta como un hecho verificable. Por ejemplo: "Plazo para ofertar de 2.1 días; el 90 % de los procesos de Cotización tuvo al menos 8.0 días".
 
 ## 10.3 Ejemplo de cálculo (IR-01)
 
@@ -50,7 +63,7 @@ riesgo(proceso) = Σ (peso_indicador × activado)   normalizado a 0–100
 | IR-03 | 15 |
 | IR-04 | 20 |
 | IR-05 | 15 |
-| IR-06 | 10 |
+| IR-08 | 10 |
 
 Los pesos son configurables y se documentarán como supuestos en el informe.
 

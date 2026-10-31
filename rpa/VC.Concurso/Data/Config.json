@@ -1,0 +1,25 @@
+{
+  "Settings": {
+    "logF_BusinessProcessName": "VigiaContrataciones",
+    "OrchestratorQueueName": "VC_Concursos",
+    "ColaAnalisis": "VC_Analisis",
+    "ColaNotificaciones": "VC_Notificaciones",
+    "UrlDetalleConcurso": "https://www.guatecompras.gt/concursos/consultaConcurso.aspx?o=5&nog=",
+    "EsperaVerificacionSegundos": 180,
+    "MaxTransacciones": 5
+  },
+  "Constants": {
+    "MaxRetryNumber": 0,
+    "MaxConsecutiveSystemExceptions": 0,
+    "ExScreenshotsFolderPath": "Exceptions_Screenshots",
+    "LogMessage_GetTransactionData": "Processing Transaction Number: ",
+    "LogMessage_GetTransactionDataError": "Error getting transaction data for Transaction Number: ",
+    "LogMessage_Success": "Transaction Successful.",
+    "LogMessage_BusinessRuleException": "Business rule exception.",
+    "LogMessage_ApplicationException": "System exception.",
+    "ExceptionMessage_ConsecutiveErrors": "The maximum number of consecutive system exceptions was reached. ",
+    "RetryNumberGetTransactionItem": 2,
+    "RetryNumberSetTransactionStatus": 2,
+    "ShouldMarkJobAsFaulted": false
+  }
+}

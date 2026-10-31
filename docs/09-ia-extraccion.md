@@ -6,22 +6,46 @@ Convertir bases de 30 a 80 páginas en una **ficha estructurada, validada y traz
 
 ## 9.2 Flujo
 
+Todo el flujo lo ejecuta el robot **`VC.Analisis`** (ver [08 · Diseño de los robots](08-diseno-del-bot.md#85-vcanalisis--ejecutor-reframework--action-center)). La API valida y guarda; el robot no repite las reglas del esquema.
+
 ```mermaid
 flowchart LR
     A[PDF] --> B{¿Tiene texto<br/>digital?}
-    B -- Sí --> C[pdf.js: texto por página]
-    B -- No --> D[OCR Tesseract español]
-    C --> E[Limpieza: encabezados,<br/>pies, numeración]
+    B -- Sí --> C[Read PDF Text<br/>texto por página]
+    B -- No --> D[Read PDF With OCR<br/>español]
+    C --> E[C#: limpieza de encabezados,<br/>pies, numeración]
     D --> E
-    E --> F[Segmentación por secciones<br/>palabras clave: requisitos,<br/>garantías, criterios, plazo...]
+    E --> F[C#: segmentación por secciones<br/>requisitos, garantías,<br/>criterios, plazo...]
     F --> G[Contexto priorizado<br/>con número de página]
-    G --> H[LLM con esquema JSON]
-    H --> I{¿Válido con Zod?}
-    I -- Sí --> J[(Guardar ficha)]
-    I -- No --> K{¿Intentos < 3?}
-    K -- Sí --> L[Reenviar con<br/>errores de validación] --> H
-    K -- No --> M[REVISION_MANUAL]
+    G --> H[C#: Claude claude-opus-5-5<br/>salida estructurada]
+    H --> I{API: ¿válido con Zod?}
+    I -- No, intentos < 3 --> L[Reenviar con<br/>errores de validación] --> H
+    I -- No, sin intentos --> M[Action Center<br/>validación humana]
+    I -- Sí --> N{¿Confianza ≥ umbral?}
+    N -- No --> M
+    N -- Sí --> J[(API: guardar ficha)]
+    M --> J
 ```
+
+### Confianza de la ficha
+
+La confianza **no la reporta el modelo**, porque ese dato no es confiable. La calcula la API con verificaciones objetivas, de 0 a 1:
+
+| Verificación | Peso |
+|---|---|
+| La fecha límite de la ficha coincide con la fecha de cierre que el robot leyó del portal | 0.30 |
+| El monto de la ficha coincide (±1 %) con el monto publicado en el portal, si existe | 0.20 |
+| Cada página citada existe en el documento y contiene palabras del dato extraído | 0.30 |
+| Hay al menos un requisito y un criterio de calificación | 0.20 |
+
+Si no se puede hacer una verificación, ese componente se excluye y los pesos restantes se reescalan:
+- El portal no publica el monto.
+- Las bases no traen la fecha límite (rige la del portal).
+- La cita apunta a una página escaneada, sin texto, que Claude leyó como PDF.
+
+Una cita a una página que no existe sí cuenta como error. Si solo se pudo medir la completitud (por ejemplo, bases escaneadas y sin fecha), la confianza tiene un tope de 0.5 y la ficha va a revisión.
+
+El umbral (por defecto 0.7) es configurable. Por debajo de él, la ficha va a Action Center con los campos propuestos para que una persona los corrija.
 
 ## 9.3 Esquema de la ficha
 
@@ -97,16 +121,18 @@ Para adendas se usa un segundo prompt que recibe la ficha vigente y el texto de 
 | Medida | Efecto |
 |---|---|
 | Enviar solo secciones relevantes, no el PDF completo | Reduce los tokens de entrada |
-| Usar un modelo económico para la extracción y uno superior solo para reintentos | Reduce el costo promedio por ficha |
+| Modelo y esfuerzo configurables por asset; bajar solo si la evaluación de 13.4 lo permite | Ver opciones y costos en [ADR-0005](adr/0005-ia-claude.md) |
 | No re-analizar documentos con el mismo hash | Evita llamadas duplicadas |
 | Presupuesto diario configurable (`IA_PRESUPUESTO_DIARIO_USD`) | Al superarlo, los trabajos se posponen (CU-03 FA-3) |
 | Registrar tokens y costo por ficha | Métrica de costo para el informe |
 
-**Estimación para el piloto** (a validar): con 1–2 categorías se esperan pocas decenas de concursos por semana; con la reducción de contexto, el costo mensual de IA debería mantenerse en un rango de pocos dólares. El costo real se medirá y reportará en la evaluación.
+**Estimación para el piloto** (a validar): ~USD 0.14 por ficha con `claude-opus-5-5` y ~USD 14 al mes para ~100 fichas (cálculo en [ADR-0005](adr/0005-ia-claude.md)). El costo real se medirá y reportará en la evaluación.
 
 ## 9.6 Cálculo de compatibilidad
 
-Puntaje de 0 a 100, suma de componentes con pesos configurables:
+**Puntaje preliminar (preselección con el boletín).** Antes de tener la ficha, la API calcula un puntaje con los datos del boletín: categoría (40) + palabras clave en la descripción (50, +10 si hay dos o más). Umbral 50: la categoría sola no basta, hace falta al menos una palabra clave. Implementado en `api/src/domain/preseleccion.ts`.
+
+**Puntaje completo (con la ficha).** De 0 a 100, suma de componentes con pesos configurables:
 
 | Componente | Peso | Cálculo |
 |---|---|---|

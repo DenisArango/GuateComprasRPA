@@ -1,0 +1,748 @@
+
+@font-face {
+  font-family: 'gc-pantalla';
+  src:
+    url('../fonts/gc-pantalla.ttf?54ksw7') format('truetype'),
+    url('../fonts/gc-pantalla.woff?54ksw7') format('woff'),
+    url('../fonts/gc-pantalla.svg?54ksw7#gc-pantalla') format('svg');
+  font-weight: normal;
+  font-style: normal;
+  font-display: block;
+}
+:root {
+    --color-blue: #465e93;
+    --color-skyblue: #5ea8ef;
+    --color-green: #7ab142;
+    --color-yellow: #fbb315;
+    --color-red: #db4f27;
+    --color-silver: #b7bfd1;
+    --color-white: #fff;
+    --color-purple: #3d4e8b;
+    --color-logo-blue: #001689;
+    --color-logo-skyblue: #4aa2da;
+    --color-icon-blue: #172d3a;
+    --color-iconmini-blue: #4585b0;
+    --gc-display: inline-block;
+    --color-facebook: #4690f7;
+    --color-whatsapp: #1EAA63;
+    --color-twitter: #000000;
+    --color-instagram: #943f8c;
+    --color-google: #c6523f;
+    --color-inverse: var(--color-white);
+    --color-indicador: #FF8D06;
+}
+
+[class^="gcp-"], [class*=" gcp-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'gc-pantalla' !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  color:var(--color-icon-blue);
+  font-size: 24px;
+  display: inline-block;
+  display: var(--gc-display,inline-block);
+  vertical-align: middle !important;
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.gc-1x {font-size: 1em !important}
+.gc-1-5x {font-size: 1.5em !important}
+.gc-2x {font-size: 2em !important}
+.gc-3x {font-size: 3em !important}
+.gc-3-5x {font-size: 3.4em !important}
+.gc-4x {font-size: 4em !important}
+.gc-5x {font-size: 5em !important}
+.gc-6x {font-size: 6em !important}
+.gc-7x {font-size: 7em !important}
+.gc-8x {font-size: 8em !important}
+.gc-9x {font-size: 9em !important}
+.gc-10x {font-size: 10em !important}
+
+.gc-2xs {
+    font-size: .625em;
+    line-height: .1em;
+    vertical-align: .225em
+}
+.gc-xs {
+    font-size: .75em;
+    line-height: .08333em;
+    vertical-align: .125em
+}
+.gc-sm {
+    font-size: .875em;
+    line-height: .07143em;
+    vertical-align: .05357em
+}
+.gc-lg {
+    font-size: 1.25em;
+    line-height: .05em;
+    vertical-align: -.075em
+}
+.gc-xl {
+    font-size: 1.5em;
+    line-height: .04167em;
+    vertical-align: -.125em
+}
+.gc-2xl {
+    font-size: 2em;
+    line-height: .03125em;
+    vertical-align: -.1875em
+}
+.gc-fw {
+    text-align: center;
+    width: 1.25em
+}
+.gc-primary{
+  color:var(--color-purple);
+}
+.gc-secundary{
+  color: var(--color-skyblue);
+}
+.gc-disable{
+  color:var(--color-silver);
+}
+.gc-inverse{
+  color: var(--color-inverse,#fff);
+}
+.gcp-modificar:before {
+  content: "\e900";
+}
+.gcp-detalle:before {
+  content: "\e901";
+}
+.gcp-copiar:before {
+  content: "\e902";
+}
+.gcp-enviar:before {
+  content: "\e903";
+}
+.gcp-editar:before {
+  content: "\e904";
+}
+.gcp-x:before {
+  content: "\e905";
+}
+.gcp-informacion:before {
+  content: "\e906";
+}
+.gcp-circulomenos:before {
+  content: "\e907";
+}
+.gcp-circulomenos-alt:before {
+  content: "\e908";
+}
+.gcp-circulomas:before {
+  content: "\e909";
+}
+.gcp-circulomas-alt:before {
+  content: "\e90a";
+}
+.accordionCabecera i, .gcp-circuloflecha-bottom:before {
+    content: "\e90b";
+}
+.accordionCabeceraSelect i, .gcp-circuloflecha-top {
+    transform: rotate(180deg);
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+}
+.accordionCabeceraSelect i, .gcp-circuloflecha-top:before {
+    content: "\e90b";
+}
+.gcp-circuloflecha-right{
+  transform: rotate(270deg);
+  -webkit-transform: rotate(270deg);
+  -moz-transform: rotate(270deg);
+  -ms-transform: rotate(270deg);
+  -o-transform: rotate(270deg);
+}
+.gcp-circuloflecha-right:before {
+  content: "\e90b";
+}
+.gcp-circuloflecha-left{
+  transform: rotate(90deg);
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+}
+.gcp-circuloflecha-left:before {
+  content: "\e90b";
+}
+.gcp-circulocheque:before {
+  content: "\e90c";
+}
+.gcp-sobre:before {
+  content: "\e90d";
+}
+.gcp-evaluar:before {
+  content: "\e90e";
+}
+.gcp-descargar:before {
+  content: "\e90f";
+}
+.gcp-bordeglobo:before {
+  content: "\e910";
+}
+.gcp-fondoglobo:before {
+  content: "\e911";
+}
+.gcp-globo:before{
+  content: "\e910";
+  position: absolute;
+}
+.gcp-globo:after{
+  content: "\e911";
+  color:var(--color-green);
+}
+.gcp-circulo-100:before {
+  content: "\e912";
+}
+.gcp-circulo-50:before {
+  content: "\e913";
+}
+.gcp-circulo-0:before {
+  content: "\e914";
+}
+.gcp-indicador:before {
+    content: "\e915";
+    color: var(--color-indicador);
+}
+.gcp-doblecheque:before {
+  content: "\e916";
+}
+.gcp-cheque:before {
+  content: "\e917";
+}
+.gcp-consultahistoria:before {
+  content: "\e918";
+}
+.gcp-cargaexcel:before {
+  content: "\e919";
+}
+.gcp-descargaexcel:before {
+  content: "\e91a";
+}
+.gcp-descargacsv:before {
+  content: "\e91b";
+}
+.gcp-descargaxml:before {
+  content: "\e91c";
+}
+.gcp-descargapdf:before {
+  content: "\e91d";
+}
+.gcp-descargacomprimido:before {
+  content: "\e91e";
+}
+.gcp-listadoproductos:before {
+  content: "\e91f";
+}
+.gcp-repproveedoradj:before {
+    content: "\e93b";
+}
+.gcp-repprodadj:before {
+    content: "\e93a";
+}
+.gcp-aprobarreporte:before {
+  content: "\e920";
+}
+.gcp-evaluarrequisitos:before {
+  content: "\e921";
+}
+.gcp-imprimir:before {
+  content: "\e922";
+}
+.gcp-eliminar:before {
+  content: "\e923";
+}
+.gcp-barraactivacion-on:before {
+  content: "\e924";
+  color: var(--color-green);
+}
+.gcp-barraactivacion-off{
+  transform: rotate(180deg);
+  -webkit-transform: rotate(180deg);
+  -moz-transform: rotate(180deg);
+  -ms-transform: rotate(180deg);
+  -o-transform: rotate(180deg);
+}
+.gcp-barraactivacion-off:before {
+  content: "\e924";
+  color: var(--color-silver);  
+}
+.gcp-facturacompleta:before {
+  content: "\e925";
+}
+.gcp-facturamedia:before {
+  content: "\e926";
+}
+
+[class^="gcp-factura-"].disabled:after,
+[class*="gcp-factura-"].disabled:after,
+[class^="gcp-contrato-"].disabled:after,
+[class*="gcp-contrato-"].disabled:after,
+[class^="gcp-factura-"].disabled:before,
+[class*="gcp-factura-"].disabled:before,
+[class^="gcp-contrato-"].disabled:before,
+[class*="gcp-contrato-"].disabled:before{
+  color:var(--color-silver) !important;
+}
+
+
+.gcp-factura-100:before{
+  content: "\e926";
+  position: absolute;
+}
+.gcp-factura-100:after{
+  content: "\e927";
+  color:var(--color-green);
+}
+.gcp-bloque-100:before {
+  content: "\e927";
+  color: var(--color-green);
+}
+.gcp-factura-50:before{
+  content: "\e926";
+  position: absolute;
+}
+.gcp-factura-50:after{
+  content: "\e928";
+  color:var(--color-yellow);
+}
+.gcp-bloque-50:before {
+  content: "\e928";
+  color: var(--color-yellow);
+}
+.gcp-factura-0:before{
+  content: "\e926";
+  position: absolute;
+}
+.gcp-factura-0:after{
+  content: "\e929";
+  color:var(--color-red);
+}
+.gcp-bloque-0:before {
+  content: "\e929";
+  color: var(--color-red);
+}
+.gcp-factura-50-plus:before{
+  content: "\e926";
+  position: absolute;
+}
+.gcp-factura-50-plus:after{
+  content: "\e92a";
+  color:var(--color-yellow);
+}
+.gcp-bloque-50-plus:before {
+  content: "\e92a";
+  color: var(--color-yellow);
+}
+.gcp-factura-50-min:before{
+  content: "\e926";
+  position: absolute;
+}
+.gcp-factura-50-min:after{
+  content: "\e92b";
+  color:var(--color-yellow);
+}
+.gcp-bloque-50-min:before {
+  content: "\e92b";
+  color: var(--color-yellow);
+}
+.gcp-factura-nula:before{
+  content: "\e926";
+  position: absolute;
+}
+.gcp-factura-nula:after{
+  content: "\e92c";
+  color:var(--color-red);
+}
+.gcp-bloque-nula:before {
+  content: "\e92c";
+  color: var(--color-red);
+}
+.gcp-contornoavance:before {
+  content: "\e92d";
+}
+.gcp-avance-100:before{
+  content: "\e92d";
+  position: absolute;
+}
+.gcp-avance-100:after{
+  content: "\e92e";
+  color:var(--color-green);
+}
+.gcp-barra-100:before {
+  content: "\e92e";
+  color: var(--color-green);
+}
+.gcp-avance-50:before{
+  content: "\e92d";
+  position: absolute;
+}
+.gcp-avance-50:after{
+  content: "\e92f";
+  color:var(--color-yellow);
+}
+.gcp-barra-50:before {
+  content: "\e92f";
+  color: var(--color-yellow);
+}
+.gcp-avance-10:before{
+  content: "\e92d";
+  position: absolute;
+}
+.gcp-avance-10:after{
+  content: "\e930";
+  color:var(--color-red);
+}
+.gcp-barra-10:before {
+  content: "\e930";
+  color: var(--color-red);
+}
+
+.gcp-contrato:before {
+  content: "\e931";
+}
+.gcp-contratomedio:before {
+  content: "\e932";
+}
+
+.gcp-contrato-100:before{
+  content: "\e932";
+  position: absolute;
+}
+.gcp-contrato-100:after{
+  content: "\e927";
+  color:var(--color-green);
+}
+.gcp-contrato-50:before{
+  content: "\e932";
+  position: absolute;
+}
+.gcp-contrato-50:after{
+  content: "\e928";
+  color:var(--color-yellow);
+}
+.gcp-contrato-50-plus:before{
+  content: "\e932";
+  position: absolute;
+}
+.gcp-contrato-50-plus:after{
+  content: "\e92a";
+  color:var(--color-yellow);
+}
+.gcp-contrato-50-min:before{
+  content: "\e932";
+  position: absolute;
+}
+.gcp-contrato-50-min:after{
+  content: "\e92b";
+  color:var(--color-yellow);
+}
+.gcp-contrato-0:before{
+  content: "\e932";
+  position: absolute;
+}
+.gcp-contrato-0:after{
+  content: "\e929";
+  color:var(--color-red);
+}
+.gcp-contrato-nula:before{
+  content: "\e932";
+  position: absolute;
+}
+.gcp-contrato-nula:after{
+  content: "\e92c";
+  color:var(--color-red);
+}
+
+.gcp-calendario:before {
+  content: "\e93c";
+}
+.gcp-calendario-alt:before {
+  content: "\e933";
+}
+.gcp-volver:before {
+    content: "\e934";
+    position: absolute;
+}
+.gcp-volver:after{
+  content: "\e935";
+  color:var(--color-skyblue);
+}
+
+
+.gcp-refrescar:before {
+    content: "\e936";
+}
+
+.gcp-reloj:before {
+    content: "\e937";
+}
+
+.gcp-reloj-alt:before {
+    content: "\e938";
+}
+.gcp-enlace:before {
+    content: "\e93e";
+}
+
+.gcp-boton-nog:before {
+    content: "\e95c";
+    color: #56779B;
+    position: absolute;
+}
+
+.gcp-boton-nog:after {
+    content: "\e95d";
+    color: var(--color-white);
+}
+
+.gcp-boton-npg:before {
+    content: "\e95e";
+    color: #6CB9D3;
+    position: absolute;
+}
+
+.gcp-boton-npg:after {
+    content: "\e95f";
+    color: var(--color-white);
+}
+
+/* estilo para botones de loading que no sean button*/
+.btnloading {
+    border: solid 1px #007bff;
+    border-radius: 5px;
+    padding: 0.25rem .5rem;
+    font-weight: 600;
+    font-size: .875rem;
+    line-height: 1.5;
+    min-width: 80px;
+    height: 32px;
+    display: inline-block;
+}
+
+.gcp-notificacion:before {
+    content: "\e944";
+    position: absolute;
+    color: var(--color-red);
+}
+
+.gcp-notificacion:after {
+    content: "\e942";
+    color: var(--color-skyblue);
+}
+
+.gcp-borde-notificacion::after {
+    content: "\e945";
+    color: var(--color-white);
+}
+
+.gcp-borde-notificacion:before {
+    content: "\e943";
+    color: var(--color-white);
+    position: absolute;
+}
+
+.gc-stack {
+    display: inline-block;
+    height: 2em;
+    line-height: 2em;
+    position: relative;
+    vertical-align: middle;
+    width: 2.5em;
+}
+
+.gc-stack i {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+}
+.gcp-ver:before {
+    content: "\e93d";
+}
+
+.gcp-warning-triangulo-borde:before {
+    content: "\e93f";
+}
+.gcp-warning:before {
+    content: "\e93f";
+    position: absolute;
+}
+
+.gcp-warning:after {
+    content: "\e940";
+    color: var(--color-yellow);
+}
+
+.gcp-btnflecha:before {
+    content: "\e94e";
+    color: var(--color-skyblue);
+    position: absolute;
+}
+
+.gcp-btnflecha:after {
+    content: "\e94f";
+}
+
+.btn-left i {
+    -ms-filter: "progid:DXImageTransform.Microsoft.BasicImage(rotation=2)";
+    -webkit-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+.btn-volver u {
+    color: white;
+    background: #172d3a;
+    font-size: 14px;
+    text-decoration: unset;
+}
+
+.btn-volver.btn-left u {
+    margin-left: 20px;
+    padding: 0.5px 8px 2px 15px;
+}
+
+.btn-volver.btn-left i {
+    margin-top: -5.5px;
+    position: absolute;
+    z-index: 1;
+}
+
+.btn-volver.btn-left u:before {
+    content: ' ';
+    background: #fff;
+    height: 18px;
+    width: 8px;
+    position: absolute;
+    margin-left: -15px;
+    margin-top: 1.5px;
+    -moz-border-radius: 0 100px 100px 0;
+    -webkit-border-radius: 0 100px 100px 0;
+    border-radius: 0 100px 100px 0;
+}
+
+.btn-volver.btn-right i {
+    margin-top: -1.5px;
+    margin-left: -9px;
+    position: absolute;
+    z-index: 1;
+}
+
+.btn-volver.btn-right u {
+    margin-right: 0px;
+    padding: 0.5px 15px 2px 8px;
+}
+
+    .btn-volver.btn-right u:after {
+        content: ' ';
+        background: #fff;
+        height: 21px;
+        width: 12px;
+        position: absolute;
+        margin-left: 7px;
+        margin-top: 0.5px;
+        -moz-border-radius: 0 100px 100px 0;
+        -webkit-border-radius: 0 100px 100px 0;
+        border-radius: 100px 0 0 100px;
+   }
+.gcp-grafica-pie:before {
+    content: "\e941";
+}
+.gcp-sin-foto:before {
+    color: var(--color-silver);
+    content: "\e94d";
+}
+
+.gcp-carretita:before {
+    content: "\e94c";
+    color: var(--color-blue);
+}
+.gcp-carretita-llena:before {
+    content: "\e954";
+    color: var(--color-blue);
+}
+.countCart {
+    background: #ffc107;
+    border-radius: 50%;
+    border: 2px solid #014684;
+    color: #014684;
+    display: inline-block;
+    font-family: sans-serif;
+    padding: 2px;
+    margin-left: -15px;
+    min-width: 30px;
+    text-align: center;
+}
+
+.contentCartCount {
+    margin-top: -73px;
+    margin-right: 20px;
+    position: absolute;
+    right: 0;
+    text-decoration: unset !important;
+}
+@media (max-width: 768px) {
+    .contentCartCount {
+        margin-top: -100px;
+        margin-right: 0px;
+    }
+}
+
+.gcp-zoom:before {
+    content: "\e94b";
+}
+
+.gcp-info-circulo:before {
+    content: "\e950";
+}
+
+.gcp-etiqueta-guardar:before {
+    content: "\e953";
+    color: var(--color-green);
+}
+
+.gcp-modificar-producto:before {
+    content: "\e952";
+}
+.gcp-circulo-flecha-arriba:before {
+    content: "\e959";
+    color: #172d3a;
+}
+
+.gcp-circulo-flecha-abajo:before {
+    content: "\e95a";
+}
+
+.gcp-circulo-cp-fondo-boton:before {
+    content: "\e960";
+   
+}
+.gcp-circulo-cp-x:before {
+    content: "\e963";
+    color: #cc553b
+}
+.gcp-circulo-cp:before {
+    content: "\e961";
+    color: #a7c67c
+}
+
+.gcp-circulo-cp-home:before {
+    content: "\e961";
+    color: #93ca65
+}
+.gcp-detalle-oferta:before {
+    content: "\e93b";
+}
+

@@ -55,6 +55,7 @@ La MiPyme necesita, cada día y sin intervención manual:
 | 5 | Anotar en Excel o cuaderno los concursos de interés | Encargado | 10 min |
 | 6 | Volver a revisar concursos en seguimiento para ver aclaraciones o adendas | Encargado | 15–30 min |
 | 7 | Buscar adjudicaciones anteriores para estimar precio | Gerente | 30–60 min (cuando se hace) |
+| 8 | Reunir documentos de la empresa, revisar vigencias y armar el expediente de la oferta | Encargado | 60–120 min por concurso en el que se participa |
 
 \* Estimaciones iniciales. **Se medirán con la empresa piloto** en la fase 1 (ver [13 · Plan de pruebas](13-plan-de-pruebas.md)).
 
@@ -78,18 +79,19 @@ El diagrama del proceso actual está en [06 · Diagramas](06-diagramas.md#61-pro
 
 ### Objetivo general
 
-Diseñar, implementar y evaluar un sistema de automatización inteligente que monitoree Guatecompras, analice con IA los documentos de los concursos y notifique oportunidades relevantes a MiPymes proveedoras del Estado, reduciendo el tiempo de revisión manual.
+Diseñar, implementar y evaluar un sistema de automatización inteligente basado en robots UiPath que monitoree Guatecompras, analice con IA los documentos de los concursos, notifique oportunidades relevantes a MiPymes proveedoras del Estado y prepare sus expedientes de oferta, reduciendo el tiempo de trabajo manual.
 
 ### Objetivos específicos
 
 | # | Objetivo | Indicador de cumplimiento |
 |---|---|---|
-| OE1 | Desarrollar un robot RPA que capture diariamente los concursos nuevos y sus documentos de Guatecompras | ≥ 95 % de ejecuciones diarias exitosas durante el piloto |
+| OE1 | Desarrollar robots RPA en UiPath, orquestados con Orchestrator, que capturen diariamente los concursos nuevos y sus documentos de Guatecompras | ≥ 95 % de ejecuciones diarias exitosas durante el piloto |
 | OE2 | Implementar un módulo de IA que extraiga la información clave de las bases | ≥ 85 % de exactitud por campo frente a revisión humana |
 | OE3 | Construir un motor de compatibilidad que relacione los concursos con el perfil de la empresa | ≥ 80 % de las alertas calificadas como relevantes por el usuario |
 | OE4 | Integrar los datos abiertos OCDS para ofrecer historial de adjudicaciones y precios | Datos 2020–actual cargados y consultables |
 | OE5 | Implementar indicadores de riesgo sobre los datos históricos | Al menos 5 indicadores calculados y documentados |
 | OE6 | Evaluar el sistema con una empresa piloto | Reducción ≥ 70 % del tiempo diario de revisión |
+| OE7 | Automatizar con un robot atendido la preparación del expediente de oferta | Reducción ≥ 50 % del tiempo de armado del expediente |
 
 ## 1.7 Alcance
 
@@ -101,6 +103,8 @@ Diseñar, implementar y evaluar un sistema de automatización inteligente que mo
 - Perfil de **una empresa piloto** (el sistema soportará varias, pero el piloto se hace con una).
 - Carga de datos OCDS desde 2020.
 - Alertas por **correo electrónico y Telegram**.
+- Validación humana de fichas con baja confianza (Action Center).
+- Robot atendido que arma el **expediente de oferta** (carpeta, checklist y borradores).
 - Dashboard web de consulta.
 - Al menos 5 indicadores de riesgo.
 

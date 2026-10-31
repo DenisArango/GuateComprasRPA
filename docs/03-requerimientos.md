@@ -9,14 +9,16 @@ Prioridad según **MoSCoW**: **M** = debe tener · **S** = debería tener · **C
 | ID | Requerimiento | Prioridad |
 |---|---|---|
 | RF-CAP-01 | El robot debe ejecutarse automáticamente una vez al día en un horario configurable. | M |
-| RF-CAP-02 | El robot debe buscar en Guatecompras los concursos publicados desde la última ejecución, aplicando filtros de modalidad, categoría y entidad. | M |
+| RF-CAP-02 | El robot debe obtener del boletín diario de Guatecompras los concursos publicados el día anterior y la API debe preseleccionar los que coinciden con algún perfil (categoría, palabras clave, entidad, modalidad). | M |
 | RF-CAP-03 | El robot debe registrar por cada concurso: NOG, título, entidad, unidad compradora, modalidad, categoría, monto estimado (si existe), fecha de publicación, fecha de cierre y estado. | M |
 | RF-CAP-04 | El robot debe descargar los documentos adjuntos de cada concurso nuevo (bases, especificaciones, anexos). | M |
 | RF-CAP-05 | El robot debe calcular un hash de cada documento para evitar descargas duplicadas. | M |
 | RF-CAP-06 | El robot debe revisar los concursos en seguimiento y detectar cambios: nuevas aclaraciones, adendas, cambio de fecha o de estado. | M |
-| RF-CAP-07 | El robot debe permitir la ejecución manual de una captura para un NOG específico. | S |
+| RF-CAP-07 | El robot debe permitir la ejecución manual de una captura para un NOG específico, encolada desde el dashboard. | S |
 | RF-CAP-08 | El robot debe registrar en bitácora cada ejecución: inicio, fin, concursos procesados, errores y capturas de pantalla en caso de fallo. | M |
 | RF-CAP-09 | El robot debe reintentar automáticamente los pasos fallidos según la política de reintentos. | M |
+| RF-CAP-12 | Si el portal presenta una verificación (captcha), el robot debe pausar y pedir a la persona que la resuelva. Nunca debe resolverla automáticamente. | M |
+| RF-CAP-11 | La captura debe separarse en despachador (búsqueda) y ejecutor (un concurso por elemento de cola), de modo que cada concurso se procese y reintente de forma independiente. | M |
 | RF-CAP-10 | El robot debe capturar publicaciones NPG para el indicador de fraccionamiento. | W |
 
 ### RF-DOC · Procesamiento de documentos
@@ -38,6 +40,7 @@ Prioridad según **MoSCoW**: **M** = debe tener · **S** = debería tener · **C
 | RF-IA-04 | El sistema debe generar un resumen en lenguaje natural de 3 a 5 líneas. | M |
 | RF-IA-05 | El sistema debe resumir el contenido de cada adenda y explicar qué cambió respecto a la versión anterior. | S |
 | RF-IA-06 | El sistema debe señalar requisitos potencialmente restrictivos (marca específica, experiencia muy puntual). | C |
+| RF-IA-07 | Una ficha con confianza bajo el umbral o inválida tras los reintentos debe enviarse a validación humana (Action Center o dashboard) y el robot debe continuar con la ficha corregida. | S |
 
 ### RF-COM · Compatibilidad con la empresa
 
@@ -66,6 +69,15 @@ Prioridad según **MoSCoW**: **M** = debe tener · **S** = debería tener · **C
 | RF-RIE-02 | El sistema debe asignar a cada proceso un puntaje de riesgo compuesto. | S |
 | RF-RIE-03 | El sistema debe mostrar un ranking de entidades y proveedores por indicadores activados. | S |
 | RF-RIE-04 | Todo indicador debe mostrarse con su explicación y la leyenda de que es una señal y no una acusación. | M |
+
+### RF-EXP · Expediente de oferta
+
+| ID | Requerimiento | Prioridad |
+|---|---|---|
+| RF-EXP-01 | Un robot atendido debe armar, para un concurso elegido por el usuario, una carpeta con las bases y los documentos vigentes de la empresa. | S |
+| RF-EXP-02 | El robot debe generar un checklist en Excel con cada requisito, el documento correspondiente, su estado (listo, faltante, vencido) y la página de referencia. | S |
+| RF-EXP-03 | El robot debe generar borradores Word de los formularios que se puedan llenar con datos del perfil. | C |
+| RF-EXP-04 | El sistema debe avisar en el resumen diario los documentos de la empresa que vencen en los próximos 30 días. | S |
 
 ### RF-NOT · Notificaciones
 
@@ -97,17 +109,18 @@ Prioridad según **MoSCoW**: **M** = debe tener · **S** = debería tener · **C
 | ID | Categoría | Requerimiento |
 |---|---|---|
 | RNF-01 | Disponibilidad | El robot debe completar con éxito ≥ 95 % de las ejecuciones diarias durante el piloto. |
-| RNF-02 | Rendimiento | La captura diaria completa (búsqueda, descarga y extracción) debe terminar antes de las 6:30 para enviar el resumen a las 7:00. |
+| RNF-02 | Rendimiento | La lectura del boletín y la preselección deben terminar antes de las 6:30 para enviar el resumen preliminar a las 7:00. Cada ficha completa se notifica en menos de 30 minutos después de capturar sus documentos. |
 | RNF-03 | Rendimiento | Las pantallas del dashboard deben responder en menos de 2 segundos para consultas sobre el histórico. |
 | RNF-04 | Exactitud | La extracción con IA debe alcanzar ≥ 85 % de exactitud por campo frente a revisión humana. |
 | RNF-05 | Uso responsable | El robot no debe superar 1 solicitud cada 2–3 segundos al portal y debe ejecutarse en horario de baja demanda. |
 | RNF-06 | Resiliencia | Un fallo en un concurso no debe detener la captura de los demás. |
-| RNF-07 | Mantenibilidad | Los selectores del portal deben estar centralizados en un solo archivo de configuración para adaptarse a cambios del sitio. |
+| RNF-07 | Mantenibilidad | Los selectores del portal deben estar centralizados en un solo lugar (Object Repository de la biblioteca `VC.Comun`) para adaptarse a cambios del sitio. |
 | RNF-08 | Observabilidad | Toda ejecución debe dejar bitácora estructurada; los fallos deben guardar captura de pantalla y HTML de la página. |
 | RNF-09 | Seguridad | Contraseñas con hash (bcrypt o argon2); comunicación por HTTPS; claves de API en variables de entorno, nunca en el repositorio. |
 | RNF-10 | Privacidad | Los datos de la empresa piloto se almacenan cifrados en reposo cuando el proveedor de base de datos lo permita, y se anonimizan en el informe. |
 | RNF-11 | Costo | El costo de IA debe mantenerse por debajo de un presupuesto mensual definido (ver [09 · Extracción con IA](09-ia-extraccion.md#95-control-de-costos)). |
-| RNF-12 | Portabilidad | Todo el sistema debe poder levantarse con Docker Compose en una sola máquina. |
+| RNF-12 | Portabilidad | La API, el dashboard y la base de datos deben poder levantarse con Docker Compose en una sola máquina; los robots se publican desde Orchestrator a cualquier máquina Windows con UiPath Robot. |
+| RNF-15 | Orquestación | Toda ejecución programada, cola, credencial y parámetro de entorno de los robots debe administrarse en Orchestrator, no en la máquina. |
 | RNF-13 | Usabilidad | El resumen diario debe poder leerse en un teléfono en menos de 2 minutos. |
 | RNF-14 | Trazabilidad | Cada dato extraído por IA debe poder rastrearse al documento y página de origen. |
 
@@ -125,14 +138,16 @@ Prioridad según **MoSCoW**: **M** = debe tener · **S** = debería tener · **C
 | RN-08 | Los umbrales de modalidad de compra se parametrizan; no se codifican en el programa. |
 | RN-09 | Un documento requerido se considera "faltante" si no hay un documento equivalente vigente en el perfil de la empresa. |
 | RN-10 | El sistema nunca presenta ofertas ni realiza acciones en Guatecompras en nombre del usuario. |
+| RN-11 | El sistema no evade los mecanismos de protección del portal (captcha, límites de acceso). |
 
 ## 3.4 Matriz de trazabilidad (objetivos → requerimientos)
 
 | Objetivo | Requerimientos |
 |---|---|
-| OE1 · Robot de captura | RF-CAP-01 a 09, RNF-01, RNF-02, RNF-05 a 08 |
-| OE2 · Extracción con IA | RF-DOC-01 a 04, RF-IA-01 a 06, RNF-04, RNF-11, RNF-14 |
+| OE1 · Robot de captura | RF-CAP-01 a 09, RF-CAP-11, RF-CAP-12, RNF-01, RNF-02, RNF-05 a 08, RNF-15 |
+| OE2 · Extracción con IA | RF-DOC-01 a 04, RF-IA-01 a 07, RNF-04, RNF-11, RNF-14 |
 | OE3 · Compatibilidad | RF-COM-01 a 05, RF-WEB-02 a 05 |
 | OE4 · Datos OCDS | RF-OCDS-01 a 04, RF-WEB-06 |
 | OE5 · Banderas rojas | RF-RIE-01 a 04, RF-WEB-07 |
 | OE6 · Piloto | RF-NOT-01 a 05, RF-COM-04, RNF-13 |
+| OE7 · Expediente de oferta | RF-EXP-01 a 04 |

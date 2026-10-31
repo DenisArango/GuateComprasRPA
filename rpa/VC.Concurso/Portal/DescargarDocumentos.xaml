@@ -1,0 +1,125 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="DescargarDocumentos" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:sco="clr-namespace:System.Collections.ObjectModel;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:si="clr-namespace:System.IO;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:uix="http://schemas.uipath.com/workflow/activities/uix" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property Name="in_Nombres" Type="InArgument(s:String[])" />
+    <x:Property Name="in_dt_Documentos" Type="InArgument(sd:DataTable)" />
+    <x:Property Name="in_Carpeta" Type="InArgument(x:String)" />
+    <x:Property Name="in_Config" Type="InArgument(scg:Dictionary(x:String, x:Object))" />
+    <x:Property Name="out_dt_Descargados" Type="OutArgument(sd:DataTable)" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap2010:WorkflowViewState.IdRef>DescargarDocumentos_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <sco:Collection x:TypeArguments="x:String">
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>UiPath.UIAutomationNext.Enums</x:String>
+      <x:String>UiPath.UIAutomationCore.Contracts</x:String>
+      <x:String>UiPath.UIAutomationNext.Contracts</x:String>
+      <x:String>UiPath.UIAutomationNext.Activities</x:String>
+      <x:String>UiPath.Platform.ObjectLibrary</x:String>
+      <x:String>UiPath.Platform.ResourceHandling</x:String>
+    </sco:Collection>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <sco:Collection x:TypeArguments="AssemblyReference">
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic.Core</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Runtime</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationCore</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationNext.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.Platform</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+    </sco:Collection>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText='Descarga en Edge solo los documentos nuevos que pidió la API (RN-02), uno por uno con pausa, usando el enlace del historial. Requisito de Edge: Configuración &gt; Cookies y permisos de sitio &gt; Documentos PDF &gt; "Descargar siempre los archivos PDF" (si no, el PDF se abre en el visor en lugar de descargarse).' DisplayName="DescargarDocumentos" sap2010:WorkflowViewState.IdRef="Sequence_0">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="sd:DataTable" Name="dt_PorDescargar" />
+      <Variable x:TypeArguments="si:FileInfo" Name="archivo" />
+      <Variable x:TypeArguments="x:String" Default="[Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), &quot;Downloads&quot;)]" Name="carpetaDescargas" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+<ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Elegir los documentos nuevos (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_3" UnSafe="False" WorkflowFileName="PrepararDescargas.cs">
+  <ui:InvokeWorkflowFile.Arguments>
+    <InArgument x:TypeArguments="sd:DataTable" x:Key="dt_Documentos">[in_dt_Documentos]</InArgument>
+    <InArgument x:TypeArguments="s:String[]" x:Key="nombres">[in_Nombres]</InArgument>
+    <OutArgument x:TypeArguments="sd:DataTable" x:Key="dt_PorDescargar">[dt_PorDescargar]</OutArgument>
+    <OutArgument x:TypeArguments="sd:DataTable" x:Key="dt_Descargados">[out_dt_Descargados]</OutArgument>
+  </ui:InvokeWorkflowFile.Arguments>
+</ui:InvokeWorkflowFile>
+<uix:NApplicationCard AttachMode="ByInstance" CloseMode="Never" DisplayName="Use Browser Edge · Guatecompras" HealingAgentBehavior="Job" OpenMode="Never" sap2010:WorkflowViewState.IdRef="NApplicationCard_3" ScopeGuid="d7c39d5c-3915-4cf7-a98a-8269789663d0" Version="V2">
+  <uix:NApplicationCard.Body>
+    <ActivityAction x:TypeArguments="x:Object">
+      <ActivityAction.Argument>
+        <DelegateInArgument x:TypeArguments="x:Object" Name="WSSessionData" />
+      </ActivityAction.Argument>
+      <Sequence DisplayName="Do" sap2010:WorkflowViewState.IdRef="Sequence_7">
+<ui:ForEachRow ColumnNames="{x:Null}" CurrentIndex="{x:Null}" DataTable="[dt_PorDescargar]" DisplayName="Por cada documento nuevo" sap2010:WorkflowViewState.IdRef="ForEachRow_1">
+  <ui:ForEachRow.Body>
+    <ActivityAction x:TypeArguments="sd:DataRow">
+      <ActivityAction.Argument>
+        <DelegateInArgument x:TypeArguments="sd:DataRow" Name="fila" />
+      </ActivityAction.Argument>
+      <Sequence DisplayName="Descargar" sap2010:WorkflowViewState.IdRef="Sequence_6">
+        <ui:GetLastDownloadedFile FileResource="{x:Null}" IgnoreFiles="{x:Null}" Timeout="[60000]" DisplayName="Esperar la descarga" DownloadFolder="[carpetaDescargas]" File="[archivo]" sap2010:WorkflowViewState.IdRef="GetLastDownloadedFile_1">
+  <ui:GetLastDownloadedFile.Body>
+    <ActivityAction>
+      <Sequence DisplayName="Do" sap2010:WorkflowViewState.IdRef="Sequence_5">
+        <uix:NGoToUrl DisplayName="Ir al enlace del documento" HealingAgentBehavior="SameAsCard" ScopeIdentifier="d7c39d5c-3915-4cf7-a98a-8269789663d0" sap2010:WorkflowViewState.IdRef="NGoToUrl_2" Url="[fila(&quot;Url&quot;).ToString]" />
+      </Sequence>
+    </ActivityAction>
+  </ui:GetLastDownloadedFile.Body>
+</ui:GetLastDownloadedFile>
+        <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Guardar en la carpeta del concurso (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_2" UnSafe="False" WorkflowFileName="GuardarDescarga.cs">
+  <ui:InvokeWorkflowFile.Arguments>
+    <InArgument x:TypeArguments="x:String" x:Key="archivoDescargado">[archivo.FullName]</InArgument>
+    <InArgument x:TypeArguments="x:String" x:Key="carpeta">[in_Carpeta]</InArgument>
+    <InArgument x:TypeArguments="x:String" x:Key="nombre">[fila(&quot;Nombre&quot;).ToString]</InArgument>
+    <InArgument x:TypeArguments="x:String" x:Key="publicadoEn">[fila(&quot;PublicadoEn&quot;).ToString]</InArgument>
+    <InArgument x:TypeArguments="sd:DataTable" x:Key="dt_Descargados">[out_dt_Descargados]</InArgument>
+    <OutArgument x:TypeArguments="sd:DataTable" x:Key="Result">[out_dt_Descargados]</OutArgument>
+  </ui:InvokeWorkflowFile.Arguments>
+</ui:InvokeWorkflowFile>
+        <ui:LogMessage DisplayName="Log" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Info" Message='["Descargado: " &amp; fila("Nombre").ToString]' />
+        <Delay DisplayName="Pausa responsable (2–3 s)" Duration="[TimeSpan.FromMilliseconds(New Random().Next(2000, 3000))]" sap2010:WorkflowViewState.IdRef="Delay_3" />
+      </Sequence>
+    </ActivityAction>
+  </ui:ForEachRow.Body>
+</ui:ForEachRow>
+      </Sequence>
+    </ActivityAction>
+  </uix:NApplicationCard.Body>
+  <uix:NApplicationCard.TargetApp>
+    <uix:TargetApp BrowserType="Edge" ContentHash="UUAviAYTnk2D0ric-O4q_g" Reference="EktFMx7gGEaUEx8Ka57bkQ/cIqkXh5-sUaT0TuVstLjbg" Selector="&lt;html app='msedge.exe' title='Guatecompras - Sistema de Contrataciones y Adquisiciones del Estado de Guatemala' /&gt;" Url="https://www.guatecompras.gt/concursos/consultaConcurso.aspx?o=5&amp;nog=32533209" Version="V3" />
+  </uix:NApplicationCard.TargetApp>
+</uix:NApplicationCard>
+  </Sequence>
+</Activity>

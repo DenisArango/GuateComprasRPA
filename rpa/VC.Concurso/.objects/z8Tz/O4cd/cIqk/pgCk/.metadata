@@ -1,0 +1,14 @@
+﻿{
+  "Name": "https://www.guatecompras.gt/concursos/consultaConcurso.aspx*",
+  "Type": "Element",
+  "TaxonomyType": "Input",
+  "Id": "pgCkI1JH7kq-s-xG6Ax3yg",
+  "Reference": "EktFMx7gGEaUEx8Ka57bkQ/pgCkI1JH7kq-s-xG6Ax3yg",
+  "ParentRef": "EktFMx7gGEaUEx8Ka57bkQ/cIqkXh5-sUaT0TuVstLjbg",
+  "Created": "2026-10-31T08:34:58.8321792Z",
+  "Updated": "2026-10-31T08:34:58.8321792Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.2.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

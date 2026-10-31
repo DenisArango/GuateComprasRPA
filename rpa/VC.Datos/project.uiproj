@@ -1,0 +1,6 @@
+{
+  "Name": "VC.Datos",
+  "ProjectType": "Process",
+  "Description": "Vigía de Contrataciones · Datos: carga semanal del histórico OCDS y recálculo de banderas rojas (vía API)",
+  "MainFile": "Main.xaml"
+}

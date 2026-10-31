@@ -1,0 +1,81 @@
+{
+  "name": "VC.Datos",
+  "projectId": "5bd49006-d279-4ed4-831f-bb9ba352a630",
+  "description": "Vigía de Contrataciones · Datos: carga semanal del histórico OCDS y recálculo de banderas rojas (vía API)",
+  "main": "Main.xaml",
+  "dependencies": {
+    "UiPath.Mail.Activities": "[2.12.10]",
+    "UiPath.System.Activities": "[26.10.0]"
+  },
+  "webServices": [],
+  "entitiesStores": [],
+  "schemaVersion": "4.0",
+  "studioVersion": "26.0.204.0",
+  "projectVersion": "0.1.0",
+  "runtimeOptions": {
+    "autoDispose": false,
+    "netFrameworkLazyLoading": false,
+    "isPausable": true,
+    "isAttended": false,
+    "requiresUserInteraction": false,
+    "supportsPersistence": false,
+    "workflowSerialization": "DataContract",
+    "excludedLoggedData": [
+      "Private:*",
+      "*password*",
+      "*clave*"
+    ],
+    "executionType": "Workflow",
+    "readyForPiP": false,
+    "startsInPiP": false,
+    "mustRestoreAllDependencies": false,
+    "pipType": "ChildSession"
+  },
+  "designOptions": {
+    "projectProfile": "Developement",
+    "outputType": "Process",
+    "libraryOptions": {
+      "privateWorkflows": []
+    },
+    "processOptions": {
+      "ignoredFiles": []
+    },
+    "fileInfoCollection": [],
+    "saveToCloud": false
+  },
+  "expressionLanguage": "VisualBasic",
+  "entryPoints": [
+    {
+      "filePath": "Main.xaml",
+      "uniqueId": "b8aaaf5d-0e53-4698-ac1e-9ba09efbaf14",
+      "input": [
+        {
+          "name": "in_Anios",
+          "type": "System.String, System.Private.CoreLib",
+          "required": false,
+          "hasDefault": true,
+          "defaultValue": ""
+        },
+        {
+          "name": "in_EsperaMaximaMinutos",
+          "type": "System.Int32, System.Private.CoreLib",
+          "required": false,
+          "hasDefault": true,
+          "defaultValue": "240"
+        },
+        {
+          "name": "in_IntervaloSegundos",
+          "type": "System.Int32, System.Private.CoreLib",
+          "required": false,
+          "hasDefault": true,
+          "defaultValue": "60"
+        }
+      ],
+      "output": []
+    }
+  ],
+  "isTemplate": false,
+  "templateProjectData": {},
+  "publishData": {},
+  "targetFramework": "Windows"
+}

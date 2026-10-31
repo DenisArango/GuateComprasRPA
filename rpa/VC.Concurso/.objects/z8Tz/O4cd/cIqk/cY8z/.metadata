@@ -1,0 +1,14 @@
+﻿{
+  "Name": "PestanaHistorial",
+  "Type": "Element",
+  "TaxonomyType": "None",
+  "Id": "cY8zpRAJ_0yeNC2XM8CIBQ",
+  "Reference": "EktFMx7gGEaUEx8Ka57bkQ/cY8zpRAJ_0yeNC2XM8CIBQ",
+  "ParentRef": "EktFMx7gGEaUEx8Ka57bkQ/cIqkXh5-sUaT0TuVstLjbg",
+  "Created": "2026-10-31T08:34:59.0058916Z",
+  "Updated": "2026-10-31T08:34:59.0058916Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.2.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

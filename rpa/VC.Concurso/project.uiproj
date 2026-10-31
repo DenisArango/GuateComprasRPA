@@ -1,0 +1,6 @@
+{
+  "Name": "VC.Concurso",
+  "ProjectType": "Process",
+  "Description": "Vigía de Contrataciones · Ejecutor atendido (REFramework): abre el detalle de cada NOG de VC_Concursos, registra el detalle en la API, sube los documentos y encola análisis o alertas",
+  "MainFile": "Main.xaml"
+}

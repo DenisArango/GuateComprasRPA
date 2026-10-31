@@ -1,0 +1,6 @@
+{
+  "Name": "VC.Analisis",
+  "ProjectType": "Process",
+  "Description": "Vigía de Contrataciones · Ejecutor en segundo plano (REFramework): texto de los PDF, ficha con Claude, validación humana en Action Center",
+  "MainFile": "Main.xaml"
+}

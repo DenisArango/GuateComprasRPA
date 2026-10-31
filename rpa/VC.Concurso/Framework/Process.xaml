@@ -1,0 +1,234 @@
+<Activity mc:Ignorable="sap sap2010" x:Class="Process" xmlns="http://schemas.microsoft.com/netfx/2009/xaml/activities" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:sap="http://schemas.microsoft.com/netfx/2009/xaml/activities/presentation" xmlns:sap2010="http://schemas.microsoft.com/netfx/2010/xaml/activities/presentation" xmlns:scg="clr-namespace:System.Collections.Generic;assembly=System.Private.CoreLib" xmlns:ui="http://schemas.uipath.com/workflow/activities" xmlns:s="clr-namespace:System;assembly=System.Private.CoreLib" xmlns:sd="clr-namespace:System.Data;assembly=System.Data.Common" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <x:Members>
+    <x:Property sap2010:Annotation.AnnotationText="Transaction item to be processed." Name="in_TransactionItem" Type="InArgument(ui:QueueItem)" />
+    <x:Property sap2010:Annotation.AnnotationText="Dictionary structure to store configuration data of the process (settings, constants and assets)." Name="in_Config" Type="InArgument(scg:Dictionary(x:String, x:Object))" />
+  </x:Members>
+  <VisualBasic.Settings>
+    <x:Null />
+  </VisualBasic.Settings>
+  <sap:VirtualizedContainerService.HintSize>818.4,454.4</sap:VirtualizedContainerService.HintSize>
+  <sap2010:WorkflowViewState.IdRef>ProcessTransaction_1</sap2010:WorkflowViewState.IdRef>
+  <TextExpression.NamespacesForImplementation>
+    <scg:List x:TypeArguments="x:String" Capacity="50">
+      <x:String>Microsoft.VisualBasic</x:String>
+      <x:String>Microsoft.VisualBasic.Activities</x:String>
+      <x:String>System</x:String>
+      <x:String>System.Activities</x:String>
+      <x:String>System.Activities.Expressions</x:String>
+      <x:String>System.Activities.Statements</x:String>
+      <x:String>System.Activities.Validation</x:String>
+      <x:String>System.Activities.XamlIntegration</x:String>
+      <x:String>System.Collections</x:String>
+      <x:String>System.Collections.Generic</x:String>
+      <x:String>System.Collections.ObjectModel</x:String>
+      <x:String>System.Data</x:String>
+      <x:String>System.Diagnostics</x:String>
+      <x:String>System.Drawing</x:String>
+      <x:String>System.IO</x:String>
+      <x:String>System.Linq</x:String>
+      <x:String>System.Net.Mail</x:String>
+      <x:String>System.Runtime.InteropServices</x:String>
+      <x:String>System.Runtime.Serialization</x:String>
+      <x:String>System.Windows.Forms</x:String>
+      <x:String>System.Windows.Markup</x:String>
+      <x:String>System.Xml</x:String>
+      <x:String>System.Xml.Linq</x:String>
+      <x:String>UiPath.Core</x:String>
+      <x:String>UiPath.Core.Activities</x:String>
+      <x:String>GlobalVariablesNamespace</x:String>
+      <x:String>GlobalConstantsNamespace</x:String>
+    </scg:List>
+  </TextExpression.NamespacesForImplementation>
+  <TextExpression.ReferencesForImplementation>
+    <scg:List x:TypeArguments="AssemblyReference" Capacity="40">
+      <AssemblyReference>Microsoft.Bcl.AsyncInterfaces</AssemblyReference>
+      <AssemblyReference>Microsoft.VisualBasic</AssemblyReference>
+      <AssemblyReference>mscorlib</AssemblyReference>
+      <AssemblyReference>PresentationCore</AssemblyReference>
+      <AssemblyReference>PresentationFramework</AssemblyReference>
+      <AssemblyReference>System</AssemblyReference>
+      <AssemblyReference>System.Activities</AssemblyReference>
+      <AssemblyReference>System.Collections</AssemblyReference>
+      <AssemblyReference>System.ComponentModel</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.Composition</AssemblyReference>
+      <AssemblyReference>System.ComponentModel.TypeConverter</AssemblyReference>
+      <AssemblyReference>System.Configuration.ConfigurationManager</AssemblyReference>
+      <AssemblyReference>System.Console</AssemblyReference>
+      <AssemblyReference>System.Core</AssemblyReference>
+      <AssemblyReference>System.Data</AssemblyReference>
+      <AssemblyReference>System.Data.Common</AssemblyReference>
+      <AssemblyReference>System.Drawing</AssemblyReference>
+      <AssemblyReference>System.Linq</AssemblyReference>
+      <AssemblyReference>System.Memory</AssemblyReference>
+      <AssemblyReference>System.ObjectModel</AssemblyReference>
+      <AssemblyReference>System.Private.CoreLib</AssemblyReference>
+      <AssemblyReference>System.Private.Uri</AssemblyReference>
+      <AssemblyReference>System.Runtime.Serialization</AssemblyReference>
+      <AssemblyReference>System.Security.Permissions</AssemblyReference>
+      <AssemblyReference>System.ServiceModel</AssemblyReference>
+      <AssemblyReference>System.ValueTuple</AssemblyReference>
+      <AssemblyReference>System.Windows.Forms</AssemblyReference>
+      <AssemblyReference>System.Xaml</AssemblyReference>
+      <AssemblyReference>System.Xml</AssemblyReference>
+      <AssemblyReference>System.Xml.Linq</AssemblyReference>
+      <AssemblyReference>UiPath.Excel</AssemblyReference>
+      <AssemblyReference>UiPath.OCR.Activities.Design</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.System.Activities.Design</AssemblyReference>
+      <AssemblyReference>UiPath.UiAutomation.Activities</AssemblyReference>
+      <AssemblyReference>UiPath.UIAutomationCore</AssemblyReference>
+      <AssemblyReference>UiPath.Workflow</AssemblyReference>
+      <AssemblyReference>WindowsBase</AssemblyReference>
+    </scg:List>
+  </TextExpression.ReferencesForImplementation>
+  <Sequence sap2010:Annotation.AnnotationText="Un elemento de VC_Concursos. Robot ATENDIDO: corre en el navegador de una persona, que solo interviene si aparece la verificación de Cloudflare (ADR-0006).&#xA;&#xA;BusinessRuleException: el elemento no se reintenta. Cualquier otra excepción: System Exception, se reintenta según la cola." DisplayName="Process · VC.Concurso" sap2010:WorkflowViewState.IdRef="Sequence_100">
+    <Sequence.Variables>
+      <Variable x:TypeArguments="x:String" Name="nog" />
+      <Variable x:TypeArguments="x:String" Name="tipo" />
+      <Variable x:TypeArguments="x:String" Name="url" />
+      <Variable x:TypeArguments="x:String" Name="apiUrl" />
+      <Variable x:TypeArguments="x:String" Name="carpetaTrabajo" />
+      <Variable x:TypeArguments="x:String" Name="titulo" />
+      <Variable x:TypeArguments="x:String" Name="entidad" />
+      <Variable x:TypeArguments="x:String" Name="unidadCompradora" />
+      <Variable x:TypeArguments="x:String" Name="modalidad" />
+      <Variable x:TypeArguments="x:String" Name="estadoGc" />
+      <Variable x:TypeArguments="x:String" Name="montoTexto" />
+      <Variable x:TypeArguments="x:String" Name="fechaCierreTexto" />
+      <Variable x:TypeArguments="x:String" Name="resumenCambios" />
+      <Variable x:TypeArguments="x:Int32" Name="aclaraciones" />
+      <Variable x:TypeArguments="x:Int32" Name="subidos" />
+      <Variable x:TypeArguments="x:Int32" Name="repetidos" />
+      <Variable x:TypeArguments="x:Int32" Name="defectuosos" />
+      <Variable x:TypeArguments="x:Boolean" Name="primeraCaptura" />
+      <Variable x:TypeArguments="x:Boolean" Name="hayCambioFechaEstado" />
+      <Variable x:TypeArguments="s:String[]" Name="documentosPorDescargar" />
+      <Variable x:TypeArguments="sd:DataTable" Name="dt_Documentos" />
+      <Variable x:TypeArguments="sd:DataTable" Name="dt_Descargados" />
+    </Sequence.Variables>
+    <sap:WorkflowViewStateService.ViewState>
+      <scg:Dictionary x:TypeArguments="x:String, x:Object">
+        <x:Boolean x:Key="IsExpanded">True</x:Boolean>
+        <x:Boolean x:Key="IsAnnotationDocked">True</x:Boolean>
+      </scg:Dictionary>
+    </sap:WorkflowViewStateService.ViewState>
+    <ui:LogMessage DisplayName="Log · Inicio" sap2010:WorkflowViewState.IdRef="LogMessage_1" Level="Info" Message="[&quot;VC.Concurso: procesando &quot; &amp; in_TransactionItem.SpecificContent(&quot;Nog&quot;).ToString]" />
+    <Assign DisplayName="Leer NOG" sap2010:WorkflowViewState.IdRef="Assign_1">
+          <Assign.To><OutArgument x:TypeArguments="x:String">[nog]</OutArgument></Assign.To>
+          <Assign.Value><InArgument x:TypeArguments="x:String">[in_TransactionItem.SpecificContent(&quot;Nog&quot;).ToString]</InArgument></Assign.Value>
+        </Assign>
+    <Assign DisplayName="Leer tipo (NUEVO, REVISION, MANUAL)" sap2010:WorkflowViewState.IdRef="Assign_2">
+          <Assign.To><OutArgument x:TypeArguments="x:String">[tipo]</OutArgument></Assign.To>
+          <Assign.Value><InArgument x:TypeArguments="x:String">[in_TransactionItem.SpecificContent(&quot;Tipo&quot;).ToString]</InArgument></Assign.Value>
+        </Assign>
+    <Assign DisplayName="URL del detalle" sap2010:WorkflowViewState.IdRef="Assign_3">
+          <Assign.To><OutArgument x:TypeArguments="x:String">[url]</OutArgument></Assign.To>
+          <Assign.Value><InArgument x:TypeArguments="x:String">[If(in_TransactionItem.SpecificContent.ContainsKey(&quot;Url&quot;) AndAlso in_TransactionItem.SpecificContent(&quot;Url&quot;) IsNot Nothing, in_TransactionItem.SpecificContent(&quot;Url&quot;).ToString, in_Config(&quot;UrlDetalleConcurso&quot;).ToString &amp; nog)]</InArgument></Assign.Value>
+        </Assign>
+    <ui:GetRobotAsset AssetName="VC_ApiUrl" DisplayName="Get Asset · VC_ApiUrl" sap2010:WorkflowViewState.IdRef="GetRobotAsset_1">
+        <ui:GetRobotAsset.Value><OutArgument x:TypeArguments="x:String">[apiUrl]</OutArgument></ui:GetRobotAsset.Value>
+      </ui:GetRobotAsset>
+    <ui:GetRobotAsset AssetName="VC_CarpetaTrabajo" DisplayName="Get Asset · VC_CarpetaTrabajo" sap2010:WorkflowViewState.IdRef="GetRobotAsset_2">
+        <ui:GetRobotAsset.Value><OutArgument x:TypeArguments="x:String">[carpetaTrabajo]</OutArgument></ui:GetRobotAsset.Value>
+      </ui:GetRobotAsset>
+    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Abrir el detalle (captcha: lo resuelve la persona)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_1" UnSafe="False" WorkflowFileName="Portal/AbrirDetalle.xaml">
+        <ui:InvokeWorkflowFile.Arguments>
+          <InArgument x:TypeArguments="x:String" x:Key="in_Url">[url]</InArgument>
+          <InArgument x:TypeArguments="scg:Dictionary(x:String, x:Object)" x:Key="in_Config">[in_Config]</InArgument>
+        </ui:InvokeWorkflowFile.Arguments>
+      </ui:InvokeWorkflowFile>
+    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Leer el detalle" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_2" UnSafe="False" WorkflowFileName="Portal/LeerDetalle.xaml">
+        <ui:InvokeWorkflowFile.Arguments>
+          <InArgument x:TypeArguments="x:String" x:Key="in_Nog">[nog]</InArgument>
+          <InArgument x:TypeArguments="scg:Dictionary(x:String, x:Object)" x:Key="in_Config">[in_Config]</InArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_Titulo">[titulo]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_Entidad">[entidad]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_UnidadCompradora">[unidadCompradora]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_Modalidad">[modalidad]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_EstadoGc">[estadoGc]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_MontoTexto">[montoTexto]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="out_FechaCierreTexto">[fechaCierreTexto]</OutArgument>
+          <OutArgument x:TypeArguments="sd:DataTable" x:Key="out_dt_Documentos">[dt_Documentos]</OutArgument>
+          <OutArgument x:TypeArguments="x:Int32" x:Key="out_Aclaraciones">[aclaraciones]</OutArgument>
+        </ui:InvokeWorkflowFile.Arguments>
+      </ui:InvokeWorkflowFile>
+    <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" sap2010:Annotation.AnnotationText="La API compara con la lectura anterior y devuelve los cambios. Primera captura: se descargan todos los documentos; revisión: solo los nuevos." DisplayName="Registrar el detalle en la API (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_3" UnSafe="False" WorkflowFileName="RegistrarDetalle.cs">
+        <ui:InvokeWorkflowFile.Arguments>
+          <InArgument x:TypeArguments="x:String" x:Key="nog">[nog]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="urlConcurso">[url]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="titulo">[titulo]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="entidad">[entidad]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="unidadCompradora">[unidadCompradora]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="modalidad">[modalidad]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="estadoGc">[estadoGc]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="montoTexto">[montoTexto]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="fechaCierreTexto">[fechaCierreTexto]</InArgument>
+          <InArgument x:TypeArguments="sd:DataTable" x:Key="dt_Documentos">[dt_Documentos]</InArgument>
+          <InArgument x:TypeArguments="x:Int32" x:Key="aclaraciones">[aclaraciones]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+          <OutArgument x:TypeArguments="x:Boolean" x:Key="primeraCaptura">[primeraCaptura]</OutArgument>
+          <OutArgument x:TypeArguments="s:String[]" x:Key="documentosPorDescargar">[documentosPorDescargar]</OutArgument>
+          <OutArgument x:TypeArguments="x:Boolean" x:Key="hayCambioFechaEstado">[hayCambioFechaEstado]</OutArgument>
+          <OutArgument x:TypeArguments="x:String" x:Key="resumenCambios">[resumenCambios]</OutArgument>
+        </ui:InvokeWorkflowFile.Arguments>
+      </ui:InvokeWorkflowFile>
+    <If Condition="[primeraCaptura AndAlso documentosPorDescargar.Length = 0]" DisplayName="¿Concurso sin documentos?" sap2010:WorkflowViewState.IdRef="If_1">
+      <If.Then>
+        <Sequence DisplayName="Then" sap2010:WorkflowViewState.IdRef="Sequence_1">
+        <Throw DisplayName="Business Rule Exception" Exception="[New BusinessRuleException(&quot;Concurso sin documentos publicados&quot;)]" sap2010:WorkflowViewState.IdRef="Throw_1" />
+        </Sequence>
+      </If.Then>
+    </If>
+    <If Condition="[documentosPorDescargar.Length &gt; 0]" DisplayName="¿Hay documentos por descargar?" sap2010:WorkflowViewState.IdRef="If_2">
+      <If.Then>
+        <Sequence DisplayName="Then" sap2010:WorkflowViewState.IdRef="Sequence_2">
+        <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Descargar documentos" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_4" UnSafe="False" WorkflowFileName="Portal/DescargarDocumentos.xaml">
+        <ui:InvokeWorkflowFile.Arguments>
+          <InArgument x:TypeArguments="s:String[]" x:Key="in_Nombres">[documentosPorDescargar]</InArgument>
+          <InArgument x:TypeArguments="sd:DataTable" x:Key="in_dt_Documentos">[dt_Documentos]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="in_Carpeta">[Path.Combine(carpetaTrabajo, &quot;descargas&quot;, nog)]</InArgument>
+          <InArgument x:TypeArguments="scg:Dictionary(x:String, x:Object)" x:Key="in_Config">[in_Config]</InArgument>
+          <OutArgument x:TypeArguments="sd:DataTable" x:Key="out_dt_Descargados">[dt_Descargados]</OutArgument>
+        </ui:InvokeWorkflowFile.Arguments>
+      </ui:InvokeWorkflowFile>
+        <ui:InvokeWorkflowFile ArgumentsVariable="{x:Null}" ContinueOnError="{x:Null}" DisplayName="Subir documentos a la API (C#)" sap2010:WorkflowViewState.IdRef="InvokeWorkflowFile_5" UnSafe="False" WorkflowFileName="SubirDocumentos.cs">
+        <ui:InvokeWorkflowFile.Arguments>
+          <InArgument x:TypeArguments="x:String" x:Key="nog">[nog]</InArgument>
+          <InArgument x:TypeArguments="sd:DataTable" x:Key="dt_Descargados">[dt_Descargados]</InArgument>
+          <InArgument x:TypeArguments="x:String" x:Key="apiUrl">[apiUrl]</InArgument>
+          <OutArgument x:TypeArguments="x:Int32" x:Key="subidos">[subidos]</OutArgument>
+          <OutArgument x:TypeArguments="x:Int32" x:Key="repetidos">[repetidos]</OutArgument>
+          <OutArgument x:TypeArguments="x:Int32" x:Key="defectuosos">[defectuosos]</OutArgument>
+        </ui:InvokeWorkflowFile.Arguments>
+      </ui:InvokeWorkflowFile>
+        </Sequence>
+      </If.Then>
+    </If>
+    <If Condition="[subidos &gt; 0]" DisplayName="¿Documentos nuevos? → análisis con IA" sap2010:WorkflowViewState.IdRef="If_3">
+      <If.Then>
+        <Sequence DisplayName="Then" sap2010:WorkflowViewState.IdRef="Sequence_3">
+        <ui:AddQueueItem ContinueOnError="{x:Null}" DeferDate="{x:Null}" DueDate="{x:Null}" ItemInformationCollection="{x:Null}" ServiceBaseAddress="{x:Null}" TimeoutMS="{x:Null}" DisplayName="Add Queue Item · VC_Analisis" FolderPath="{x:Null}" sap2010:WorkflowViewState.IdRef="AddQueueItem_1" Priority="Normal" QueueType="[in_Config(&quot;ColaAnalisis&quot;).ToString]" Reference="[nog &amp; &quot;-&quot; &amp; If(tipo = &quot;REVISION&quot;, &quot;ADENDA&quot;, &quot;NUEVO&quot;) &amp; &quot;-&quot; &amp; Now.ToString(&quot;yyyyMMddHHmm&quot;)]">
+          <ui:AddQueueItem.ItemInformation>
+            <InArgument x:TypeArguments="x:String" x:Key="Nog">[nog]</InArgument>
+            <InArgument x:TypeArguments="x:String" x:Key="Motivo">[If(tipo = &quot;REVISION&quot;, &quot;ADENDA&quot;, &quot;NUEVO&quot;)]</InArgument>
+          </ui:AddQueueItem.ItemInformation>
+        </ui:AddQueueItem>
+        </Sequence>
+      </If.Then>
+    </If>
+    <If Condition="[hayCambioFechaEstado]" DisplayName="¿Cambió la fecha o el estado? → alerta inmediata" sap2010:WorkflowViewState.IdRef="If_4">
+      <If.Then>
+        <Sequence DisplayName="Then" sap2010:WorkflowViewState.IdRef="Sequence_4">
+        <ui:AddQueueItem ContinueOnError="{x:Null}" DeferDate="{x:Null}" DueDate="{x:Null}" ItemInformationCollection="{x:Null}" ServiceBaseAddress="{x:Null}" TimeoutMS="{x:Null}" DisplayName="Add Queue Item · VC_Notificaciones" FolderPath="{x:Null}" sap2010:WorkflowViewState.IdRef="AddQueueItem_2" Priority="Normal" QueueType="[in_Config(&quot;ColaNotificaciones&quot;).ToString]" Reference="[nog &amp; &quot;-CAMBIO-&quot; &amp; Now.ToString(&quot;yyyyMMddHHmm&quot;)]">
+          <ui:AddQueueItem.ItemInformation>
+            <InArgument x:TypeArguments="x:String" x:Key="Nog">[nog]</InArgument>
+            <InArgument x:TypeArguments="x:String" x:Key="Tipo">[&quot;CAMBIO&quot;]</InArgument>
+            <InArgument x:TypeArguments="x:String" x:Key="Resumen">[resumenCambios]</InArgument>
+          </ui:AddQueueItem.ItemInformation>
+        </ui:AddQueueItem>
+        </Sequence>
+      </If.Then>
+    </If>
+    <ui:LogMessage DisplayName="Log · Fin" sap2010:WorkflowViewState.IdRef="LogMessage_2" Level="Info" Message="[&quot;NOG &quot; &amp; nog &amp; &quot; (&quot; &amp; tipo &amp; &quot;): &quot; &amp; resumenCambios &amp; &quot;. Documentos nuevos: &quot; &amp; subidos.ToString]" />
+  </Sequence>
+</Activity>

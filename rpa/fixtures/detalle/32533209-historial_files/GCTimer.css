@@ -1,0 +1,295 @@
+﻿/*Afolgar 15/1/14
+    Estilo para notificaciones de tiempo
+        background: url(/images/fondo-contador.png);
+    */
+.contenedorPrincipal {
+    z-index: 20;
+}
+
+.fondoIzquiera {
+    float: left;
+    width: 13px;
+    position: absolute;
+    top: 0;
+    right: 100%;
+}
+
+.fondoDerecha {
+    float: right;
+    width: 13px;
+    position: absolute;
+    top: 0;
+    left: 100%;
+}
+
+.fondoCentral {
+  
+    margin: 0 auto;
+    width: 100%;
+}
+
+.fondoCentralPac {
+    /*display: inline-block;*/
+    margin: 0 auto;
+    width: 100%;
+}
+
+.ContenedorHeader {
+    width: auto;
+}
+
+.textoHeader {
+    padding-top: 3px;
+    color: #FFFFFF;
+    font-size: 11px;
+    font-weight: bold;
+    padding-left: 12px;
+    margin-top: 4px;
+    position: absolute;
+    left: -4px;
+}
+
+.ContenedorTiempo {
+    height: 100%;
+    width: 100%;
+}
+
+.lblTimeSubtitulo {
+    color: white;
+    text-align: center;
+    font-size: 12px;
+}
+
+#spanTimer {
+    color: #FFFFFF;
+}
+
+#lbldias {
+    color: #FFFFFF;
+}
+
+#lblFullHorasRestantes {
+    color: #FFFFFF;
+}
+
+#lblhh {
+    color: #FFFFFF;
+}
+
+#lblmm {
+    color: #FFFFFF;
+}
+
+#lblss {
+    color: #FFFFFF;
+}
+
+
+
+.contenedorPrincipal table {
+    width: 100%;
+}
+
+.contenedorPrincipalSubasta {
+    width: 100%;
+    z-index: 20;
+    color: #ffffff;
+    height: 100%;
+    text-align: center;
+}
+
+.totalHeightWidth {
+    height: 100%;
+    width: 100%;
+}
+
+.totalHeightWidthBlue {
+    height: 100%;
+    width: 100%;
+    background-color: #0598e2;
+    z-index: 20;
+    color: #ffffff;
+    text-align: center;
+}
+
+.totalHeightWidthOrange {
+    height: 100%;
+    width: 100%;
+    background-color: #ffa75b;
+    z-index: 20;
+    color: #ffffff;
+    text-align: center;
+}
+
+.totalHeightWidthRed {
+    height: 100%;
+    width: 100%;
+    background-color: #ed652f;
+    z-index: 20;
+    color: #ffffff;
+    text-align: center;
+}
+
+.totalHeightWidthPop {
+    width: 25%;
+}
+
+.spanTimer {
+    padding-top: 8px;
+}
+
+.spanTimerSubasta {
+    display: inline-block;
+    font-size: 20px;
+    padding: 6px;
+    background-color: #FFFFFF;
+    color: #0598e2;
+    font-weight: bolder;
+    width: 78%;
+    margin-right: -20px;
+}
+
+.timerPopUpPosition {
+    z-index: 1000;
+    position: relative;
+    float: right;
+    margin-top: 3px;
+    height: 67px;
+}
+
+#MasterGC_ContentBlockHolder_dtimer_lblTimeLeftinfo {
+    font-size: 12px;
+}
+
+#MasterGC_ContentBlockHolder_dtimer_diaHoraFinal {
+    font-size: 15px;
+}
+
+.spanTimerSubasta span {
+    font-size: 16px;
+}
+
+.containerHistorial {
+    position: relative;
+    top: -75px;
+}
+
+.timerHistorial {
+    float: right;
+    z-index: 500000;
+    position: relative;
+    top: 120px;
+    width: 250px;
+    font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+.TextoVerdeHora {
+    color: #0598e2;
+}
+.timerWrapper {
+    float: right;
+    width: 38%;
+}
+.textoTiempo {
+    display: inline-block;
+    background-color: white;
+    height: 25px;
+    width: 78%;
+    text-align: center;
+}
+.titleContainer {
+    width: 100%;
+    background-color: #026cad;
+    padding: 3px;
+    text-align: center;
+}
+.imgClock {
+    display: inline-block;
+    margin-right: 3px;
+    padding: 0px 0px 4px 3px;
+}
+.imgRefresh {
+    display: inline-block;
+    vertical-align: middle;
+    padding-left: 7px;
+}
+.textoTiempo {
+    width: 99%;
+}
+.withTimer {
+    margin-bottom: -50px;
+}
+.withoutTimer {
+    margin-bottom: 0px;
+}
+@media only screen and (max-width: 396px) {
+    .timerWrapper {
+        width: 100%;
+    }
+    .imgRefresh {
+        padding-left: 0px;
+    }
+    .TextoVerdeHora {
+        font-size:11px;
+    }
+    .TextoMaroonHora {
+        font-size: 11px;
+    }
+    .TextoRojoHora {
+        font-size: 11px;
+    }
+    .withTimer {
+        margin-bottom: 0px;
+    }
+}
+
+@media only screen and (min-width: 397px) {
+    .timerWrapper {
+        width: 100%;
+    }
+    .imgRefresh {
+        padding-left: 0px;
+    }
+    .TextoVerdeHora {
+        font-size: 11px;
+    }
+
+    .TextoMaroonHora {
+        font-size: 11px;
+    }
+
+    .TextoRojoHora {
+        font-size: 11px;
+    }
+    .withTimer {
+        margin-bottom: 0px;
+    }
+}
+
+@media only screen and (min-width: 768px) {
+    .timerWrapper {
+        width: 52%;
+    }
+    .TextoVerdeHora {
+        font-size: 13px;
+    }
+
+    .TextoMaroonHora {
+        font-size: 13px;
+    }
+
+    .TextoRojoHora {
+        font-size: 13px;
+    }
+    .withoutTimer{
+        margin-bottom: 0px;
+    }
+    .withTimer {
+        margin-bottom: -50px;
+    }
+}
+
+@media only screen and (min-width: 992px) {
+    .timerWrapper {
+        width: 40%;
+    }
+}

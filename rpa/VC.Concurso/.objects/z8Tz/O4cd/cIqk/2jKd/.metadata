@@ -1,0 +1,14 @@
+﻿{
+  "Name": "PestanaDocumentos",
+  "Type": "Element",
+  "TaxonomyType": "None",
+  "Id": "2jKdlTcSMUSRP1aKJLg8ag",
+  "Reference": "EktFMx7gGEaUEx8Ka57bkQ/2jKdlTcSMUSRP1aKJLg8ag",
+  "ParentRef": "EktFMx7gGEaUEx8Ka57bkQ/cIqkXh5-sUaT0TuVstLjbg",
+  "Created": "2026-10-31T08:34:58.9719035Z",
+  "Updated": "2026-10-31T08:34:58.9719035Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.2.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

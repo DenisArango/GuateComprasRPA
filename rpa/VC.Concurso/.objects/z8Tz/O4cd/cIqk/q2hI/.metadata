@@ -1,0 +1,14 @@
+﻿{
+  "Name": "EnlaceDocumento",
+  "Type": "Element",
+  "TaxonomyType": "Label",
+  "Id": "q2hIrc8bvEewELLoWkZTvQ",
+  "Reference": "EktFMx7gGEaUEx8Ka57bkQ/q2hIrc8bvEewELLoWkZTvQ",
+  "ParentRef": "EktFMx7gGEaUEx8Ka57bkQ/cIqkXh5-sUaT0TuVstLjbg",
+  "Created": "2026-10-31T08:34:59.1809032Z",
+  "Updated": "2026-10-31T08:34:59.1809032Z",
+  "CreatedBy": [
+    "UiPath.UIAutomationCore, Version=26.10.2.0, Culture=neutral, PublicKeyToken=null",
+    "UiPath.Platform, Version=26.4.0.0, Culture=neutral, PublicKeyToken=null"
+  ]
+}

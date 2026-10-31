@@ -1,0 +1,88 @@
+[
+  {
+    "type": "textarea",
+    "key": "Instrucciones",
+    "label": "Instrucciones",
+    "disabled": true,
+    "rows": 3,
+    "input": true,
+    "defaultValue": "La IA no pudo generar esta ficha con suficiente confianza. Revisa las bases en Guatecompras, corrige los campos y presiona Aprobar. Si las bases no sirven para una ficha, presiona Descartar."
+  },
+  {
+    "type": "textfield",
+    "key": "Nog",
+    "label": "NOG",
+    "disabled": true,
+    "input": true
+  },
+  {
+    "type": "textfield",
+    "key": "Titulo",
+    "label": "Concurso",
+    "disabled": true,
+    "input": true
+  },
+  {
+    "type": "textfield",
+    "key": "UrlConcurso",
+    "label": "Enlace en Guatecompras",
+    "disabled": true,
+    "input": true
+  },
+  {
+    "type": "textarea",
+    "key": "MotivoRevision",
+    "label": "Por qué necesita revisión",
+    "disabled": true,
+    "rows": 3,
+    "input": true
+  },
+  {
+    "type": "textarea",
+    "key": "Resumen",
+    "label": "Resumen (3 a 5 oraciones)",
+    "rows": 4,
+    "input": true,
+    "validate": {
+      "required": true
+    }
+  },
+  {
+    "type": "textfield",
+    "key": "MontoEstimado",
+    "label": "Monto estimado en quetzales (solo números, ej. 180000.00)",
+    "input": true
+  },
+  {
+    "type": "textfield",
+    "key": "FechaLimiteOfertas",
+    "label": "Fecha límite de ofertas (DD/MM/AAAA HH:MM)",
+    "input": true
+  },
+  {
+    "type": "textarea",
+    "key": "FichaJson",
+    "label": "Ficha completa (JSON). Los campos de arriba reemplazan los del JSON.",
+    "rows": 18,
+    "input": true,
+    "validate": {
+      "required": true
+    }
+  },
+  {
+    "type": "button",
+    "key": "aprobar",
+    "label": "Aprobar",
+    "action": "submit",
+    "theme": "primary",
+    "input": true
+  },
+  {
+    "type": "button",
+    "key": "descartar",
+    "label": "Descartar",
+    "action": "submit",
+    "theme": "danger",
+    "input": true
+  }
+]
