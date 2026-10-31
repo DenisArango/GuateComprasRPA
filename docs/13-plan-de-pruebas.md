@@ -16,28 +16,28 @@
 
 ## 13.2 Casos de prueba principales
 
-| ID | Caso | Resultado esperado | Req. |
-|---|---|---|---|
-| CP-01 | Boletín guardado con 3 concursos compatibles con el perfil de prueba | 3 elementos en `VC_Concursos`; al procesarlos, 3 concursos con documentos y 3 elementos en `VC_Analisis` | RF-CAP-02 a 05, RF-CAP-11 |
-| CP-02 | Captura con NOG ya existente | No se duplica | RN-01 |
-| CP-03 | Documento con el mismo hash | No se vuelve a descargar | RN-02 |
-| CP-04 | Boletín con formato distinto o selector del detalle inexistente | Error `CAMBIO_ESTRUCTURA`, captura guardada, alerta al administrador | RF-CAP-08, RNF-08 |
-| CP-05 | Fallo de red en un concurso | System Exception; Orchestrator reintenta el elemento; tras agotar reintentos queda fallido y el robot continúa con el siguiente | RF-CAP-09, RNF-06 |
-| CP-06 | Adenda nueva en concurso seguido | Cambio registrado, resumen de IA, alerta inmediata | RF-CAP-06, RF-NOT-03 |
-| CP-07 | Respuesta de IA con campo inválido | Reintento con errores; tras 2 fallos, tarea en Action Center y `REVISION_MANUAL` | RF-IA-02, RF-IA-07, RN-06 |
-| CP-08 | PDF escaneado | Se aplica OCR y se genera ficha | RF-DOC-02 |
-| CP-09 | Perfil con todos los documentos | Faltantes vacío | RF-COM-03 |
-| CP-10 | Concurso con cierre vencido | No aparece en resumen | RN-04 |
-| CP-11 | Compatibilidad bajo el umbral | No se notifica | RN-03 |
-| CP-12 | Presupuesto de IA agotado | Elementos pospuestos al día siguiente, alerta al administrador | RNF-11 |
-| CP-13 | IR-01 sobre datos de prueba | Solo se marcan procesos competitivos con 1 oferta | RF-RIE-01 |
-| CP-14 | Usuario A consulta perfil de usuario B | Acceso denegado (403) | RNF-09 |
-| CP-15 | 5 intentos de inicio de sesión fallidos | Bloqueo temporal | CU-15 |
-| CP-16 | Ficha con fecha distinta a la del portal | Confianza bajo el umbral; tarea en Action Center; al completarla, ficha `validada_por = HUMANO` | RF-IA-07 |
-| CP-17 | Expediente con un documento vencido | Checklist marca `VENCIDO`; el documento no se copia | RF-EXP-02 |
-| CP-18 | NOG manual desde el dashboard | Elemento `MANUAL` en `VC_Concursos` y concurso capturado | RF-CAP-07 |
-| CP-19 | Aparece la verificación de Cloudflare en el detalle | El robot se detiene y avisa a la persona; al resolverla, continúa. No hay ningún intento automático de resolverla. | RF-CAP-12, RN-11 |
-| CP-20 | Parser del boletín sobre 5 boletines reales guardados | Mismo número de concursos que indica el encabezado ("Se publicaron N concursos"), sin NOG duplicados | RF-CAP-02 |
+| ID | Caso | Resultado esperado | Req. | Criterio |
+|---|---|---|---|---|
+| CP-01 | Boletín guardado con 3 concursos compatibles con el perfil de prueba | 3 elementos en `VC_Concursos`; al procesarlos, 3 concursos con documentos y 3 elementos en `VC_Analisis` | RF-CAP-02 a 05, RF-CAP-11 | CA-01.1 |
+| CP-02 | Captura con NOG ya existente | No se duplica | RN-01 | CA-01.2 |
+| CP-03 | Documento con el mismo hash | No se vuelve a descargar | RN-02 | CA-01.3 |
+| CP-04 | Boletín con formato distinto o selector del detalle inexistente | Error `CAMBIO_ESTRUCTURA`, captura guardada, alerta al administrador | RF-CAP-08, RNF-08 | CA-01.6 |
+| CP-05 | Fallo de red en un concurso | System Exception; Orchestrator reintenta el elemento; tras agotar reintentos queda fallido y el robot continúa con el siguiente | RF-CAP-09, RNF-06 | CA-01.4 |
+| CP-06 | Adenda nueva en concurso seguido | Cambio registrado, resumen de IA, alerta inmediata | RF-CAP-06, RF-NOT-03 | CA-02.1 |
+| CP-07 | Respuesta de IA con campo inválido | Reintento con errores; tras 2 fallos, tarea en Action Center y `REVISION_MANUAL` | RF-IA-02, RF-IA-07, RN-06 | CA-03.5 |
+| CP-08 | PDF escaneado | Se aplica OCR y se genera ficha | RF-DOC-02 | CA-03.4 |
+| CP-09 | Perfil con todos los documentos | Faltantes vacío | RF-COM-03 | CA-04.4 |
+| CP-10 | Concurso con cierre vencido | No aparece en resumen | RN-04 | CA-05.2 |
+| CP-11 | Compatibilidad bajo el umbral | No se notifica | RN-03 | CA-05.2 |
+| CP-12 | Presupuesto de IA agotado | Elementos pospuestos al día siguiente, alerta al administrador | RNF-11 | CA-03.6 |
+| CP-13 | IR-01 sobre datos de prueba | Solo se marcan procesos competitivos con 1 oferta | RF-RIE-01 | CA-10.3 |
+| CP-14 | Usuario A consulta perfil de usuario B | Acceso denegado (403) | RNF-09 | CA-06.4 |
+| CP-15 | 5 intentos de inicio de sesión fallidos | Bloqueo temporal | CU-15 | CA-15.3 |
+| CP-16 | Ficha con fecha distinta a la del portal | Confianza bajo el umbral; tarea en Action Center; al completarla, ficha `validada_por = HUMANO` | RF-IA-07 | CA-03.5, CA-17.1 |
+| CP-17 | Expediente con un documento vencido | Checklist marca `VENCIDO`; el documento no se copia | RF-EXP-02 | CA-16.2 |
+| CP-18 | NOG manual desde el dashboard | Elemento `MANUAL` en `VC_Concursos` y concurso capturado | RF-CAP-07 | CA-13.2 |
+| CP-19 | Aparece la verificación de Cloudflare en el detalle | El robot se detiene y avisa a la persona; al resolverla, continúa. No hay ningún intento automático de resolverla. | RF-CAP-12, RN-11 | CA-01.4 |
+| CP-20 | Parser del boletín sobre 5 boletines reales guardados | Mismo número de concursos que indica el encabezado ("Se publicaron N concursos"), sin NOG duplicados | RF-CAP-02 | CA-01.1 |
 
 ## 13.3 Métricas de éxito del proyecto
 
